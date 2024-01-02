@@ -30,13 +30,24 @@ struct
 	uint8_t memory[0x10000];
 } p6502;
 
-static void 
+uint8_t* stack = p6502.memory + 0x100 
+
+void 
 stack_push(void)
 {
-	p6502.memory[0x100 | p6502.reg.SP--] = p6502.reg.A;
+	stack[p6502.reg.SP--] = p6502.reg.A;
 }
-static void 
+void 
 stack_pull(void)
 {
-	p6502.reg.A = p6502.memory[0x100 | ++p6502.reg.SP];
+	p6502.reg.A = stack[++p6502.reg.SP];
+}
+
+void
+upgrade_flags(uint8_t mask)
+{
+	if (mask & 2)
+		{p6502.reg.P.flags.z = !p6502.reg.A;}
+	if (mask & 8)
+		{p6502.reg.P.flags.z = (p6502.reg.A < 0);}
 }
