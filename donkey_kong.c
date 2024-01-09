@@ -1,18 +1,18 @@
 #include <stdint.h>
+#include "ppu.h"
 
-uint8_t PPU_base_nametable; // 0..4 λn. 0x2000 + 0x400*n
-bool VRAM_adress_increment;
-bool Sprite_pattern_table; // λn. 0x1000*n
-bool BG_pattern_table; // λn. 0x1000*n
-bool inVblank;
 
-void reset(void)
+void main(void)
 {
-	PPU_base_nametable = 
-	VRAM_adress_increment =
-	Sprite_pattern_table =
-	0;
-	BG_pattern_table = 1
+	BG_pattern_table = 1;
 	while (not inVblank);
-	
+	func_87e7();
+}
+
+void func_87e7()
+{
+	BG_pattern_table =
+	sprite_show_left =
+	BG_show_left =
+	1;
 }
