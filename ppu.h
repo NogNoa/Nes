@@ -15,11 +15,19 @@ bool Sprite_size; // vert(px) = λn. 8*n
 ppu_role EXT_pins;
 bool Vblank_on_Nmi;
 
-/* PpuStatus_2002 */
-bool inVblank;
-
 /* PpuMask_2001 */
+bool isGreyscale;
 bool sprite_show_left;
 bool BG_show_left;
+bool sprite_show;
+bool BG_show;
+bool RedEmphasize;
+bool GreenEmphasize;
+bool BlueEmphasize;
+
+/* PpuStatus_2002 */
+bool Sprite_overflow;
+bool Sprite_0_Hit;
+bool inVblank;
 
 #endif
