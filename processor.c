@@ -24,14 +24,20 @@ struct rgistr
 	} P;
 };
 
-struct
+struct _p6502
 {
 	struct rgistr reg;
 	uint8_t memory[0x10000];
 	uint8_t* stack;
 } p6502;
 
-uint8_t* p6502.stack = p6502.memory + 0x100;
+void
+p6502_init(struct _p6502 p6502)
+{
+	p6502.memory = malloc(sizeof (uint8_t) * 0x10000);
+	p6502.stack = p6502.memory + 0x100;
+	return p6502;
+}
 
 void 
 stack_push(void)
