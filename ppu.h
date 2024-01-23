@@ -30,4 +30,7 @@ bool Sprite_overflow;
 bool Sprite_0_Hit;
 bool inVblank;
 
+/* PpuScroll_2005*/
+uint8_t x_scroll;
+
 #endif
