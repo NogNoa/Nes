@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "ppu.h"
 
-static void wait_2_frames(void)
+static void func_87e7(void)
 {
 	BG_pattern_table = 1;
 	Vblank_on_Nmi = 0;
@@ -12,14 +12,18 @@ static void wait_2_frames(void)
 	int8_t var_13 = 0;
 	sprite_show_left =
 	BG_show_left = 1;
-	/* $12 and $13 are cleared again*/
 }
 
-void main(void)
+static void wait_frame(void)
 {
 	BG_pattern_table = 1;
 	Vblank_on_Nmi = 0;
 	while (!inVblank);
+}
+
+void main(void)
+{
+	wait_frame();
 	/* clear $0000..$07FF except $1==FF*/
-	wait_2_frames();
+	func_87e7();
 }
