@@ -7,13 +7,13 @@
 typedef enum  {slave, master} ppu_role;
 
 /* PpuControl_2000 */
-uint8_t PPU_base_nametable; // 0..4 λn. 0x2000 + 0x400*n
-bool VRAM_adress_increment; // λn. 1 << 0x20 ** n
-bool Sprite_pattern_table; // λn. 0x1000*n
-bool BG_pattern_table; // λn. 0x1000*n
-bool Sprite_size; // vert(px) = λn. 8*n
-ppu_role EXT_pins;
-bool Vblank_on_Nmi;
+uint8_t PPU_base_nametable; // 0..4 λn. 0x2000 + 0x400*n ---- --10
+bool VRAM_adress_increment; // λn. 1 << 0x20 ** n		 ---- -2--
+bool Sprite_pattern_table; // λn. 0x1000*n				 ---- 3---
+bool BG_pattern_table; // λn. 0x1000*n					 ---4 ----
+bool Sprite_size; // vert(px) = λn. 8*n					 --5- ----
+ppu_role EXT_pins;			//							 -6-- ----
+bool Vblank_on_Nmi;			//							 7--- ----
 
 /* PpuMask_2001 */
 bool isGreyscale;
