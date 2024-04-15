@@ -5,11 +5,11 @@ static void func_87e7(void)
 {
 	BG_pattern_table = 1;
 	Vblank_on_Nmi = 0;
-	int8_t var_10 = 10;
-	int8_t var_11 = 6;
+	int8_t PpuControlDupple = 10;
+	int8_t PpuMaskDupple = 6;
 	x_scroll =
-	int8_t var_12 =
-	int8_t var_13 = 0;
+	int8_t PpuScrollDupple1 =
+	int8_t PpuScrollDupple2 = 0;
 	sprite_show_left =
 	BG_show_left = 1;
 }
