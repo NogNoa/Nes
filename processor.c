@@ -50,20 +50,6 @@ stack_pull(void)
 void
 post_op_update(uint8_t result)
 {
-	uint8_t mask = (!result) << 1 | (result < 0) << 7
-	p6502.reg.P |=  mask
-	p6502.reg.P & = -1 ^ mask
+	p6502.reg.P &=  ~(P_z | P_n)
+	p6502.reg.P |= (!result) << 1 | (result < 0) << 7
 }
-/* 						nz			e
-p						p			p
-r						r			0
-p|r						p|r			p
-(r ^ -1)				~r			1
-(p|r) & (r ^ -1)		p| r & ~r	p
-
-p 	r 	p| r & ~r
-0 	0 	0 | 0 & 1 = 0
-0 	1 	0 | 1 & 0 = 0
-1 	0 	1 | 0 & 1 = 1
-1 	1 	1 | 1 & 0 = 0
-*/
