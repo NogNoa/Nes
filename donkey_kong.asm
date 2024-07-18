@@ -4682,39 +4682,44 @@ ppu_setup:
   RTS                      
 ----------------         
 --------sub start--------
-  LDA #$01                 
-  STA Ctrl1_4016           
-  LDX #$00                 
-  LDA #$00                 
-  STA Ctrl1_4016           
-  JSR $F530                
-  INX                      
-  JMP $F530                
+  LDA #$01                 ; Controller to parallel mode
+  STA Ctrl1_4016           ; Can read Human
+  LDX #$00                 ; Player 1
+  LDA #$00                 ; Controller to serial mode,
+  STA Ctrl1_4016           ; CPU can read Controller
+  JSR $F530                ; Read controller 1
+  INX                      ; Player 2
+  JMP $F530                ; Read controller 2
 --------sub start--------
-  LDY #$08                 
-  PHA                      
-  LDA Ctrl1_4016,X         
-  STA $00                  
-  LSR A                    
-  ORA $00                  
-  LSR A                    
-  PLA                      
-  ROL A                    
+  LDY #$08                 ; range(8) ; A=0
+-F532-:  
+  PHA                      ; snapshot := A;
+  LDA Ctrl1_4016,X         ; A := cont; A0 for std_cont, A1 for fam_exp_cont
+  STA $00                  ; [$00] := A 
+  LSR A                    ; A0 := A1
+  ORA $00                  ; A0 := button was pressed on either
+  LSR A                    ; A0 -> C
+  PLA                      ; A := snapshot
+  ROL A                    ; A << 1; A0 <- C
   DEY                      
-  BNE $F532                
-  STX $00                  
+  BNE $F532                  
+  
+  STX $00                         
   ASL $00                  
-  LDX $00                  
-  LDY $14,X                
-  STY $00                  
-  STA $14,X                
-  STA $15,X                
-  AND #$FF                 
+  LDX $00                  ; x= 0 for player 1 x=2 for player 2
+  LDY $14,X                ; player 1: [$14] player 2: [$16]
+  STY $00                  ; [$00] := prev
+  STA $14,X                ; prev := snapshot; 
+  STA $15,X                ; player 1: [$15] player 2: [$17]  
+  AND #$FF                 ; 
   BPL $F55B                
+  
   BIT $00                  
   BPL $F55B                
+
   AND #$7F                 
-  STA $15,X                
+  STA $15,X       
+-F55B-:           
   RTS                      
 ----------------         
 --------unidentified block--------
