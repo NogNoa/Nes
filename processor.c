@@ -1,5 +1,15 @@
 #include <stdint.h>
 
+#define 	P_c 0b1
+#define 	P_z 0b10
+#define 	P_i 0b100
+#define 	P_d 0b1000
+#define 	P_b 0b10000
+//			    0b100000
+#define 	P_v 0b1000000
+#define 	P_n 0b10000000
+
+
 struct rgistr 
 {	
 	uint16_t PC;
@@ -7,22 +17,9 @@ struct rgistr
 	uint8_t X;
 	uint8_t Y;
 	uint8_t SP;
-	union
-	{
-		uint8_t full;
-		struct {
-			unsigned 
-			c: 1,
-			z: 1,
-			i: 1,
-			d: 1,
-			b: 1,
-			_: 1,
-			v: 1,
-			n: 1;
-		} flags;
-	} P;
+	uint8_t P;
 };
+
 
 struct _p6502
 {
@@ -53,8 +50,7 @@ stack_pull(void)
 void
 post_op_update(uint8_t mask, uint8_t result)
 {
-	if (mask & 2)
-		{p6502.reg.P.flags.z = !result;}
-	if (mask & 256)
-		{p6502.reg.P.flags.n = (result < 0);}
+	mask &= (!result) << 1 | (result < 0) << 7
+	p6502.reg.P |= (P_z | P_n) & mask
+	p6502.reg.P &= mask
 }
