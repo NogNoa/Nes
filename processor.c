@@ -34,7 +34,7 @@ struct _p6502
 void
 p6502_init(struct _p6502 p6502)
 {
-	p6502.memory = malloc(sizeof (uint8_t) * 0x10000);
+	p6502.memory = malloc(0x10000); //0x40K
 	p6502.stack = p6502.memory + 0x100;
 	return p6502;
 }
@@ -51,10 +51,10 @@ stack_pull(void)
 }
 
 void
-update_flags(uint8_t mask)
+post_op_update(uint8_t mask, uint8_t result)
 {
 	if (mask & 2)
-		{p6502.reg.P.flags.z = !p6502.reg.A;}
-	if (mask & 8)
-		{p6502.reg.P.flags.z = (p6502.reg.A < 0);}
+		{p6502.reg.P.flags.z = !result;}
+	if (mask & 256)
+		{p6502.reg.P.flags.n = (result < 0);}
 }
