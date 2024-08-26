@@ -21,15 +21,21 @@ struct rgistr
 };
 
 
-struct _p6502
+struct _p6502mem
 {
 	struct rgistr reg;
-	uint8_t memory[0x10000];
-	uint8_t* stack;
-} p6502;
+	union 
+	{	uint8_t self[0x200];
+		struct 
+		{	uint8_t zero[0x100];
+			uint8_t stack[0x100];
+		} pages;
+	} lowmem;
+	uint8_t *highmem;
+};
 
 void
-p6502_init(struct _p6502 p6502)
+p6502_init(struct _p6502mem p6502)
 {
 	// p6502.memory = malloc(0x10000); //0x40K //already allocated statically
 	p6502.stack = p6502.memory + 0x100;
