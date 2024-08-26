@@ -3,14 +3,14 @@
 
 static void func_87e7(void)
 {
-	int8_t PpuScrollDupple1, PpuScrollDupple2;
+	int8_t PpuScrollDuppleX, PpuScrollDuppleY;
 	BG_pattern_table = 1;
 	Vblank_on_Nmi = 0;
-	int8_t PpuControlDupple = 10;
+	int8_t PpuControlDupple = 0x10;
 	int8_t PpuMaskDupple = 6;
 	x_scroll =
-	PpuScrollDupple1 =
-	PpuScrollDupple2 = 0;
+	PpuScrollDuppleX =
+	PpuScrollDuppleY = 0;
 	sprite_show_left =
 	BG_show_left = 1;
 }

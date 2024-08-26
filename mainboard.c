@@ -1,6 +1,6 @@
 #include <cstdint>
 
-void memory_mapper(uint16_t address)
+void adress_decoder(uint16_t address)
 {
     if (address & (1s << 15))
         {return romsel(address & ((1s << 15) - 1));}

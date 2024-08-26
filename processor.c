@@ -29,10 +29,12 @@ struct _p6502
 	uint8_t* stack;
 } p6502;
 
-processor_memory_init(uint8_t* memory)
+struct _p6502
+processor_memory_init(struct _p6502 p, uint8_t* memory)
 {
-	p6502.memory = memory;
-	p6502.stack = p6502.memory + 0x100;
+	p.memory = memory;
+	p.stack = p6502.memory + 0x100;
+	return p;
 }
 
 void 
