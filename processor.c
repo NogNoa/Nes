@@ -22,35 +22,32 @@ struct rgistr
 };
 
 
-typedef struct _p6502
+struct _p6502
 {
 	struct rgistr reg;
 	uint8_t* memory;
 	uint8_t* stack;
-} p6502_t;
+} p6502;
 
-p6502_t *
-p6502_init(void)
+processor_memory_init(uint8_t* memory)
 {
-	p6502_t *p6502 = (p6502_t *) malloc(sizeof p6502);
-	// p6502.memory = malloc(0x10000); //0x40K //already allocated statically
-	(*p6502).stack = (*p6502).memory + 0x100;
-	return p6502;
+	p6502.memory = memory;
+	p6502.stack = p6502.memory + 0x100;
 }
 
 void 
-stack_push(p6502_t p6502)
+stack_push(void)
 {
 	p6502.stack[p6502.reg.SP--] = p6502.reg.A;
 }
 void 
-stack_pull(p6502_t p6502)
+stack_pull(void)
 {
 	p6502.reg.A = p6502.stack[++p6502.reg.SP];
 }
 
 void
-post_op_update(uint8_t result, p6502_t p6502)
+post_op_update(uint8_t result)
 {
 	p6502.reg.P &=  ~(P_z | P_n);
 	p6502.reg.P |= (result ? 0 : P_z) 
