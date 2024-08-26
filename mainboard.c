@@ -3,12 +3,13 @@
 
 void adress_decoder(uint16_t address)
 {
-    if (address & ('\1' << 15))
+    uint8_t control = address >> 13;
+    if (control & 0b100)
         {return romsel(address & (('\1' << 15) - 1));}
     else
-    {   if (address & ('\1' << 14))
+    {   if (control & 0b10)
             {return;}
-        else if (address & ('\1' << 13))
+        else if (control & 1)
             {return ppu_cs(address & (('\1' << 3) - 1));}
         else
             {return cpu_ram_cs(address & (('\1' << 11) - 1));}
