@@ -50,6 +50,7 @@ stack_pull(void)
 void
 post_op_update(uint8_t result)
 {
-	p6502.reg.P &=  ~(P_z | P_n)
-	p6502.reg.P |= (!result) << 1 | (result < 0) << 7
+	p6502.reg.P &=  ~(P_z | P_n);
+	p6502.reg.P |= (result ? 0 : P_z) 
+	            | ((result < 0) ? P_n : 0);
 }
