@@ -15,6 +15,8 @@ bool Sprite_size; // vert(px) = λn. 8*n					 --5- ----
 ppu_role EXT_pins;			//							 -6-- ----
 bool Vblank_on_Nmi;			//							 7--- ----
 
+void PpuControl_write(uint8_t call);
+
 /* PpuMask_2001 */
 bool isGreyscale;
 bool sprite_show_left;
@@ -24,6 +26,8 @@ bool BG_show;
 bool RedEmphasize;
 bool GreenEmphasize;
 bool BlueEmphasize;
+
+void PpuMask_write(uint8_t call);
 
 /* PpuStatus_2002 */
 bool Sprite_overflow;
