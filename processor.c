@@ -31,7 +31,7 @@ struct _p6502
 void
 p6502_init(struct _p6502 p6502)
 {
-	p6502.memory = malloc(0x10000); //0x40K
+	// p6502.memory = malloc(0x10000); //0x40K //already allocated statically
 	p6502.stack = p6502.memory + 0x100;
 	return p6502;
 }
