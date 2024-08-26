@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 
 #define 	P_c 0b1
 #define 	P_z 0b10
@@ -21,40 +22,35 @@ struct rgistr
 };
 
 
-struct _p6502mem
+typedef struct _p6502
 {
 	struct rgistr reg;
-	union 
-	{	uint8_t self[0x200];
-		struct 
-		{	uint8_t zero[0x100];
-			uint8_t stack[0x100];
-		} pages;
-	} lowmem;
-	uint8_t *highmem;
-};
+	uint8_t* memory;
+	uint8_t* stack;
+} p6502_t;
 
-void
-p6502_init(struct _p6502mem p6502)
+p6502_t *
+p6502_init(void)
 {
+	p6502_t *p6502 = (p6502_t *) malloc(sizeof p6502);
 	// p6502.memory = malloc(0x10000); //0x40K //already allocated statically
-	p6502.stack = p6502.memory + 0x100;
+	(*p6502).stack = (*p6502).memory + 0x100;
 	return p6502;
 }
 
 void 
-stack_push(void)
+stack_push(p6502_t p6502)
 {
 	p6502.stack[p6502.reg.SP--] = p6502.reg.A;
 }
 void 
-stack_pull(void)
+stack_pull(p6502_t p6502)
 {
 	p6502.reg.A = p6502.stack[++p6502.reg.SP];
 }
 
 void
-post_op_update(uint8_t result)
+post_op_update(uint8_t result, p6502_t p6502)
 {
 	p6502.reg.P &=  ~(P_z | P_n);
 	p6502.reg.P |= (result ? 0 : P_z) 
