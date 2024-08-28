@@ -20,3 +20,49 @@ void PpuMask_write(uint8_t call)
     GreenEmphasize = (call >> 6) & 1; 
     BlueEmphasize = (call >> 7) & 1; 
 }
+
+uint8_t ppu_cs(uint8_t address, uint8_t data, enum RW rw)
+{
+    switch (address & 7)
+    {
+    case 0:
+        if (rw == WRITE)
+            {PpuControl_write(data);}
+        break;
+    case 1:
+        if (rw == WRITE)
+            {PpuMask_write(data);}
+        break;
+    case 2:
+        if (rw == READ)
+            {return PpuStatusRead();}
+        break;
+    case 3:
+        if (rw == WRITE)
+            {OamAddress(data);}
+        break;
+    case 4:
+        if (rw == WRITE)
+            {OamWrite(data);}
+        else
+            {return OamRead();}
+        break;
+    case 5:
+        if (rw == WRITE)
+            {PpuScrollWrite(data);}
+        break;
+    case 6:
+        if (rw == WRITE)
+            {VramAddress(data);}
+        break;
+    case 7:
+        if (rw == WRITE)
+            {VramWrite(data);}
+        else
+            {return VramRead();}
+        break;
+    default:
+        break;
+    }
+    return 0;
+}

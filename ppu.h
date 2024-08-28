@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include "rp2a0.h"
 
 #ifndef PPU_REGISTERS
 #define PPU_REGISTERS
@@ -36,5 +37,7 @@ bool inVblank;
 
 /* PpuScroll_2005*/
 uint8_t x_scroll;
+
+uint8_t ppu_cs(uint8_t address, uint8_t data, enum RW rw);
 
 #endif

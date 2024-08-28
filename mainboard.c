@@ -1,8 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include <rp2a0.h>
 
-void adress_decoder(uint16_t address, uint8_t data, enum RW rw)
+uint8_t adress_decoder(uint16_t address, uint8_t data, bool rw)
 {
     // CPU_M2 is implied by the call
     uint8_t control = address >> 13;
