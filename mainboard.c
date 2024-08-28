@@ -1,17 +1,19 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include <rp2a0.h>
 
-void adress_decoder(uint16_t address)
+void adress_decoder(uint16_t address, uint8_t data, enum RW rw)
 {
+    // CPU_M2 is implied by the call
     uint8_t control = address >> 13;
     if (control & 0b100)
-        {return romsel(address & (('\1' << 15) - 1));}
+        {return romsel(address & (('\1' << 15) - 1), data, rw);}
     else if (control & 0b10)
         {return;}
     else if (control & 1)
-        {return ppu_cs(address & (('\1' << 3) - 1));}
+        {return ppu_cs(address & (('\1' << 3) - 1), data, rw);}
     else
-        {return cpu_ram_cs(address & (('\1' << 11) - 1));}
+        {return cpu_ram_cs(address & (('\1' << 11) - 1), data, rw);}
 }
 
 uint8_t demultiplexer_74139(bool enable, uint8_t address)
