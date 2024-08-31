@@ -1,5 +1,8 @@
 #include "ppu.h"
 
+static uint8_t vOamAddress;
+static uint8_t vVramAddress;
+
 void PpuControl_write(uint8_t call)
 {   PPU_base_nametable = call & 0b11;
     VRAM_adress_increment = (call >> 2) & 1;
@@ -20,6 +23,53 @@ void PpuMask_write(uint8_t call)
     GreenEmphasize = (call >> 6) & 1; 
     BlueEmphasize = (call >> 7) & 1; 
 }
+
+uint8_t PpuStatusRead(void)
+{
+    uint8_t back;
+    back = inVblank << 1;
+    back = (back | Sprite_0_Hit) << 1;
+    back = (back | Sprite_overflow) << 5;
+    return back;
+}
+
+void OamAddress(uint8_t address)
+{
+    vOamAddress = address;
+}
+
+// stubs start
+void OamWrite(uint8_t call)
+{
+    ;
+}
+uint8_t OamRead()
+{
+    return vOamAddress;
+}
+
+void PpuScrollWrite(uint8_t call)
+{
+    x_scroll = call;
+}
+//stabs end
+
+void VramAddress(uint8_t call)
+{
+    vVramAddress = call;
+}
+
+//stabs start
+void VramWrite(uint8_t call)
+{
+    ;
+}
+
+uint8_t VramRead()
+{
+    return vVramAddress;
+}
+//stabs end
 
 uint8_t ppu_cs(uint8_t address, uint8_t data, enum RW rw)
 {
@@ -64,5 +114,6 @@ uint8_t ppu_cs(uint8_t address, uint8_t data, enum RW rw)
     default:
         break;
     }
-    return 0;
+    return data;
 }
+

@@ -35,8 +35,24 @@ bool Sprite_overflow;
 bool Sprite_0_Hit;
 bool inVblank;
 
+uint8_t PpuStatusRead(void);
+
+/* Oam_2003..2005*/
+void OamAddress(uint8_t);
+void OamWrite(uint8_t);
+uint8_t OamRead();
+
+
 /* PpuScroll_2005*/
 uint8_t x_scroll;
+
+void PpuScrollWrite(uint8_t);
+
+/* Vram_2006...2008*/
+void VramAddress(uint8_t);
+void VramWrite(uint8_t);
+uint8_t VramRead();
+
 
 uint8_t ppu_cs(uint8_t address, uint8_t data, enum RW rw);
 void ppu_render(void);
