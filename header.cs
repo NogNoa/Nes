@@ -1,8 +1,8 @@
 
 public enum ReadWrite {WRITE, READ}
-interface Ibus
+interface IBus
 {
     byte access(ushort address, byte value, ReadWrite readWrite);
 }
 
-class Controller {get_buttons(){;}}
+class Controller {public byte get_buttons(byte outsig){return 0;}}
