@@ -15,9 +15,8 @@ static void func_87e7(void)
 
 static void wait_frame(void)
 {
-	BG_pattern_table = 1;
-	Vblank_on_Nmi = 0;
-	while (!inVblank);
+	PpuControl_write(0x10);
+	while (!inVblank) ppu_render();
 }
 
 void main(void)
