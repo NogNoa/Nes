@@ -49,6 +49,7 @@ uint8_t OamRead()
 {
     return vOamAddress;
 }
+//stabs end
 
 void PpuScrollWrite(uint8_t call)
 {
@@ -56,20 +57,11 @@ void PpuScrollWrite(uint8_t call)
     else {x_scroll = call;}
     w = !w;
 }
-//stabs end
 
 void VramAddress(uint8_t call)
 {
-    if (!w)
-    {
-        vVramAddress &= (1 << 8) - 1;
-        vVramAddress |= ((uint16_t) call) << 8;
-    }
-    else
-    {
-        vVramAddress &= ((1 << 8) - 1) << 8;
-        vVramAddress |= ((uint16_t) call);
-    }
+        vVramAddress &= ((1 << 8) - 1) << (8 * w);
+        vVramAddress |= ((uint16_t) call) << (8 * !w);
     w = !w;
 }
 
@@ -131,3 +123,5 @@ uint8_t ppu_cs(uint8_t address, uint8_t data, enum RW rw)
     return data;
 }
 
+//stab
+void ppu_render(void);
