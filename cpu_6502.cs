@@ -5,9 +5,9 @@ class cpu_6502
     byte Y;
     byte SP;
     byte P;
-    short PC;
+    ushort PC;
 
-    public short address;
+    public ushort address;
     public byte data;
     
 
@@ -44,7 +44,7 @@ class cpu_6502
 
     private enum interrupt_vector {NMI=0xFFFA, RST=0xFFFC, IRQ=0xFFFE};
 
-    void interrupt(short vector)
+    void interrupt(ushort vector)
     {   this.push((byte)(this.PC >> 8));
         this.push((byte)(this.PC));
         this.push(this.P);
@@ -54,18 +54,20 @@ class cpu_6502
 
     public void interrupt_request() 
     {   if (this.interrupt_disable)
-        {   interrupt((short) interrupt_vector.IRQ);
+        {   interrupt((ushort)interrupt_vector.IRQ);
         }
     }
 
     public void nonmaskable_interrupt() 
-    {   interrupt((short) interrupt_vector.NMI);
+    {   interrupt((ushort) interrupt_vector.NMI);
     }
 
     public void reset()
     {   this.interrupt_disable = true;
-        this.PC = (short) interrupt_vector.RST;
+        this.PC = (ushort) interrupt_vector.RST;
     }
     
     public void set_overflow() {this.overflow = true;}
+
+    void push(byte value){;}
 }
