@@ -16,6 +16,8 @@ class CPU2403: IBus
     public byte data
     {   get => cpu.data;}
 
+    public bool m2 {get => cpu.φ2;}
+
     public ReadWrite read_write
     {   get => cpu.read_write;}
 

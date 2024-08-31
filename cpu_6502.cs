@@ -21,7 +21,7 @@ class CPU6502
 
     byte bit_set(bool value, byte the_byte, byte power_o_2)
     {
-        return (byte)((value) ? the_byte | power_o_2 : the_byte & ~power_o_2);
+        return (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
     }
 
     bool carry
@@ -108,5 +108,10 @@ class CPU6502
         this._data = value;
         this.read_write = ReadWrite.WRITE;
         this.bus.access(address, value, ReadWrite.WRITE);
+    }
+
+    void post_op_update(byte result)
+    {   this.zero = (result == 0);
+        this.negative = (result < 0);
     }
 }
