@@ -22,7 +22,7 @@ struct rgistr
 };
 
 
-struct _p6502
+static struct _p6502
 {
 	struct rgistr reg;
 	uint8_t* memory;

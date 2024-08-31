@@ -45,6 +45,7 @@ uint8_t OamRead();
 
 /* PpuScroll_2005*/
 uint8_t x_scroll;
+uint8_t y_scroll;
 
 void PpuScrollWrite(uint8_t);
 

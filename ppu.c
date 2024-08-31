@@ -1,7 +1,8 @@
 #include "ppu.h"
 
-static uint8_t vOamAddress;
-static uint8_t vVramAddress;
+static uint8_t vOamAddress = 0;
+static uint16_t vVramAddress = 0;
+static bool w = 0;
 
 void PpuControl_write(uint8_t call)
 {   PPU_base_nametable = call & 0b11;
@@ -27,6 +28,7 @@ void PpuMask_write(uint8_t call)
 uint8_t PpuStatusRead(void)
 {
     uint8_t back;
+    w = 0;
     back = inVblank << 1;
     back = (back | Sprite_0_Hit) << 1;
     back = (back | Sprite_overflow) << 5;
@@ -50,13 +52,25 @@ uint8_t OamRead()
 
 void PpuScrollWrite(uint8_t call)
 {
-    x_scroll = call;
+    if (w){ y_scroll = call;}
+    else {x_scroll = call;}
+    w = !w;
 }
 //stabs end
 
 void VramAddress(uint8_t call)
 {
-    vVramAddress = call;
+    if (!w)
+    {
+        vVramAddress &= (1 << 8) - 1;
+        vVramAddress |= ((uint16_t) call) << 8;
+    }
+    else
+    {
+        vVramAddress &= ((1 << 8) - 1) << 8;
+        vVramAddress |= ((uint16_t) call);
+    }
+    w = !w;
 }
 
 //stabs start
