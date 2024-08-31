@@ -1,4 +1,4 @@
-class cpu_6502
+class CPU6502
 {
     byte A;
     byte X;
@@ -8,9 +8,11 @@ class cpu_6502
     ushort PC;
     bool φ0;
 
-    public readonly ushort address;
-    public readonly byte data;
-    public readonly bool φ1 => !φ0;
+    private ushort _address;
+    public ushort address { get => _address;}
+    private byte _data;
+    public byte data { get => _data;}
+    public bool φ1 {get => !φ0;}
     public bool φ2;
 
     public enum ReadWrite {WRITE, READ}
@@ -54,7 +56,6 @@ class cpu_6502
         set { this.P = bit_set(value, this.P, 0b1000000); }
     }
 
-
     private enum interrupt_vector { NMI = 0xFFFA, RST = 0xFFFC, IRQ = 0xFFFE };
 
     void interrupt(interrupt_vector vector)
@@ -97,15 +98,17 @@ class cpu_6502
         return this.read((ushort)(0x100 | SP++));
     }
 
-    void read(ushort address) => 
-        this.address = address;
-        this.read_write = READ;
-        //this.bus.access(address, this.data, READ);
+    byte read(ushort address)
+    {   this._address = address;
+        this.read_write = ReadWrite.READ;
+        //return this.bus.access(address, this.data, ReadWrite.READ);
+        return 0;
+    }
     void write(ushort address, byte value)
     {
-        this.address = address;
-        this.data = value;
-        this.read_write = WRITE;
-        //this.bus.access(address, value, WRITE);
+        this._address = address;
+        this._data = value;
+        this.read_write = ReadWrite.WRITE;
+        //this.bus.access(address, value, ReadWrite.WRITE);
     }
 }
