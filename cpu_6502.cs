@@ -14,11 +14,13 @@ class CPU6502
     public byte data { get => _data;}
     public bool φ1 {get => !φ0;}
     public bool φ2;
+    Ibus bus;
 
     public enum ReadWrite {WRITE, READ}
 
     public ReadWrite read_write;
 
+    public CPU6502(Ibus bus) {this.bus = bus;}
 
     byte bit_set(bool value, byte the_byte, byte power_o_2)
     {
