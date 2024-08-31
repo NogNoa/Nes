@@ -14,13 +14,10 @@ class CPU6502
     public byte data { get => _data;}
     public bool φ1 {get => !φ0;}
     public bool φ2;
-    Ibus bus;
-
-    public enum ReadWrite {WRITE, READ}
-
+    IBus bus;
     public ReadWrite read_write;
 
-    public CPU6502(Ibus bus) {this.bus = bus;}
+    public CPU6502(IBus bus) {this.bus = bus;}
 
     byte bit_set(bool value, byte the_byte, byte power_o_2)
     {
@@ -103,14 +100,13 @@ class CPU6502
     byte read(ushort address)
     {   this._address = address;
         this.read_write = ReadWrite.READ;
-        //return this.bus.access(address, this.data, ReadWrite.READ);
-        return 0;
+        return this.bus.access(address, this.data, ReadWrite.READ);
     }
     void write(ushort address, byte value)
     {
         this._address = address;
         this._data = value;
         this.read_write = ReadWrite.WRITE;
-        //this.bus.access(address, value, ReadWrite.WRITE);
+        this.bus.access(address, value, ReadWrite.WRITE);
     }
 }
