@@ -8,9 +8,9 @@ class cpu_6502
     ushort PC;
     bool φ0;
 
-    public ushort address;
-    public byte data;
-    public bool φ1 => !φ0;
+    public readonly ushort address;
+    public readonly byte data;
+    public readonly bool φ1 => !φ0;
     public bool φ2;
 
     public enum ReadWrite {WRITE, READ}
@@ -89,23 +89,23 @@ class cpu_6502
 
     void push(byte value)
     {
-        this.write(SP--, value);
+        ushort stack_adr = (ushort)(0x100 | SP--);
+        this.write(stack_adr, value);
     }
     byte pull()
     {
-        return this.read(SP++, this.data);
+        return this.read((ushort)(0x100 | SP++));
     }
 
-
-    void write(ushort address, byte value) => 
-        access(address, value, WRITE);
-    void read(ushort address, byte value) => 
-        access(address, value, READ);
-    void access(ushort address, byte value, ReadWrite readWrite)
+    void read(ushort address) => 
+        this.address = address;
+        this.read_write = READ;
+        //this.bus.access(address, this.data, READ);
+    void write(ushort address, byte value)
     {
         this.address = address;
         this.data = value;
-        this.read_write = readWrite
-        //this.bus.access(address, value, readWrite);
+        this.read_write = WRITE;
+        //this.bus.access(address, value, WRITE);
     }
 }
