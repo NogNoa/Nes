@@ -7,15 +7,10 @@ internal class CPU6502(IBus bus)
     private byte P;
     private ushort PC;
     private bool φ0;
-
-    private ushort _address;
-    public ushort Address { get => _address;}
     private byte _data;
-    public byte Data { get => _data;}
     public bool φ1 {get => !φ0;}
     public bool φ2 => !φ1;
     private readonly IBus bus = bus;
-    public ReadWrite read_write;
 
     private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
         (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
@@ -98,17 +93,13 @@ internal class CPU6502(IBus bus)
         this.Read((ushort)(0x100 | SP++));
 
     private byte Read(ushort address)
-    {   this._address = address;
-        this.read_write = ReadWrite.READ;
-        return this.bus.access(address, this.Data, ReadWrite.READ);
+    {   return this.bus.Access(address, this._data, ReadWrite.READ);
     }
 
     private void Write(ushort address, byte value)
     {
-        this._address = address;
         this._data = value;
-        this.read_write = ReadWrite.WRITE;
-        this.bus.access(address, value, ReadWrite.WRITE);
+        this.bus.Access(address, value, ReadWrite.WRITE);
     }
 
     private void Post_op_update(byte result)
