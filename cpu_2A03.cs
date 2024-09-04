@@ -12,7 +12,9 @@ class CPU2403: IBus
     }
 
     public bool M2(ushort address, byte value, ReadWrite readWrite)
-        =>   cpu.φ2(address, value, readWrite); 
+    {   Access(address, value, readWrite); 
+        return !cpu.φ1;
+    }
     public bool M2(ushort address, ReadWrite readWrite)
         =>   cpu.φ2(address, readWrite);
 
