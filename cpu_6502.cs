@@ -1,108 +1,109 @@
-class CPU6502
+internal class CPU6502(IBus bus)
 {
-    byte A;
-    byte X;
-    byte Y;
-    byte SP;
-    byte P;
-    ushort PC;
-    bool φ0;
+    private byte A;
+    private byte X;
+    private byte Y;
+    private byte SP;
+    private byte P;
+    private ushort PC;
+    private bool φ0;
 
     private ushort _address;
-    public ushort address { get => _address;}
+    public ushort Address { get => _address;}
     private byte _data;
-    public byte data { get => _data;}
+    public byte Data { get => _data;}
     public bool φ1 {get => !φ0;}
-    public bool φ2;
-    IBus bus;
+    public bool φ2 => !φ1;
+    private readonly IBus bus = bus;
     public ReadWrite read_write;
 
-    public CPU6502(IBus bus) {this.bus = bus;}
+    private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
+        (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
 
-    byte bit_set(bool value, byte the_byte, byte power_o_2)
+    private bool Carry
     {
-        return (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
-    }
-
-    bool carry
-    {
-        get => (this.P & 1) != 0;
-        set { this.P = bit_set(value, this.P, 1); }
-    }
-    bool zero
-    {
-        get => (this.P & 0b10) != 0;
-        set { this.P = bit_set(value, this.P, 0b10); }
-    }
-    bool interrupt_disable
-    {
-        get => (this.P & 0b100) != 0;
-        set { this.P = bit_set(value, this.P, 0b100); }
-    }
-    bool mode_decimal
-    {
-        get => (this.P & 0b1000) != 0;
-        set { this.P = bit_set(value, this.P, 0b1000); }
-    }
-    bool overflow
-    {
-        get => (this.P & 0b100000) != 0;
-        set { this.P = bit_set(value, this.P, 0b100000); }
-    }
-    bool negative
-    {
-        get => (this.P & 0b1000000) != 0;
-        set { this.P = bit_set(value, this.P, 0b1000000); }
+        get => (P & 1) != 0;
+        set { P = Bit_set(value, P, 1); }
     }
 
-    private enum interrupt_vector { NMI = 0xFFFA, RST = 0xFFFC, IRQ = 0xFFFE };
-
-    void interrupt(interrupt_vector vector)
+    private bool Zero
     {
-        this.push((byte)(this.PC >> 8));
-        this.push((byte)(this.PC));
-        this.push(this.P);
-        this.interrupt_disable = true;
-        this.PC = (ushort)vector;
+        get => (P & 0b10) != 0;
+        set { P = Bit_set(value, P, 0b10); }
     }
 
-    public void interrupt_request()
+    private bool Interrupt_disable
     {
-        if (this.interrupt_disable)
+        get => (P & 0b100) != 0;
+        set { P = Bit_set(value, P, 0b100); }
+    }
+
+    private bool Mode_decimal
+    {
+        get => (P & 0b1000) != 0;
+        set { P = Bit_set(value, P, 0b1000); }
+    }
+
+    private bool Overflow
+    {
+        get => (P & 0b100000) != 0;
+        set { P = Bit_set(value, P, 0b100000); }
+    }
+
+    private bool Negative
+    {
+        get => (P & 0b1000000) != 0;
+        set { P = Bit_set(value, P, 0b1000000); }
+    }
+
+    private enum Interrupt_vector { NMI = 0xFFFA, RST = 0xFFFC, IRQ = 0xFFFE };
+
+    private void Interrupt(Interrupt_vector vector)
+    {
+        Push((byte)(PC >> 8));
+        Push((byte) PC);
+        Push(P);
+        this.Interrupt_disable = true;
+        PC = (ushort)vector;
+    }
+
+    public void Interrupt_request()
+    {
+        if (this.Interrupt_disable)
         {
-            interrupt(interrupt_vector.IRQ);
+            Interrupt(Interrupt_vector.IRQ);
         }
     }
 
-    public void nonmaskable_interrupt()
+    public void Nonmaskable_interrupt()
     {
-        interrupt(interrupt_vector.NMI);
+        Interrupt(Interrupt_vector.NMI);
     }
 
-    public void reset()
+    public void Reset()
     {
-        this.interrupt_disable = true;
-        this.PC = (ushort)interrupt_vector.RST;
+        this.Interrupt_disable = true;
+        PC = (ushort)Interrupt_vector.RST;
     }
 
-    public void set_overflow() { this.overflow = true; }
+    public void Set_overflow() { this.Overflow = true; }
 
-    void push(byte value)
+    private void Push(byte value)
     {
         ushort stack_adr = (ushort)(0x100 | SP--);
-        this.write(stack_adr, value);
-    }
-    byte pull()
-    {
-        return this.read((ushort)(0x100 | SP++));
+        this.Write(stack_adr, value);
     }
 
-    byte read(ushort address)
+    private byte Pull() => 
+        this.Read((ushort)(0x100 | SP++));
+
+    private byte Read(ushort address)
     {   this._address = address;
         this.read_write = ReadWrite.READ;
-        return this.bus.access(address, this.data, ReadWrite.READ);
+        return this.bus.access(address, this.Data, ReadWrite.READ);
     }
-    void write(ushort address, byte value)
+
+    private void Write(ushort address, byte value)
     {
         this._address = address;
         this._data = value;
@@ -110,8 +111,8 @@ class CPU6502
         this.bus.access(address, value, ReadWrite.WRITE);
     }
 
-    void post_op_update(byte result)
-    {   this.zero = (result == 0);
-        this.negative = (result < 0);
+    private void Post_op_update(byte result)
+    {   this.Zero = (result == 0);
+        this.Negative = (result < 0);
     }
 }
