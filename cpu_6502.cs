@@ -9,7 +9,6 @@ internal class CPU6502(IBus bus)
     private bool φ0;
     private byte _data;
     public bool φ1 {get => !φ0;}
-    public bool φ2 => !φ1;
     private readonly IBus bus = bus;
 
     private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
@@ -93,8 +92,7 @@ internal class CPU6502(IBus bus)
         this.Read((ushort)(0x100 | SP++));
 
     private byte Read(ushort address)
-    {   return this.bus.Access(address, this._data, ReadWrite.READ);
-    }
+        =>  this.bus.Access(address, this._data, ReadWrite.READ);
 
     private void Write(ushort address, byte value)
     {
@@ -102,8 +100,17 @@ internal class CPU6502(IBus bus)
         this.bus.Access(address, value, ReadWrite.WRITE);
     }
 
+    public bool φ2(ushort address, byte value, ReadWrite readWrite)
+    {   this._data = this.bus.Access(address, value, readWrite);
+        return !φ1;
+    }
+    public bool φ2(ushort address, ReadWrite readWrite)
+        =>  φ2(address, this._data, readWrite);
+
     private void Post_op_update(byte result)
     {   this.Zero = (result == 0);
         this.Negative = (result < 0);
     }
 }
+
+/* todo:next probably want to make clock 2 an event for both decoder and cartridge */

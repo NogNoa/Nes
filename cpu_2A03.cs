@@ -11,8 +11,10 @@ class CPU2403: IBus
         this.cpu = new CPU6502(this);
     }
 
-    public bool M2
-    {   get => cpu.φ2;}
+    public bool M2(ushort address, byte value, ReadWrite readWrite)
+        =>   cpu.φ2(address, value, readWrite); 
+    public bool M2(ushort address, ReadWrite readWrite)
+        =>   cpu.φ2(address, readWrite);
 
     public void Interrupt_request() {cpu.Interrupt_request();}
     public void Nonmaskable_interrupt() {cpu.Nonmaskable_interrupt();}
