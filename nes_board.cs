@@ -6,7 +6,8 @@ class NesBoard:IBus
     {
         this.cpu = new CPU2403(this, new Controller[2]);
         this.address_decoder = new Demultiplxer[2];
-        this.address_decoder[1] = new Demultiplxer(new RAM, new Cartridge, new DeadEnd, new DeadEnd);
+        this.address_decoder[1] = new Demultiplxer(new RAM(), new Cartridge(), new DeadEnd(), new DeadEnd());
+        this.address_decoder[0] = new Demultiplxer(new DeadEnd(), new Ppu(), new DeadEnd(), address_decoder[1]);
     }
 
     public byte Access(ushort address, byte value, ReadWrite readWrite)
@@ -14,7 +15,7 @@ class NesBoard:IBus
 
 }
 
-class Demultiplxer
+class Demultiplxer:IBus
 {
     readonly IBus[] recipients;
 
