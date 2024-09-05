@@ -1,15 +1,18 @@
 class NesBoard:IBus
 {
     readonly CPU2403 cpu;
-    readonly Demultiplxer[] address_decoder;
+    readonly AddressDecoder address_decoder;
+    private RAM ram;
+    private readonly Cartridge cartridge;
+    private readonly Ppu ppu;
+
     public NesBoard()
     {
-        this.cpu = new CPU2403(this, new Controller[2]);
-        Demultiplxer dmx1 = new Demultiplxer(new RAM(), new Cartridge(), new DeadEnd(), new DeadEnd());
-        this.address_decoder = new Demultiplxer[2] {
-            new Demultiplxer(new DeadEnd(), new Ppu(), new DeadEnd(), dmx1),
-            dmx1
-        };
+        this.ram = new RAM();
+        this.cartridge = new Cartridge();   
+        this.ppu = new Ppu();
+        this.address_decoder = new AddressDecoder([this.cartridge, this.ram, this.ppu]);
+        this.cpu = new CPU2403(this.address_decoder, new Controller[2]);
     } 
 
     public byte Access(ushort address, byte value, ReadWrite readWrite)
@@ -17,17 +20,19 @@ class NesBoard:IBus
 
 }
 
-class Demultiplxer:IBus
+class AddressDecoder:IBus
 {
     readonly IBus[] recipients;
 
-    public Demultiplxer(IBus r0, IBus r1, IBus r2, IBus r3)
-    {
-        this.recipients = [r0, r1, r2, r3];
+    public AddressDecoder(IBus[] recipients) {
+        this.recipients = recipients;
     }
-    public byte Access(byte index, ushort address, byte value, ReadWrite readWrite)
+    public byte Access(ushort address, byte value, ReadWrite readWrite)
     {
-        return recipients[index].Access(address, value, readWrite);
+        if ((address >> 15) == 1)
+        {return  recipients[1..][(address >> 13) & 1].Access(address, value, readWrite); }
+        else
+        {return recipients[0].Access(address, value, readWrite);}
     }
 }
 
