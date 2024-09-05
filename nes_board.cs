@@ -5,10 +5,12 @@ class NesBoard:IBus
     public NesBoard()
     {
         this.cpu = new CPU2403(this, new Controller[2]);
-        this.address_decoder = new Demultiplxer[2];
-        this.address_decoder[1] = new Demultiplxer(new RAM(), new Cartridge(), new DeadEnd(), new DeadEnd());
-        this.address_decoder[0] = new Demultiplxer(new DeadEnd(), new Ppu(), new DeadEnd(), address_decoder[1]);
-    }
+        Demultiplxer dmx1 = new Demultiplxer(new RAM(), new Cartridge(), new DeadEnd(), new DeadEnd());
+        this.address_decoder = new Demultiplxer[2] {
+            new Demultiplxer(new DeadEnd(), new Ppu(), new DeadEnd(), dmx1),
+            dmx1
+        };
+    } 
 
     public byte Access(ushort address, byte value, ReadWrite readWrite)
     {return 0;}
