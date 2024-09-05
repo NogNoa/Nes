@@ -1,19 +1,40 @@
---------NES RAM--------  
+]PpuControl = $2000
+]PpuMask = $2001
+]PpuStatus  = $2002
+]OamAddr = $2003
+]PpuScroll = $2005
+]PpuAddr = $2006
+]PpuData = $2007
 
-----------------         
---------unidentified block--------
--8000-
+]Sq0Duty = $4000
+]Sq0Sweep = $4001
+]Sq0Timer = $4002
+]Sq0Length = $4003
+]Sq1Duty = $4004
+]Sq1Sweep = $4005
+]TrgLinear = $4008
+]TrgLength = $400B
+]SpriteDma = $4014
+]ApuStatus = $4015
+]Ctrl1 = $4016
+]FrameCtr = $4017
+;--------NES RAM--------  
 
-----------------         
---------reset--------  
--879E-:  
+;----------------         
+;--------unidentified block--------
+;-8000-
+
+;----------------         
+;--------reset--------  
+;-879E-:
+reset:
   SEI                      
   CLD                      
   LDA #$10                 
-  STA PpuControl_2000      
+  STA ]PpuControl     
   LDX #$FF                 
   TXS                      
-  LDA PpuStatus_2002       
+  LDA ]PpuStatus       
   AND #$80                 
   BEQ $C7A8                
   LDY #$07                 
@@ -38,44 +59,44 @@
   STA $4F                  
   LDA $10                  
   EOR #$80                 
-  STA PpuControl_2000      
+  STA ]PpuControl      
   STA $10                  
   JSR $F4FC                
   JMP $C7E1                
---------ppu_setup()--------
--87E7-:
-ppu_setup:               
+;--------ppu_setup()--------
+;-87E7-:
+ppu_setup             
   LDA #$10                 
-  STA PpuControl_2000      
+  STA ]PpuControl      
   STA $10                  
   LDA #$06                 
-  STA PpuMask_2001         
+  STA ]PpuMask         
   STA $11                  
   LDA #$00                 
-  STA PpuScroll_2005       
+  STA ]PpuScroll       
   STA $12                  
-  STA PpuScroll_2005       
+  STA ]PpuScroll       
   STA $13                  
   JSR $CBAA                
   JMP $CBB3                
---------sub start--------
+;--------sub start--------
   TAX                      
   LDA $C4A7,X              
   STA $00                  
   LDA $C4A8,X              
   STA $01                  
   JMP $F237                
---------sub start--------
+;--------sub start--------
   TAX                      
   LDA $C03C,X              
   STA $02                  
   LDA $C03D,X              
   STA $03                  
   JMP $F2E6                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   TAX                      
   LDA $C03C,X              
   STA $04                  
@@ -86,33 +107,33 @@ ppu_setup:
   LDA $C045,X              
   STA $07                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   TAX                      
   LDA $C03C,X              
   STA $02                  
   LDA $C03D,X              
   STA $03                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   TAX                      
   LDA $C03C,X              
   STA $08                  
   LDA $C03D,X              
   STA $09                  
   RTS                      
-----------------         
---------nmi--------      
+;----------------         
+;--------nmi--------      
   PHA                      
   LDA $10                  
   AND #$7F                 
-  STA PpuControl_2000      
+  STA ]PpuControl      
   STA $10                  
   LDA #$00                 
-  STA OamAddr_2003         
+  STA ]OamAddr         
   LDA #$02                 
-  STA SpriteDma_4014       
+  STA ]SpriteDma       
   LDA #$31                 
   STA $00                  
   LDA #$03                 
@@ -124,7 +145,7 @@ ppu_setup:
   JSR $F51D                
   LDA $11                  
   EOR #$18                 
-  STA PpuMask_2001         
+  STA ]PpuMask         
   JSR $FA48                
   LDA $4E                  
   BNE $C8C1                
@@ -134,9 +155,9 @@ ppu_setup:
   BNE $C8A5                
   JSR $CE78                
   JMP $C8D7                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $55                  
   BNE $C8CB                
   JSR $CA30                
@@ -154,15 +175,15 @@ ppu_setup:
   DEC $0505                
   LDA $10                  
   EOR #$80                 
-  STA PpuControl_2000      
+  STA ]PpuControl      
   STA $10                  
   PLA                      
   RTI                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $0102                
   BNE $C8FE                
-  STA ApuStatus_4015       
+  STA ]ApuStatus       
   STA $0100                
   LDA $0518                
   BNE $C914                
@@ -171,7 +192,7 @@ ppu_setup:
   LDA #$04                 
   STA $0518                
   LDA #$0F                 
-  STA ApuStatus_4015       
+  STA ]ApuStatus       
   STA $0100                
   LDA $0510                
   BNE $C940                
@@ -191,7 +212,7 @@ ppu_setup:
   LDA #$20                 
   STA $44                  
   RTS                      
-----------------         
+;----------------         
   LDA $15                  
   AND #$20                 
   BNE $C95D                
@@ -206,7 +227,7 @@ ppu_setup:
   STA $58                  
   JMP $C9B1                
   RTS                      
-----------------         
+;----------------         
   LDA #$40                 
   STA $44                  
   LDA $0512                
@@ -225,10 +246,10 @@ ppu_setup:
   LDA #$0A                 
   STA $0513                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   STA $0514                
   LDX #$0A                 
   LDA #$00                 
@@ -236,10 +257,10 @@ ppu_setup:
   DEX                      
   BNE $C991                
   LDA $0511                
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   SEC                      
   SBC #$07                 
   STA $50                  
@@ -252,7 +273,7 @@ ppu_setup:
   STA $51                  
   LDA $50                  
   AND #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $0507,X              
   STA $21                  
@@ -298,15 +319,15 @@ ppu_setup:
   LDA #$01                 
   STA $FD                  
   LDA #$0F                 
-  STA ApuStatus_4015       
+  STA ]ApuStatus       
   STA $0100                
   RTS                      
-----------------         
+;----------------         
   DEC $0518                
   LDA #$75                 
   STA $43                  
   JMP $CBAA                
---------sub start--------
+;--------sub start--------
   JSR $F4BB                
   LDA $58                  
   BNE $CA4A                
@@ -320,20 +341,20 @@ ppu_setup:
   CMP #$5F                 
   BEQ $CA79                
   RTS                      
-----------------         
+;----------------         
   STA $55                  
   LDA #$00                 
   STA $58                  
   STA $0510                
---------sub start--------
+;--------sub start--------
   JSR $CBB3                
   JSR $CBAA                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY #$00                 
   LDA $0053,Y              
   STA $0400,X              
@@ -343,8 +364,8 @@ ppu_setup:
   CPY #$03                 
   BNE $CABB                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $F4BB                
   LDA $53                  
   CMP #$01                 
@@ -360,7 +381,7 @@ ppu_setup:
   CMP #$64                 
   BEQ $CAFA                
   RTS                      
-----------------         
+;----------------         
   LDA $040B                
   BEQ $CAF6                
   LDA #$00                 
@@ -369,15 +390,15 @@ ppu_setup:
   JSR $CBB9                
   JSR $CC30                
   RTS                      
-----------------         
+;----------------         
   LDA #$01                 
   STA $4F                  
   JSR $CC43                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JMP $CB1B                
   CMP #$7A                 
   BEQ $CB28                
@@ -386,7 +407,7 @@ ppu_setup:
   CMP #$74                 
   BEQ $CB4C                
   RTS                      
-----------------         
+;----------------         
   DEC $43                  
   JSR $CA53                
   JMP $CBC6                
@@ -407,7 +428,7 @@ ppu_setup:
   LDX $53                  
   DEX                      
   TXA                      
-  ASL A                    
+  ASL ;A                    
   JSR $C807                
   LDA #$0A                 
   JSR $C807                
@@ -448,16 +469,16 @@ ppu_setup:
   LDA #$73                 
   STA $43                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$00                 
   STA $04                  
   LDA #$FF                 
   JMP $F0A1                
---------sub start--------
+;--------sub start--------
   JSR $D196                
   JMP $F1C3                
---------sub start--------
+;--------sub start--------
   LDA #$B5                 
   STA $00                  
   LDA #$20                 
@@ -479,15 +500,15 @@ ppu_setup:
   BEQ $CBE7                
   INY                      
   JMP $CBDB                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $58                  
   BNE $CC1F                
   LDX $52                  
@@ -496,8 +517,8 @@ ppu_setup:
   TXA                      
   TAY                      
   CLC                      
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
   TAX                      
   LDA $25,X                
   CMP #$02                 
@@ -506,11 +527,11 @@ ppu_setup:
   INC $55                  
   JSR $CBB9                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$01                 
   STA $0505                
   JSR $D02E                
@@ -518,7 +539,7 @@ ppu_setup:
   STA $050B                
   JSR $CCBD                
   JMP $D7EE                
---------sub start--------
+;--------sub start--------
   LDA #$00                 
   TAX                      
   STA $59,X                
@@ -558,7 +579,7 @@ ppu_setup:
   LDA #$10                 
   STA $FC                  
   RTS                      
-----------------         
+;----------------         
   LDA #$38                 
   STA $36                  
   LDA #$40                 
@@ -566,15 +587,15 @@ ppu_setup:
   LDA #$02                 
   STA $FC                  
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $53                  
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $C5A6,X              
   STA $09                  
@@ -598,16 +619,16 @@ ppu_setup:
   LDX #$00                 
   JMP $CCD2                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $58                  
   BEQ $CE90                
   LDA $0102                
   BNE $CE87                
-  STA ApuStatus_4015       
+  STA ]ApuStatus       
   STA $0100                
   LDA $15                  
   AND #$20                 
@@ -619,7 +640,7 @@ ppu_setup:
   BEQ $CE9E                
   DEC $0517                
   RTS                      
-----------------         
+;----------------         
   JSR $CC00                
   JSR $CFA4                
   LDA $9A                  
@@ -658,9 +679,9 @@ ppu_setup:
   JSR $E1AF                
   JSR $EC38                
   JMP $CF18                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $EE1B                
   JMP $CF18                
   JSR $D0BC                
@@ -670,11 +691,11 @@ ppu_setup:
   JSR $D048                
   JSR $F4BB                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $15                  
   AND #$10                 
   BEQ $CF8B                
@@ -684,23 +705,23 @@ ppu_setup:
   STA $58                  
   LDA $15                  
   JMP $C98A                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   STA $0514                
   LDA $0517                
   BEQ $CF97                
   DEC $0517                
   RTS                      
-----------------         
+;----------------         
   LDA $0516                
   BNE $CF9D                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX #$00                 
   LDY #$00                 
   LDA $41,X                
@@ -720,8 +741,8 @@ ppu_setup:
   CPX #$02                 
   BMI $CFA8                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY #$00                 
   STY $0F                  
   JSR $D004                
@@ -744,11 +765,11 @@ ppu_setup:
   LDA #$03                 
   STA $41,X                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   TXA                      
   PHA                      
   TYA                      
@@ -765,32 +786,32 @@ ppu_setup:
   LDA $06                  
   PHA                      
   JSR $F351                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $D02E                
   PLA                      
   TAY                      
   PLA                      
   TAX                      
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $0505                
   ORA #$01                 
   STA $0505                
   LDA #$F9                 
   STA $00                  
   JMP $F444                
---------sub start--------
+;--------sub start--------
   LDA $2E                  
   CMP #$10                 
   BPL $D047                
   LDA #$20                 
   STA $FC                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $9A                  
   BNE $D08E                
   LDX $53                  
@@ -803,13 +824,13 @@ ppu_setup:
   CMP $59                  
   BEQ $D070                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$00                 
   STA $FC                  
   LDA #$10                 
@@ -828,7 +849,7 @@ ppu_setup:
   STA $3A                  
   INC $98                  
   RTS                      
-----------------         
+;----------------         
   LDA $3A                  
   BEQ $D0F4                
   CMP #$0E                 
@@ -870,7 +891,7 @@ ppu_setup:
   LDA $3A                  
   BEQ $D135                
   RTS                      
-----------------         
+;----------------         
   LDX $52                  
   JSR $CAB9                
   LDA $55                  
@@ -880,20 +901,20 @@ ppu_setup:
   LDA #$87                 
   STA $43                  
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $52                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $15,X                
   AND #$0F                 
   STA $56                  
   BEQ $D185                
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
   BNE $D185                
   LDA $56                  
   STA $57                  
@@ -906,15 +927,15 @@ ppu_setup:
   LDA #$04                 
   STA $96                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $11                  
   AND #$E7                 
-  STA PpuMask_2001         
+  STA ]PpuMask         
   STA $11                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $96                  
   CMP #$01                 
   BEQ $D1B7                
@@ -927,17 +948,17 @@ ppu_setup:
   CMP #$0A                 
   BEQ $D1C8                
   RTS                      
-----------------         
+;----------------         
   JSR $D1CB                
   LDA $96                  
   JMP $D1A6                
   JMP $D37A                
   JMP $D543                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JMP $D6C2                
---------sub start--------
+;--------sub start--------
   LDA $56                  
   CMP #$01                 
   BEQ $D1E1                
@@ -948,7 +969,7 @@ ppu_setup:
   CMP #$08                 
   BEQ $D1DE                
   RTS                      
-----------------         
+;----------------         
   JMP $D287                
   LDA #$DB                 
   STA $0A                  
@@ -959,7 +980,7 @@ ppu_setup:
   JSR $D98C                
   BEQ $D1F5                
   RTS                      
-----------------         
+;----------------         
   LDA $56                  
   CMP #$02                 
   BEQ $D201                
@@ -985,7 +1006,7 @@ ppu_setup:
   LDA #$08                 
   STA $96                  
   RTS                      
-----------------         
+;----------------         
   LDA $9B                  
   BNE $D23A                
   LDA #$01                 
@@ -1035,7 +1056,7 @@ ppu_setup:
   LDA $53                  
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $C47B,X              
   STA $04                  
@@ -1057,8 +1078,8 @@ ppu_setup:
   STA $5B                  
   STA $5C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $EAFA                
   LDA $96                  
   CMP #$04                 
@@ -1074,7 +1095,7 @@ ppu_setup:
   BEQ $D2EC                
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   JMP $D2F9                
   LDA #$1A                 
@@ -1082,16 +1103,16 @@ ppu_setup:
   JSR $D916                
   STA $0C                  
   JMP $D31F                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $0C                  
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $53                  
   CMP #$01                 
   BEQ $D36F                
@@ -1099,18 +1120,18 @@ ppu_setup:
   LDA #$1C                 
   JSR $C831                
   JMP $D8A9                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $56                  
   CMP #$08                 
   BEQ $D38A                
   CMP #$04                 
   BEQ $D387                
   JMP $D4CB                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $5A                  
   BEQ $D398                
   JSR $EAFA                
@@ -1186,9 +1207,9 @@ ppu_setup:
   LDA #$01                 
   JSR $F0A5                
   JMP $D4CB                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $D2C7                
   STA $5A                  
   BEQ $D4E9                
@@ -1204,30 +1225,30 @@ ppu_setup:
   STA $5B                  
   STA $85                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $0200                
   SEC                      
   SBC #$01                 
   STA $01                  
   JMP $D4FD                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   AND #$06                 
   BNE $D505                
   LDA #$08                 
   STA $FF                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $EAFA                
   LDA #$2C                 
   JSR $EFF7                
   LDA $53                  
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $C48B,X              
   STA $04                  
@@ -1250,13 +1271,13 @@ ppu_setup:
   STA $08                  
   LDA $08                  
   RTS                      
-----------------         
+;----------------         
   LDA #$FF                 
   JSR $D9E2                
   CMP #$00                 
   BNE $D54D                
   RTS                      
-----------------         
+;----------------         
   LDA $94                  
   CMP #$F0                 
   BCC $D556                
@@ -1268,9 +1289,9 @@ ppu_setup:
   BNE $D566                
   LDA #$02                 
   JMP $D568                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $0200                
   STA $01                  
   LDA #$00                 
@@ -1292,9 +1313,9 @@ ppu_setup:
   LDA #$01                 
   STA $9E                  
   JMP $D5AF                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $0203                
   STA $00                  
   JSR $D7FC                
@@ -1332,12 +1353,12 @@ ppu_setup:
   JSR $EAE6                
   LDA $57                  
   AND #$03                 
-  LSR A                    
+  LSR ;A                    
   JSR $F0A5                
   LDA #$F0                 
   STA $94                  
   RTS                      
-----------------         
+;----------------         
   INC $94                  
   LDA $94                  
   CMP #$F4                 
@@ -1364,15 +1385,15 @@ ppu_setup:
   LDA #$40                 
   STA $FC                  
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $3F                  
   BNE $D6C9                
   JMP $D7BB                
@@ -1382,7 +1403,7 @@ ppu_setup:
   JSR $D9E4                
   BNE $D6D5                
   RTS                      
-----------------         
+;----------------         
   JSR $D98C                
   BNE $D6E4                
   LDA $56                  
@@ -1391,7 +1412,7 @@ ppu_setup:
   CMP #$02                 
   BEQ $D70C                
   LDA $A2                  
-  ASL A                    
+  ASL ;A                    
   STA $A2                  
   BEQ $D6EE                
   JMP $D74F                
@@ -1442,8 +1463,8 @@ ppu_setup:
   LDA $C1A2,X              
   JSR $F07F                
   LDA $9F                  
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
   BEQ $D763                
   LDA #$00                 
   JMP $D765                
@@ -1512,8 +1533,8 @@ ppu_setup:
   LDA $0519                
   STA $FC                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$19                 
   STA $00                  
   LDA #$3F                 
@@ -1521,12 +1542,12 @@ ppu_setup:
   LDA #$4E                 
   JSR $C815                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $A0                  
   BEQ $D801                
   RTS                      
-----------------         
+;----------------         
   LDY $53                  
   CPY #$03                 
   BNE $D80A                
@@ -1550,7 +1571,7 @@ ppu_setup:
   LDA $53                  
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $59                  
   CMP $C1A8,X              
@@ -1565,9 +1586,9 @@ ppu_setup:
   LDA $0452                
   BNE $D852                
   JMP $D8A4                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $0451                
   BNE $D86B                
   JMP $D8A4                
@@ -1596,12 +1617,12 @@ ppu_setup:
   LDA #$46                 
   JSR $C815                
   RTS                      
-----------------         
+;----------------         
   LDA #$00                 
   STA $A0                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$F3                 
   STA $0B                  
   LDA #$00                 
@@ -1634,8 +1655,8 @@ ppu_setup:
   LDA #$00                 
   STA $0C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $5A                  
   BNE $D913                
   LDA $59                  
@@ -1656,14 +1677,14 @@ ppu_setup:
   JMP $D913                
   LDA #$FF                 
   RTS                      
-----------------         
+;----------------         
   LDA #$01                 
   RTS                      
-----------------         
+;----------------         
   LDA #$00                 
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $0200                
   CLC                      
   ADC #$08                 
@@ -1724,8 +1745,8 @@ ppu_setup:
   LDA #$01                 
   STA $5A                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $56                  
   CMP #$01                 
   BEQ $D999                
@@ -1733,7 +1754,7 @@ ppu_setup:
   BEQ $D9AB                
   JMP $D9DF                
   LDA $53                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   DEX                      
   LDA $C1B4,X              
@@ -1742,7 +1763,7 @@ ppu_setup:
   BCC $D9DC                
   JMP $D9DF                
   LDA $53                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   DEX                      
   DEX                      
@@ -1758,15 +1779,15 @@ ppu_setup:
   CPX #$06                 
   BNE $D9DF                
   JMP $D9D0                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA #$00                 
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0A                  
---------sub start--------
+;--------sub start--------
   STA $0B                  
   INC $88                  
   LDA $88                  
@@ -1790,8 +1811,8 @@ ppu_setup:
   LDA #$01                 
   STA $BE                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $E17B                
   LDA #$00                 
   STA $5D                  
@@ -1818,8 +1839,8 @@ ppu_setup:
   BEQ $DA4A                
   JMP $DA19                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $5D                  
   LDA $5E,X                
   CMP #$80                 
@@ -1845,7 +1866,7 @@ ppu_setup:
   CMP #$40                 
   BEQ $DA97                
   RTS                      
-----------------         
+;----------------         
   JMP $DA9B                
   JMP $DB01                
   JMP $DB2D                
@@ -1855,9 +1876,9 @@ ppu_setup:
   JMP $DC6A                
   JMP $DCD1                
   JMP $DD33                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $EFE4                
   LDA #$30                 
   STA $00                  
@@ -1898,14 +1919,14 @@ ppu_setup:
   LDA #$03                 
   STA $0421,X              
   JMP $DAF8                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $EB10                
   LDA $C44D,X              
   STA $43                  
   RTS                      
-----------------         
+;----------------         
   LDA #$55                 
   JSR $DFE5                
   BNE $DB22                
@@ -1926,12 +1947,12 @@ ppu_setup:
   LDA #$84                 
   STA $72,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$FF                 
   JSR $DFE5                
   BNE $DB35                
   RTS                      
-----------------         
+;----------------         
   JSR $EFE4                
   PHA                      
   JSR $EB05                
@@ -1988,7 +2009,7 @@ ppu_setup:
   STA $5E,X                
   DEC $68,X                
   RTS                      
-----------------         
+;----------------         
   LDA $00                  
   JSR $E09D                
   BEQ $DBB7                
@@ -2004,7 +2025,7 @@ ppu_setup:
   BEQ $DBCE                
   BCC $DBCE                
   RTS                      
-----------------         
+;----------------         
   LDA #$03                 
   STA $02                  
   LDA #$04                 
@@ -2018,20 +2039,20 @@ ppu_setup:
   LDA #$80                 
   STA $FE                  
   RTS                      
-----------------         
+;----------------         
   LDX $5D                  
   LDA #$08                 
   STA $5E,X                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $5D                  
   INC $040D,X              
   LDA $040D,X              
   CMP #$06                 
   BCS $DBFC                
   RTS                      
-----------------         
+;----------------         
   LDA #$00                 
   STA $040D,X              
   LDA $68,X                
@@ -2058,7 +2079,7 @@ ppu_setup:
   LDA #$8C                 
   STA $72,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$55                 
   JSR $DFE5                
   BEQ $DC69                
@@ -2085,12 +2106,12 @@ ppu_setup:
   LDA #$01                 
   STA $5E,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$FF                 
   JSR $DFE5                
   BNE $DC72                
   RTS                      
-----------------         
+;----------------         
   JSR $EFE4                
   STX $04                  
   JSR $EB05                
@@ -2132,17 +2153,17 @@ ppu_setup:
   CMP #$04                 
   BCS $DCCA                
   RTS                      
-----------------         
+;----------------         
   LDX $5D                  
   LDA #$20                 
   STA $5E,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$77                 
   JSR $DFE5                
   BNE $DCD9                
   RTS                      
-----------------         
+;----------------         
   JSR $EFE4                
   STX $04                  
   JSR $EB05                
@@ -2185,12 +2206,12 @@ ppu_setup:
   STA $02                  
   JSR $EAF4                
   RTS                      
-----------------         
+;----------------         
   LDA #$55                 
   JSR $DFE5                
   BNE $DD3B                
   RTS                      
-----------------         
+;----------------         
   JSR $EFE4                
   STX $04                  
   JSR $EB05                
@@ -2228,7 +2249,7 @@ ppu_setup:
   LDX $5D                  
   STA $68,X                
   RTS                      
-----------------         
+;----------------         
   STA $07                  
   LDX $5D                  
   LDA $5E,X                
@@ -2244,9 +2265,9 @@ ppu_setup:
   BEQ $DDB1                
   LDA #$34                 
   JMP $DDB3                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA #$38                 
   JSR $C853                
   JSR $EFE4                
@@ -2340,11 +2361,11 @@ ppu_setup:
   LDA $0203,X              
   STA $042B                
   RTS                      
-----------------         
+;----------------         
   JSR $DEA6                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $07                  
   CMP #$01                 
   BNE $DEA5                
@@ -2360,8 +2381,8 @@ ppu_setup:
   CPY #$03                 
   BNE $DE91                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $EFE4                
   STX $04                  
   JSR $EB05                
@@ -2397,7 +2418,7 @@ ppu_setup:
   LDA #$00                 
   STA $0417,X              
   RTS                      
-----------------         
+;----------------         
   DEC $01                  
   JMP $DEFC                
   INC $01                  
@@ -2412,20 +2433,20 @@ ppu_setup:
   STA $02                  
   JSR $EAF4                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $C0                  
   BEQ $DF46                
   RTS                      
-----------------         
+;----------------         
   LDA $96                  
   CMP #$0A                 
   BEQ $DF4D                
   RTS                      
-----------------         
+;----------------         
   LDA $59                  
   CMP #$03                 
   BEQ $DF56                
@@ -2435,11 +2456,11 @@ ppu_setup:
   CMP #$05                 
   BCS $DF5F                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $5D                  
   LDA $68,X                
   CMP #$01                 
@@ -2454,8 +2475,8 @@ ppu_setup:
   STA $020A,X              
   STA $020E,X              
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0A                  
   STA $0B                  
   LDX $5D                  
@@ -2483,13 +2504,13 @@ ppu_setup:
   STA $0C                  
   LDA $0C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0A                  
   LDA $53                  
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $C493,X              
   STA $08                  
@@ -2507,13 +2528,13 @@ ppu_setup:
   INC $0B                  
   INY                      
   JMP $E034                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $0B                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $5D                  
   LDA $5E,X                
   CMP #$01                 
@@ -2525,8 +2546,8 @@ ppu_setup:
   LDA #$00                 
   STA $0C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0C                  
   LDX $5D                  
   LDA $68,X                
@@ -2555,8 +2576,8 @@ ppu_setup:
   LDA #$01                 
   STA $0B                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0C                  
   LDX $5D                  
   LDA $68,X                
@@ -2573,8 +2594,8 @@ ppu_setup:
   LDA #$01                 
   STA $0B                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0C                  
   LDX $5D                  
   LDA $68,X                
@@ -2604,7 +2625,7 @@ ppu_setup:
   JSR $E102                
   LDA #$00                 
   JMP $E120                
---------sub start--------
+;--------sub start--------
   TAX                      
   DEX                      
   DEX                      
@@ -2616,7 +2637,7 @@ ppu_setup:
   CMP $C181,X              
   BEQ $E118                
   RTS                      
-----------------         
+;----------------         
   PLA                      
   PLA                      
   LDX $5D                  
@@ -2624,8 +2645,8 @@ ppu_setup:
   LDA #$01                 
   STA $0C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0B                  
   LDY #$00                 
   LDA ($08),Y              
@@ -2641,8 +2662,8 @@ ppu_setup:
   STA $0C                  
   STY $0A                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $5D                  
   LDA $68,X                
   SEC                      
@@ -2655,11 +2676,11 @@ ppu_setup:
   LDA #$00                 
   STA $0B                  
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$00                 
   LDY #$06                 
   STA $007E,Y              
@@ -2687,12 +2708,12 @@ ppu_setup:
   LDX $59                  
   INC $7E,X                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $AD                  
   BNE $E1B4                
   RTS                      
-----------------         
+;----------------         
   CMP #$01                 
   BNE $E1D4                
   LDA #$20                 
@@ -2726,8 +2747,8 @@ ppu_setup:
   LDA #$10                 
   STA $38                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$00                 
   STA $AE                  
   JSR $EFEC                
@@ -2749,9 +2770,9 @@ ppu_setup:
   LDA #$19                 
   STA $40                  
   JMP $E234                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA #$06                 
   LDX $AE                  
   STA $AF,X                
@@ -2776,8 +2797,8 @@ ppu_setup:
   LDA #$BC                 
   STA $3B                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $AE                  
   LDA $AF,X                
   AND #$0F                 
@@ -2797,9 +2818,9 @@ ppu_setup:
   BEQ $E28D                
   JSR $E2CB                
   JMP $E295                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $AF,X                
   CMP #$01                 
   BEQ $E29F                
@@ -2823,7 +2844,7 @@ ppu_setup:
   BNE $E2C8                
   JMP $E2A7                
   JMP $E430                
---------sub start--------
+;--------sub start--------
   LDX $AE                  
   LDA $D2,X                
   BNE $E2F2                
@@ -2832,10 +2853,10 @@ ppu_setup:
   LDA $AE                  
   CLC                      
   ADC #$01                 
-  ASL A                    
-  ASL A                    
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
+  ASL ;A                    
+  ASL ;A                    
   TAY                      
   LDA $0203,Y              
   CMP $0203                
@@ -2859,14 +2880,14 @@ ppu_setup:
   LDY #$03                 
   STY $AF,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$55                 
   STA $0A                  
   STA $0B                  
   JSR $E81B                
   BNE $E31A                
   RTS                      
-----------------         
+;----------------         
   JSR $EFEC                
   STX $04                  
   JSR $EB05                
@@ -2877,7 +2898,7 @@ ppu_setup:
   LDA #$FF                 
   STA $AF,X                
   RTS                      
-----------------         
+;----------------         
   CMP #$10                 
   BEQ $E338                
   DEC $01                  
@@ -2896,13 +2917,13 @@ ppu_setup:
   JMP $E360                
   LDA #$98                 
   JMP $E360                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $EAED                
   LDX $AE                  
   LDA $B3,X                
-  LSR A                    
+  LSR ;A                    
   JSR $F0A5                
   LDX $AE                  
   LDA $AF,X                
@@ -2913,14 +2934,14 @@ ppu_setup:
   LDA #$20                 
   STA $AF,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$55                 
   STA $0A                  
   STA $0B                  
   JSR $E81B                
   BNE $E389                
   RTS                      
-----------------         
+;----------------         
   JSR $EFEC                
   STX $04                  
   JSR $EB05                
@@ -2961,7 +2982,7 @@ ppu_setup:
   LDX $AE                  
   STA $AF,X                
   RTS                      
-----------------         
+;----------------         
   LDA $99                  
   BEQ $E402                
   LDA $00                  
@@ -2969,9 +2990,9 @@ ppu_setup:
   BEQ $E3F2                
   BCC $E3FB                
   JMP $E402                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $04                  
   TAY                      
   INY                      
@@ -2985,17 +3006,17 @@ ppu_setup:
   JMP $E428                
   LDA #$98                 
   JMP $E428                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $EAED                
   LDA $99                  
   JMP $F0A5                
   LDX $AE                  
   LDA $AF,X                
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   TAX                      
   LDA $53                  
   CMP #$04                 
@@ -3005,13 +3026,13 @@ ppu_setup:
   LDA $C3F5,X              
   STA $0B                  
   JMP $E460                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $E81B                
   BNE $E466                
   RTS                      
-----------------         
+;----------------         
   JSR $EFEC                
   STX $04                  
   JSR $EB05                
@@ -3034,9 +3055,9 @@ ppu_setup:
   CMP #$01                 
   BEQ $E4CA                
   JSR $E7B8                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDX $AE                  
   LDA $AF,X                
   CMP #$13                 
@@ -3044,7 +3065,7 @@ ppu_setup:
   JMP $E4EB                
   INC $01                  
   LDA $AE                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   INX                      
   LDA $B9,X                
@@ -3063,7 +3084,7 @@ ppu_setup:
   CMP #$02                 
   BEQ $E50E                
   LDA $AE                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $B9,X                
   CMP $01                  
@@ -3073,7 +3094,7 @@ ppu_setup:
   STA $AF,X                
   JMP $E521                
   LDA $AE                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $B9,X                
   CLC                      
@@ -3096,9 +3117,9 @@ ppu_setup:
   JMP $E547                
   LDA #$98                 
   JMP $E547                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   JSR $EAED                
   JMP $F097                
   LDX $AE                  
@@ -3108,7 +3129,7 @@ ppu_setup:
   CMP #$08                 
   BEQ $E55A                
   RTS                      
-----------------         
+;----------------         
   JMP $E5B4                
   LDA $53                  
   CMP #$01                 
@@ -3116,7 +3137,7 @@ ppu_setup:
   CMP #$04                 
   BEQ $E579                
   RTS                      
-----------------         
+;----------------         
   LDA #$20                 
   STA $00                  
   LDA #$B8                 
@@ -3125,9 +3146,9 @@ ppu_setup:
   LDA #$08                 
   STA $AF,X                
   JMP $E5A7                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA #$98                 
   JSR $EAED                
   JSR $EFEC                
@@ -3142,7 +3163,7 @@ ppu_setup:
   CMP #$01                 
   BEQ $E5C9                
   RTS                      
-----------------         
+;----------------         
   INC $00                  
   LDA $00                  
   CMP #$2C                 
@@ -3161,16 +3182,16 @@ ppu_setup:
   BCS $E5EE                
   INC $01                  
   JMP $E5F0                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   CMP #$60                 
   BNE $E5FA                
   LDX $AE                  
   LDA #$00                 
   STA $AF,X                
   JMP $F091                
---------sub start--------
+;--------sub start--------
   STA $0C                  
   LDX $AE                  
   LDA $E0,X                
@@ -3189,10 +3210,10 @@ ppu_setup:
   JMP $E60F                
   LDA #$00                 
   RTS                      
-----------------         
+;----------------         
   LDA #$01                 
   RTS                      
-----------------         
+;----------------         
   LDX #$04                 
   LDA $C1C4,X              
   CMP $0C                  
@@ -3203,17 +3224,17 @@ ppu_setup:
   JMP $E626                
   LDA #$00                 
   RTS                      
-----------------         
+;----------------         
   LDA #$01                 
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $AE                  
   LDA $AF,X                
   CMP #$13                 
   BNE $E644                
   RTS                      
-----------------         
+;----------------         
   JSR $EFEC                
   JSR $EB05                
   LDX $AE                  
@@ -3228,7 +3249,7 @@ ppu_setup:
   BEQ $E672                
   JMP $E6B3                
   LDA $AE                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA #$A6                 
   STA $B9,X                
@@ -3236,20 +3257,20 @@ ppu_setup:
   LDA #$C7                 
   STA $B9,X                
   JMP $E6AC                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $00                  
   CMP #$2C                 
   BEQ $E68F                
   CMP #$6C                 
   BEQ $E69F                
   JMP $E6B3                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $AE                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA #$8A                 
   STA $B9,X                
@@ -3260,13 +3281,13 @@ ppu_setup:
   LDX $AE                  
   STA $AF,X                
   RTS                      
-----------------         
+;----------------         
   LDA #$00                 
   LDX $AE                  
   STA $AF,X                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $01                  
   CLC                      
   ADC #$0B                 
@@ -3278,9 +3299,9 @@ ppu_setup:
   CMP #$01                 
   BNE $E6D1                
   JMP $E6DB                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $00                  
   JSR $E5FD                
   BNE $E6F8                
@@ -3302,16 +3323,16 @@ ppu_setup:
   CMP $C3E6,Y              
   BEQ $E710                
   RTS                      
-----------------         
+;----------------         
   LDA $00                  
   CMP $C3E8,Y              
   BEQ $E710                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $AE                  
   INC $E4,X                
   LDA $E4,X                
@@ -3336,15 +3357,15 @@ ppu_setup:
   LDA #$01                 
   STA $0C                  
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $39                  
   BEQ $EA7B                
   RTS                      
-----------------         
+;----------------         
   LDA #$08                 
   STA $0A                  
   LDA #$00                 
@@ -3352,7 +3373,7 @@ ppu_setup:
   JSR $EAB8                
   BNE $EA89                
   RTS                      
-----------------         
+;----------------         
   LDA #$50                 
   STA $00                  
   LDA #$20                 
@@ -3375,8 +3396,8 @@ ppu_setup:
   LDA #$BB                 
   STA $39                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   INC $B8                  
   LDA $B8                  
   BMI $EAC5                
@@ -3400,36 +3421,36 @@ ppu_setup:
   LDA #$01                 
   STA $0C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$00                 
   STA $04                  
---------sub start--------
+;--------sub start--------
   JMP $EAEF                
---------sub start--------
+;--------sub start--------
   STA $02                  
   LDA #$22                 
   STA $03                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $EAEA                
   JMP $F091                
---------sub start--------
+;--------sub start--------
   LDA $0203                
   STA $00                  
   LDA $0200                
   STA $01                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $0203,X              
   STA $00                  
   LDA $0200,X              
   STA $01                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $50                  
   AND #$01                 
   CLC                      
@@ -3439,12 +3460,12 @@ ppu_setup:
   BCC $EB1E                
   LDX #$04                 
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $0503                
   BNE $EB25                
   RTS                      
-----------------         
+;----------------         
   LDA $0505                
   AND #$0F                 
   STA $0505                
@@ -3477,10 +3498,10 @@ ppu_setup:
   BNE $EB67                
   JSR $EBBF                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $36                  
   CMP #$18                 
   BEQ $EB8D                
@@ -3510,12 +3531,12 @@ ppu_setup:
   STA $FE                  
   LDA #$42                 
   JMP $EBC1                
---------sub start--------
+;--------sub start--------
   LDA #$44                 
   JMP $EBC1                
   LDA #$3E                 
   JMP $EBC1                
---------sub start--------
+;--------sub start--------
   LDA #$00                 
   JMP $EBC1                
   LDA #$02                 
@@ -3525,18 +3546,18 @@ ppu_setup:
   ORA #$10                 
   STA $0505                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $45                  
   BEQ $EBD4                
   RTS                      
-----------------         
+;----------------         
   LDA $2E                  
   BNE $EBDD                
   LDA #$FF                 
   STA $96                  
   RTS                      
-----------------         
+;----------------         
   LDA #$0B                 
   STA $45                  
   LDA #$01                 
@@ -3547,7 +3568,7 @@ ppu_setup:
   LDA #$02                 
   STA $00                  
   JMP $F24B                
---------sub start--------
+;--------sub start--------
   LDA $050B                
   BNE $EC06                
   LDA #$01                 
@@ -3556,7 +3577,7 @@ ppu_setup:
   STA $050E                
   STA $050C                
   RTS                      
-----------------         
+;----------------         
   LDA $050C                
   BEQ $EC25                
   LDA $050D                
@@ -3571,7 +3592,7 @@ ppu_setup:
   STA $57                  
   DEC $050C                
   RTS                      
-----------------         
+;----------------         
   LDX $050E                
   LDA $C028,X              
   STA $050C                
@@ -3579,8 +3600,8 @@ ppu_setup:
   STA $050D                
   INC $050E                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $EAFA                
   LDA #$4C                 
   JSR $EFF7                
@@ -3592,7 +3613,7 @@ ppu_setup:
   JSR $EC53                
   JSR $ED99                
   JMP $EDD4                
---------sub start--------
+;--------sub start--------
   LDA #$00                 
   STA $5D                  
   LDA #$3A                 
@@ -3631,12 +3652,12 @@ ppu_setup:
   STA $06                  
   LDX #$00                 
   JSR $CFC2                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   INC $5D                  
   LDA $53                  
-  LSR A                    
+  LSR ;A                    
   TAX                      
   LDA $5D                  
   CMP $C1FD,X              
@@ -3646,7 +3667,7 @@ ppu_setup:
   LDA #$FF                 
   STA $96                  
   RTS                      
-----------------         
+;----------------         
   LDA $53                  
   CMP #$03                 
   BEQ $ECCD                
@@ -3655,13 +3676,13 @@ ppu_setup:
   BNE $ECCD                
   JMP $ECCE                
   RTS                      
-----------------         
+;----------------         
   LDA $A0                  
   BNE $ECD5                
   JMP $ED96                
   LDA $9F                  
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
   BEQ $ECE0                
   LDA #$00                 
   JMP $ECE2                
@@ -3711,9 +3732,9 @@ ppu_setup:
   CMP #$09                 
   BEQ $ED94                
   JMP $ED25                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA #$02                 
   STA $FF                  
   LDA $00                  
@@ -3728,14 +3749,14 @@ ppu_setup:
   STA $68,X                
   LDA #$01                 
   JMP $ED96                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA #$00                 
   STA $BF                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$00                 
   STA $AE                  
   LDA #$3A                 
@@ -3751,9 +3772,9 @@ ppu_setup:
   CMP $C1F6,X              
   BEQ $EDC4                
   JMP $EDA2                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDA $96                  
   CMP #$0A                 
   BNE $EDD3                
@@ -3762,7 +3783,7 @@ ppu_setup:
   BEQ $EDD3                
   JSR $ECCE                
   RTS                      
-----------------         
+;----------------         
   LDA $53                  
   CMP #$03                 
   BNE $EDE1                
@@ -3770,10 +3791,10 @@ ppu_setup:
   CPY #$01                 
   BEQ $EDE1                
   RTS                      
-----------------         
+;----------------         
   SEC                      
   SBC #$01                 
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $C42B,X              
   STA $02                  
@@ -3796,12 +3817,12 @@ ppu_setup:
   LDA #$C9                 
   STA $01                  
   JMP $EDFA                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$80                 
   STA $0A                  
   LDA #$80                 
@@ -3809,15 +3830,15 @@ ppu_setup:
   JSR $DFE5                
   BNE $EE29                
   RTS                      
-----------------         
+;----------------         
   LDA $53                  
   CMP #$01                 
   BNE $EE35                
   JSR $EFE4                
   JMP $EE38                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   STX $04                  
   JSR $EB05                
   LDA $BF                  
@@ -3837,7 +3858,7 @@ ppu_setup:
   JSR $EE7B                
   INC $BF                  
   RTS                      
-----------------         
+;----------------         
   LDA $53                  
   CMP #$01                 
   BNE $EE6B                
@@ -3850,24 +3871,24 @@ ppu_setup:
   LDA #$00                 
   STA $BF                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $0202,X              
   STA $0206,X              
   STA $020A,X              
   STA $020E,X              
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY $53                  
   CPY #$01                 
   BNE $EE8F                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $96                  
   CMP #$0A                 
   BNE $EF80                
@@ -3879,18 +3900,18 @@ ppu_setup:
   LDA #$00                 
   STA $0451,X              
   TXA                      
-  ASL A                    
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
+  ASL ;A                    
   TAX                      
   LDA #$FF                 
   STA $02D0,X              
   STA $02D4,X              
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STX $0F                  
-  ASL A                    
+  ASL ;A                    
   TAX                      
   LDA $042C,X              
   BNE $EFA3                
@@ -3899,9 +3920,9 @@ ppu_setup:
   BNE $EF96                
   LDA #$08                 
   JMP $EF98                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   STA $0435,X              
   LDA #$F0                 
   STA $042D,X              
@@ -3911,9 +3932,9 @@ ppu_setup:
   BNE $EFAF                
   ADC #$10                 
   JMP $EFB1                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   STA $0435,X              
   LDA $0436,X              
   ADC #$00                 
@@ -3935,32 +3956,32 @@ ppu_setup:
   INC $042C,X              
   LDX $0F                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $5D                  
   CLC                      
   ADC #$03                 
   JMP $EFF1                
---------sub start--------
+;--------sub start--------
   LDA $AE                  
   CLC                      
   ADC #$01                 
-  ASL A                    
-  ASL A                    
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
+  ASL ;A                    
+  ASL ;A                    
   TAX                      
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $C847                
---------sub start--------
+;--------sub start--------
   LDA #$00                 
   BEQ $F004                
---------sub start--------
+;--------sub start--------
   LDA #$01                 
   BNE $F004                
---------sub start--------
+;--------sub start--------
   LDA #$02                 
   STA $0C                  
   TXA                      
@@ -4017,47 +4038,47 @@ ppu_setup:
   TAX                      
   LDA $0C                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   INY                      
---------sub start--------
+;--------sub start--------
   LDA ($02),Y              
   CLC                      
   ADC $00                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   INY                      
   LDA ($02),Y              
   CLC                      
   ADC $01                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $02                  
   JSR $EAFA                
   JSR $EAE6                
   LDA $57                  
   AND #$03                 
-  LSR A                    
+  LSR ;A                    
   JMP $F0A5                
---------sub start--------
+;--------sub start--------
   STA $04                  
---------sub start--------
+;--------sub start--------
   LDA #$00                 
   BEQ $F0A5                
   STA $04                  
   LDA #$01                 
   BNE $F0A5                
   STA $04                  
---------sub start--------
+;--------sub start--------
   LDA #$04                 
   BNE $F0A5                
---------sub start--------
+;--------sub start--------
   STA $03                  
---------sub start--------
+;--------sub start--------
   LDA #$0F                 
---------sub start--------
+;--------sub start--------
   PHA                      
   STA $0F                  
   TXA                      
@@ -4085,10 +4106,10 @@ ppu_setup:
   AND $03                  
   STA $07                  
   LDA $03                  
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   STA $06                  
   TAX                      
   LDA #$00                 
@@ -4127,8 +4148,8 @@ ppu_setup:
   TAX                      
   PLA                      
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $03                  
   LDY #$00                 
   LDA #$FF                 
@@ -4142,8 +4163,8 @@ ppu_setup:
   DEX                      
   BNE $F11D                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $02                  
   LDX $08                  
   LDY #$01                 
@@ -4162,8 +4183,8 @@ ppu_setup:
   DEX                      
   BNE $F133                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY #$00                 
   LDX $06                  
   LDA $01                  
@@ -4188,8 +4209,8 @@ ppu_setup:
   DEC $07                  
   BNE $F14A                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY #$01                 
   STY $0A                  
   LDA $08                  
@@ -4224,8 +4245,8 @@ ppu_setup:
   SBC $06                  
   BPL $F179                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY #$00                 
   LDX $06                  
   LDA $01                  
@@ -4245,60 +4266,60 @@ ppu_setup:
   DEC $07                  
   BNE $F1A6                
   RTS                      
-----------------         
-  LDA PpuStatus_2002       
+;----------------         
+  LDA ]PpuStatus      
   LDA $10                  
   AND #$FB                 
-  STA PpuControl_2000      
+  STA ]PpuControl      
   LDA #$20                 
-  STA PpuAddr_2006         
+  STA ]PpuAddr         
   LDA #$00                 
-  STA PpuAddr_2006         
+  STA ]PpuAddr         
   LDX #$04                 
   LDY #$00                 
   LDA #$24                 
-  STA PpuData_2007         
+  STA ]PpuData         
   DEY                      
   BNE $F1DD                
   DEX                      
   BNE $F1DD                
   LDA #$23                 
-  STA PpuAddr_2006         
+  STA ]PpuAddr         
   LDA #$C0                 
-  STA PpuAddr_2006         
+  STA ]PpuAddr         
   LDY #$40                 
   LDA #$00                 
-  STA PpuData_2007         
+  STA ]PpuData         
   DEY                      
   BNE $F1F4                
   RTS                      
-----------------         
-  STA PpuAddr_2006         
+;----------------         
+  STA ]PpuAddr         
   INY                      
   LDA ($00),Y              
-  STA PpuAddr_2006         
+  STA ]PpuAddr         
   INY                      
   LDA ($00),Y              
-  ASL A                    
+  ASL ;A                    
   PHA                      
   LDA $10                  
   ORA #$04                 
   BCS $F211                
   AND #$FB                 
-  STA PpuControl_2000      
+  STA ]PpuControl      
   STA $10                  
   PLA                      
-  ASL A                    
+  ASL ;A                    
   BCC $F21D                
   ORA #$02                 
   INY                      
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
   TAX                      
   BCS $F223                
   INY                      
   LDA ($00),Y              
-  STA PpuData_2007         
+  STA ]PpuData         
   DEX                      
   BNE $F220                
   SEC                      
@@ -4308,18 +4329,18 @@ ppu_setup:
   LDA #$00                 
   ADC $01                  
   STA $01                  
---------sub start--------
-  LDX PpuStatus_2002       
+;--------sub start--------
+  LDX ]PpuStatus       
   LDY #$00                 
   LDA ($00),Y              
   BNE $F1FB                
   LDA $12                  
-  STA PpuScroll_2005       
+  STA ]PpuScroll       
   LDA $13                  
-  STA PpuScroll_2005       
+  STA ]PpuScroll       
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   CLD                      
   LDA #$04                 
   LSR $00                  
@@ -4331,10 +4352,10 @@ ppu_setup:
   SBC #$00                 
   BPL $F24E                
   RTS                      
-----------------         
---------sub start--------
-  ASL A                    
-  ASL A                    
+;----------------         
+;--------sub start--------
+  ASL ;A                    
+  ASL ;A                    
   TAY                      
   STA $01                  
   LDX $0330                
@@ -4377,10 +4398,10 @@ ppu_setup:
   LDA $0020,Y              
   AND #$F0                 
   PHP                      
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   PLP                      
   BEQ $F2BF                
   CLC                      
@@ -4405,16 +4426,16 @@ ppu_setup:
   ADC #$37                 
   STA $0331,X              
   RTS                      
-----------------         
+;----------------         
   LDY #$00                 
   LDA ($02),Y              
   AND #$0F                 
   STA $05                  
   LDA ($02),Y              
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   STA $04                  
   LDX $0330                
   LDA $01                  
@@ -4447,11 +4468,11 @@ ppu_setup:
   LDA #$00                 
   STA $0331,X              
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   INX                      
   TXA                      
---------sub start--------
+;--------sub start--------
   CMP #$3F                 
   BCC $F34C                
   LDX $0330                
@@ -4460,8 +4481,8 @@ ppu_setup:
   PLA                      
   PLA                      
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX #$FF                 
   BNE $F353                
   LDX #$00                 
@@ -4479,8 +4500,8 @@ ppu_setup:
   LDA $01                  
   JMP $F36D                
   AND #$07                 
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
   TAX                      
   LDA $04                  
   BEQ $F39D                
@@ -4491,9 +4512,9 @@ ppu_setup:
   STA $03                  
   LDA $07                  
   JSR $F3F2                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   SEC                      
   LDA $27,X                
   STA $03                  
@@ -4525,15 +4546,15 @@ ppu_setup:
   STA $03                  
   LDA $27,X                
   JSR $F413                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   JSR $F435                
   SBC $01                  
   STA $01                  
@@ -4552,8 +4573,8 @@ ppu_setup:
   CLC                      
   ORA $01                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   PHA                      
   AND #$0F                 
   STA $01                  
@@ -4563,20 +4584,20 @@ ppu_setup:
   LDA $03                  
   AND #$0F                 
   RTS                      
-----------------         
+;----------------         
   LDA #$00                 
   STA $04                  
   CLC                      
   LDA $00                  
   ADC #$10                 
   AND #$F0                 
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
   TAY                      
   LDA $00                  
   AND #$07                 
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
   TAX                      
   LDA $0020,Y              
   BEQ $F4AF                
@@ -4621,14 +4642,14 @@ ppu_setup:
   DEX                      
   BPL $F459                
   RTS                      
-----------------         
+;----------------         
   LDA $24,X                
   BEQ $F462                
   LDA $0020,Y              
   BNE $F488                
   CLC                      
   BCC $F48D                
---------sub start--------
+;--------sub start--------
   LDX #$09                 
   DEC $34                  
   BPL $F4C7                
@@ -4641,8 +4662,8 @@ ppu_setup:
   DEX                      
   BPL $F4C7                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX $0330                
   LDA $01                  
   STA $0331,X              
@@ -4660,8 +4681,8 @@ ppu_setup:
   STA $0331,X              
   STX $0330                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA $18                  
   AND #$02                 
   STA $00                  
@@ -4680,27 +4701,27 @@ ppu_setup:
   ROR $1E                  
   ROR $1F                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$01                 ; Controller to parallel mode
-  STA Ctrl1_4016           ; Can read Human
+  STA ]Ctrl1           ; Can read Human
   LDX #$00                 ; Player 1
   LDA #$00                 ; Controller to serial mode,
-  STA Ctrl1_4016           ; CPU can read Controller
+  STA ]Ctrl1           ; CPU can read Controller
   JSR $F530                ; Read controller 1
   INX                      ; Player 2
   JMP $F530                ; Read controller 2
---------sub start--------
+;--------sub start--------
   LDY #$08                 ; range(8) ; A=0
--F532-:  
+;-F532-:  
   PHA                      ; snapshot := A;
-  LDA Ctrl1_4016,X         ; A := cont; A0 for std_cont, A1 for fam_exp_cont
-  STA $00                  ; [$00] := A 
-  LSR A                    ; A0 := A1
+  LDA ]Ctrl1,X         ; ;A := cont; A0 for std_cont, A1 for fam_exp_cont
+  STA $00                  ; [$00] := ;A 
+  LSR ;A                    ; A0 := A1
   ORA $00                  ; A0 := button was pressed on either
-  LSR A                    ; A0 -> C
-  PLA                      ; A := snapshot
-  ROL A                    ; A << 1; A0 <- C
+  LSR ;A                    ; A0 -> C
+  PLA                      ; ;A := snapshot
+  ROL ;A                    ; ;A << 1; A0 <- C
   DEY                      
   BNE $F532                  
   
@@ -4719,15 +4740,15 @@ ppu_setup:
 
   AND #$7F                 
   STA $15,X       
--F55B-:           
+;-F55B-:           
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$C0                 
-  STA Ctrl2_FrameCtr_4017  
+  STA ]FrameCtr  
   JSR $FBF2                
   LDX #$00                 
   STX $FF                  
@@ -4742,12 +4763,12 @@ ppu_setup:
   BCC $FA6B                
   INC $06F1                
   TAY                      
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   STA $00                  
   TYA                      
   LDX $06F1                
@@ -4759,83 +4780,83 @@ ppu_setup:
   SBC $00                  
   STA $06F0                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDY #$07                 
-  ASL A                    
+  ASL ;A                    
   BCS $FA8E                
   DEY                      
   BNE $FA88                
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   STA $F1                  
   STY $F2                  
---------sub start--------
+;--------sub start--------
   LDY #$7F                 
---------sub start--------
-  STX Sq0Duty_4000         
-  STY Sq0Sweep_4001        
+;--------sub start--------
+  STX ]Sq0Duty         
+  STY ]Sq0Sweep        
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDX #$00                 
   TAY                      
   LDA $FB01,Y              
   BEQ $FAB2                
-  STA Sq0Timer_4002,X      
+  STA ]Sq0Timer,X      
   LDA $FB00,Y              
   ORA #$08                 
-  STA Sq0Length_4003,X     
+  STA ]Sq0Length,X     
   RTS                      
-----------------         
---------sub start--------
-  STY Sq1Sweep_4005        
+;----------------         
+;--------sub start--------
+  STY ]Sq1Sweep        
   LDX #$04                 
   BNE $FAA1                
---------sub start--------
-  STA TrgLinear_4008       
+;--------sub start--------
+  STA ]TrgLinear       
   TXA                      
   AND #$3E                 
   LDX #$08                 
   BNE $FAA1                
---------sub start--------
+;--------sub start--------
   TAX                      
-  ROR A                    
+  ROR ;A                    
   TXA                      
-  ROL A                    
-  ROL A                    
-  ROL A                    
---------sub start--------
+  ROL ;A                    
+  ROL ;A                    
+  ROL ;A                    
+;--------sub start--------
   AND #$07                 
   CLC                      
   ADC $068D                
   TAY                      
   LDA $FB4C,Y              
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   TYA                      
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   STA $00                  
   TYA                      
   SEC                      
   SBC $00                  
   RTS                      
-----------------         
---------sub start--------
+;----------------         
+;--------sub start--------
   LDA #$90                 
-  STA Sq0Duty_4000         
+  STA ]Sq0Duty         
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------         
+;----------------         
   STY $F0                  
   LDA #$71                 
   LDY #$00                 
@@ -4849,7 +4870,7 @@ ppu_setup:
   AND #$07                 
   BNE $FBA0                
   TYA                      
-  LSR A                    
+  LSR ;A                    
   ADC $FB67,X              
   TAY                      
   BNE $FBA7                
@@ -4857,11 +4878,11 @@ ppu_setup:
   BNE $FBB2                
   INC $F2                  
   CLC                      
-  STY Sq0Timer_4002        
+  STY ]Sq0Timer        
   LDY #$28                 
   BCC $FBAF                
   INY                      
-  STY Sq0Length_4003       
+  STY ]Sq0Length       
   LDA #$00                 
   JMP $FE00                
   STY $F0                  
@@ -4879,41 +4900,41 @@ ppu_setup:
   STA $F2                  
   TAY                      
   TYA                      
-  LSR A                    
+  LSR ;A                    
   ADC $F2                  
   TAY                      
   TYA                      
-  ROL A                    
-  ROL A                    
-  ROL A                    
-  STA Sq0Timer_4002        
-  ROL A                    
-  STA Sq0Length_4003       
+  ROL ;A                    
+  ROL ;A                    
+  ROL ;A                    
+  STA ]Sq0Timer        
+  ROL ;A                    
+  STA ]Sq0Length       
   LDA $F1                  
   CMP #$18                 
   BCS $FC44                
-  LSR A                    
+  LSR ;A                    
   ORA #$90                 
-  STA Sq0Duty_4000         
+  STA ]Sq0Duty         
   BNE $FC44                
---------sub start--------
+;--------sub start--------
   LDY $FF                  
   LDA $F0                  
-  LSR A                    
+  LSR ;A                    
   BCS $FB89                
   LSR $FF                  
   BCS $FB7E                
   LDX $FA                  
   BNE $FC4B                
-  LSR A                    
+  LSR ;A                    
   BCS $FBC2                
   LSR $FF                  
   BCS $FBB7                
-  LSR A                    
+  LSR ;A                    
   BCS $FC28                
   LSR $FF                  
   BCS $FC19                
-  LSR A                    
+  LSR ;A                    
   BCS $FC62                
   LSR $FF                  
   BCS $FC51                
@@ -4935,7 +4956,7 @@ ppu_setup:
   LDA $F1                  
   CMP #$14                 
   BCS $FC41                
-  LSR A                    
+  LSR ;A                    
   ORA #$50                 
   TAX                      
   JSR $FA95                
@@ -4949,9 +4970,9 @@ ppu_setup:
   LDA #$0A                 
   STA $F1                  
   LDY $06F0                
-  STY Sq0Timer_4002        
+  STY ]Sq0Timer        
   LDA #$88                 
-  STA Sq0Length_4003       
+  STA ]Sq0Length       
   LDA $18                  
   AND #$08                 
   CLC                      
@@ -4972,7 +4993,7 @@ ppu_setup:
   ORA #$90                 
   TAY                      
   DEY                      
-  STY Sq1Duty_4004         
+  STY ]Sq1Duty         
   BNE $FC9D                
   LDA $F3                  
   BNE $FC9D                
@@ -4988,9 +5009,9 @@ ppu_setup:
   LDA $06A1                
   LSR $FE                  
   BCS $FCBA                
-  LSR A                    
+  LSR ;A                    
   BCS $FCBE                
-  LSR A                    
+  LSR ;A                    
   BCS $FCF0                
   LSR $FE                  
   BCS $FCDB                
@@ -5002,25 +5023,25 @@ ppu_setup:
   LSR $FE                  
   BCS $FCDB                
   LDA $F6                  
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
-  LSR A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
+  LSR ;A                    
   ADC $F6                  
   BCC $FD00                
   LDA #$00                 
   STA $06A1                
-  STA TrgLinear_4008       
+  STA ]TrgLinear       
   BEQ $FD0B                
   LDA #$FE                 
   STY $06A1                
   LDX #$0E                 
   STX $F5                  
   LDY #$FF                 
-  STY TrgLinear_4008       
+  STY ]TrgLinear       
   LDY #$08                 
-  STY TrgLength_400B       
+  STY ]TrgLength       
   BNE $FD00                
   LDA #$FE                 
   LDY $F5                  
@@ -5030,9 +5051,9 @@ ppu_setup:
   LDA $F6                  
   TAY                      
   JSR $FAD7                
---------unidentified block--------
+;--------unidentified block--------
 
-----------------         
+;----------------         
   LDX $FA                  
   BNE $FD58                
   LDA $FC                  
@@ -5058,11 +5079,11 @@ ppu_setup:
   LDA ($F5),Y              
   BEQ $FD1D                
   TAX                      
-  ROR A                    
+  ROR ;A                    
   TXA                      
-  ROL A                    
-  ROL A                    
-  ROL A                    
+  ROL ;A                    
+  ROL ;A                    
+  ROL ;A                    
   AND #$07                 
   TAY                      
   LDA $FB62,Y              
@@ -5074,7 +5095,7 @@ ppu_setup:
   LDA $0102                
   BNE $FD9B                
   RTS                      
-----------------         
+;----------------         
   JSR $FA86                
   STY $FB                  
   LDA $FE59,Y              
@@ -5143,11 +5164,11 @@ ppu_setup:
   BEQ $FE00                
   LDY $06A1                
   BNE $FE03                
-  STA TrgLinear_4008       
+  STA ]TrgLinear       
   LDA #$10                 
-  STA Sq1Duty_4004         
+  STA ]Sq1Duty         
   RTS                      
-----------------         
+;----------------         
   JSR $FAC4                
   STA $0695                
   TXA                      
@@ -5165,7 +5186,7 @@ ppu_setup:
   CMP #$10                 
   BCS $FE2E                
   LDX #$84                 
-  STX Sq1Duty_4004         
+  STX ]Sq1Duty         
   LDY $F9                  
   BEQ $FE58                
   DEC $0698                
@@ -5176,8 +5197,8 @@ ppu_setup:
   STA $0698                
   CLC                      
   ADC #$FE                 
-  ASL A                    
-  ASL A                    
+  ASL ;A                    
+  ASL ;A                    
   CMP #$38                 
   BCC $FE4F                
   LDA #$38                 
@@ -5186,8 +5207,8 @@ ppu_setup:
   LDA #$FF                 
   JSR $FABA                
   RTS                      
-----------------         
---------unidentified block--------
+;----------------         
+;--------unidentified block--------
 
-----------------        
+;----------------        
 ; irq_vec $FFF0; always disabled
