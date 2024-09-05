@@ -11,7 +11,7 @@ class NesBoard:IBus
         this.ram = new RAM();
         this.cartridge = new Cartridge();   
         this.ppu = new Ppu();
-        this.address_decoder = new AddressDecoder([this.cartridge, this.ram, this.ppu]);
+        this.address_decoder = new AddressDecoder([this.ram, this.ppu, this.cartridge]);
         this.cpu = new CPU2403(this.address_decoder, new Controller[2]);
     } 
 
@@ -29,10 +29,8 @@ class AddressDecoder:IBus
     }
     public byte Access(ushort address, byte value, ReadWrite readWrite)
     {
-        if ((address >> 15) == 1)
-        {return  recipients[1..][(address >> 13) & 1].Access(address, value, readWrite); }
-        else
-        {return recipients[0].Access(address, value, readWrite);}
+        return (new IBus[] {recipients[2], recipients[..2][(address >> 13) & 1]})
+        [address >> 15].Access(address, value, readWrite);
     }
 }
 
