@@ -8,9 +8,10 @@ static void func_87e7(void)
 	PpuControl_write(PpuControlDupple);
 	int8_t PpuMaskDupple = 6;
 	PpuMask_write(PpuMaskDupple);
-	x_scroll =
 	PpuScrollDuppleX =
 	PpuScrollDuppleY = 0;
+	PpuScrollWrite(0);
+	PpuScrollWrite(0);
 }
 
 static void wait_frame(void)

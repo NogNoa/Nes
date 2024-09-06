@@ -21,6 +21,10 @@ class Cartridge : IBus
     {
         throw new NotImplementedException();
     }
+    public byte Whisper(ushort address, byte value, ReadWrite readWrite)
+    {
+        throw new NotImplementedException();
+    }
 }
 class Ppu : IBus
 {
