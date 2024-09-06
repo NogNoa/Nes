@@ -14,6 +14,35 @@ class Ppu : IBus
         this.Vram = Vram;
         this.Oam = new RAM();
     }
+
+    uint8_t PPU_base_nametable
+        {get => Ppu_control;
+         set => Ppu_control = value;
+        }
+    bool VRAM_adress_increment
+        {get => (bool)((Ppu_control & 0x1) != 0);
+         set => Ppu_control = Ppu_control & 1 | value & 1;
+        }
+    bool Sprite_pattern_table
+        {get => (bool)((Ppu_control & 0x1) != 0);
+         set => Ppu_control = Ppu_control & 1 | value & 1;
+        }
+    bool BG_pattern_table
+        {get => (bool)((Ppu_control & 0x1) != 0);
+         set => Ppu_control = Ppu_control & 1 | value & 1;
+        }
+    bool Sprite_size
+        {get => (bool)((Ppu_control & 0x1) != 0);
+         set => Ppu_control = Ppu_control & 1 | value & 1;
+        }
+    ppu_role EXT_pins
+        {get => (bool)((Ppu_control & 0x1) != 0);
+         set => Ppu_control = Ppu_control & 1 | value & 1;
+        }
+    bool Vblank_on_Nmi
+        {get => (bool)((Ppu_control & 0x1) != 0);
+         set => Ppu_control = Ppu_control & 1 | value & 1;
+        }
     
     public byte Access(ushort address, byte value, ReadWrite readWrite)
     {
