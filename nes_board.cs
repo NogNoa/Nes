@@ -11,7 +11,8 @@ class NesBoard:IBus
         this.ram = new RAM();
         this.cartridge_port = new Cartridge();   
         this.ppu = new Ppu();
-        this.address_decoder = new AddressDecoder([ram, ppu, new DeadEnd(), new DeadEnd(), cartridge_port]);
+        ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
+        this.address_decoder = new AddressDecoder([ram, ppu, new DeadEnd(), new DeadEnd(), cartridge_port], masks);
         this.cpu = new CPU2403(this, new Controller[2]);
     } 
 
@@ -27,14 +28,17 @@ class NesBoard:IBus
 class AddressDecoder:IBus
 {
     readonly IBus[] recipients;
+    readonly ushort[] masks;
 
-    public AddressDecoder(IBus[] recipients) {
+    public AddressDecoder(IBus[] recipients, ushort[] masks) {
         this.recipients = recipients;
+        this.masks = masks;
     }
     public byte Access(ushort address, byte value, ReadWrite readWrite)
     {
-        return (new IBus[] {recipients[4], recipients[..4][(address >> 13) & 0b11]})
-        [address >> 15].Access(address, value, readWrite);
+        int index = (new int[] {4, new int[] {0,1,2,3}[(address >> 13) & 0b11]})
+        [address >> 15];
+        return recipients[index].Access((ushort)(address & masks[index]), value, readWrite);
     }
 }
 
