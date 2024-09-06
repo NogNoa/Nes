@@ -11,7 +11,7 @@ class NesBoard:IBus
         this.iram = new RAM();
         this.vram = new RAM();
         this.cartridge_port = new CartridgePort();   
-        this.ppu = new Ppu();
+        this.ppu = new Ppu(vram);
         ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
         this.address_decoder = new AddressDecoder([iram, ppu, null, null, cartridge_port], masks);
         this.cpu = new CPU2403(this, new Controller[2]);
@@ -56,11 +56,11 @@ class RAM : IBus
     {
         value = new byte[0x800];
     }
-    private void Write(ushort address, byte value)
+    public void Write(ushort address, byte value)
     {
         this.value[address] = value;
     }
-    private byte Read(ushort address)
+    public byte Read(ushort address)
     {
         return this.value[address];
     }

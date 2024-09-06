@@ -8,7 +8,6 @@ interface IBus
 class Controller {public byte get_buttons(byte outsig){return 0;}}
 
 
-
 class CartridgePort : IBus
 {
     Object? Cartridge;
@@ -21,10 +20,4 @@ class CartridgePort : IBus
         throw new NotImplementedException();
     }
 }
-class Ppu : IBus
-{
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
-    {
-        throw new NotImplementedException();
-    }
-}
+
