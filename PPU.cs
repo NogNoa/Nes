@@ -1,3 +1,5 @@
+using Microsoft.VisualBasic;
+
 class Ppu : ICpuBus
 {
     private byte Ppu_control;
@@ -8,9 +10,11 @@ class Ppu : ICpuBus
     public byte Vram_address;
 
     private readonly RAM Vram, Oam;
+    private NesBoard Bus;
 
-    public Ppu(RAM Vram)
+    public Ppu(NesBoard Bus, RAM Vram)
     {
+        this.Bus = Bus;
         this.Vram = Vram;
         this.Oam = new RAM();
     }
@@ -90,7 +94,18 @@ class Ppu : ICpuBus
                 break;
             default:
                 break;
-            }
-            return data;
         }
+        return data;
+    }
+    private void VBlank()
+    {
+        Bus.Nonmaskable_interrupt();
+    }
+    public void Reset()
+    {;}
+    private byte Read(ushort address)
+        {return Bus.Ppu_read(address);}
+    private void Write(ushort address, byte data)
+        {;}
+    private void latch(){;}
 }

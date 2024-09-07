@@ -11,7 +11,7 @@ class NesBoard:ICpuBus
         this.iram = new RAM();
         this.vram = new RAM();
         this.cartridge_port = new CartridgePort();   
-        this.ppu = new Ppu(vram);
+        this.ppu = new Ppu(this, vram);
         ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
         this.address_decoder = new AddressDecoder([iram, ppu, null, null, cartridge_port], masks);
         this.cpu = new CPU2403(this, new Controller[2]);
@@ -22,6 +22,10 @@ class NesBoard:ICpuBus
         byte back = address_decoder.Cpu_Access(address, value, readWrite);
         byte? whisp = cartridge_port.Whisper((ushort)(address & ((1 << 15) - 1)), value, readWrite);
         return whisp ?? back;
+    }
+    public void Nonmaskable_interrupt()
+    {
+        this.cpu.Nonmaskable_interrupt();
     }
 }
 
