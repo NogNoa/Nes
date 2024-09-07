@@ -1,4 +1,4 @@
-class NesBoard:IBus
+class NesBoard:ICpuBus
 {
     private readonly CPU2403 cpu;
     private readonly AddressDecoder address_decoder;
@@ -17,38 +17,38 @@ class NesBoard:IBus
         this.cpu = new CPU2403(this, new Controller[2]);
     } 
 
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
-        byte back = address_decoder.Access(address, value, readWrite);
+        byte back = address_decoder.Cpu_Access(address, value, readWrite);
         byte? whisp = cartridge_port.Whisper((ushort)(address & ((1 << 15) - 1)), value, readWrite);
         return whisp ?? back;
     }
 }
 
-class AddressDecoder:IBus
+class AddressDecoder:ICpuBus
 {
-    readonly IBus?[] recipients;
+    readonly ICpuBus?[] recipients;
     readonly ushort[] masks;
 
-    public AddressDecoder(IBus?[] recipients, ushort[] masks) {
+    public AddressDecoder(ICpuBus?[] recipients, ushort[] masks) {
         this.recipients = recipients;
         this.masks = masks;
     }
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         int index = (new int[] {4, (address >> 13) & 0b11})
         [address >> 15];
-        return (recipients[index] ?? new DeadEnd()).Access((ushort)(address & masks[index]), value, readWrite);
+        return (recipients[index] ?? new DeadEnd()).Cpu_Access((ushort)(address & masks[index]), value, readWrite);
     }
 }
 
-class DeadEnd: IBus
+class DeadEnd: ICpuBus
 {
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {return value;}
 }
 
-class RAM : IBus
+class RAM : ICpuBus
 {
     private readonly byte[] value;
 
@@ -64,7 +64,7 @@ class RAM : IBus
     {
         return this.value[address];
     }
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         switch (readWrite)
         {

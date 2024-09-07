@@ -8,7 +8,7 @@ class Cartridge(string Name, string Game_id, string Pcb_class, int Mapper_id)
     public int Mapper_id = Mapper_id;
 }
 
-class CartridgePort : IBus
+class CartridgePort : ICpuBus
 {
     Cartridge? _cartridge;
     public Cartridge? Cartridge {get => _cartridge;}
@@ -19,7 +19,7 @@ class CartridgePort : IBus
     {
         this._cartridge = cartridge;
     }
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         ROMSEL = true;
         throw new NotImplementedException();

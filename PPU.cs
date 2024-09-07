@@ -1,4 +1,4 @@
-class Ppu : IBus
+class Ppu : ICpuBus
 {
     private byte Ppu_control;
     private byte Ppu_mask;
@@ -44,7 +44,7 @@ class Ppu : IBus
     //      set => Ppu_control = Ppu_control & 1 | value & 1;
     //     }
     
-    public byte Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         return Access((byte) address, value, readWrite);
     }

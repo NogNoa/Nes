@@ -1,10 +1,10 @@
-class CPU2403: IBus
+class CPU2403: ICpuBus
 {
     readonly CPU6502 cpu;
-    readonly IBus bus;
+    readonly ICpuBus bus;
     readonly Controller[] controller; //len 2
     
-    public CPU2403(IBus bus, Controller[] controller) 
+    public CPU2403(ICpuBus bus, Controller[] controller) 
     {
         this.bus = bus;
         this.controller = controller;
@@ -12,7 +12,7 @@ class CPU2403: IBus
     }
 
     public bool M2(ushort address, byte value, ReadWrite readWrite)
-    {   Access(address, value, readWrite); 
+    {   Cpu_Access(address, value, readWrite); 
         return !cpu.φ1;
     }
     public bool M2(ushort address, ReadWrite readWrite)
@@ -23,8 +23,8 @@ class CPU2403: IBus
     public void Reset() {cpu.Reset();}
     public void Set_overflow() {cpu.Set_overflow();}
 
-    public byte Access(ushort address, byte value, ReadWrite readWrite) => 
-        this.bus.Access(address, value, readWrite);
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) => 
+        this.bus.Cpu_Access(address, value, readWrite);
 
     private byte Get_controller(byte index, byte outsig)
     {

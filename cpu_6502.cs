@@ -1,4 +1,4 @@
-internal class CPU6502(IBus bus)
+internal class CPU6502(ICpuBus bus)
 {
     private byte A;
     private byte X;
@@ -9,7 +9,7 @@ internal class CPU6502(IBus bus)
     private bool φ0;
     private byte _data;
     public bool φ1 {get => !φ0;}
-    private readonly IBus bus = bus;
+    private readonly ICpuBus bus = bus;
 
     private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
         (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
@@ -92,16 +92,16 @@ internal class CPU6502(IBus bus)
         this.Read((ushort)(0x100 | SP++));
 
     private byte Read(ushort address)
-        =>  this.bus.Access(address, this._data, ReadWrite.READ);
+        =>  this.bus.Cpu_Access(address, this._data, ReadWrite.READ);
 
     private void Write(ushort address, byte value)
     {
         this._data = value;
-        this.bus.Access(address, value, ReadWrite.WRITE);
+        this.bus.Cpu_Access(address, value, ReadWrite.WRITE);
     }
 
     public bool φ2(ushort address, byte value, ReadWrite readWrite)
-    {   this._data = this.bus.Access(address, value, readWrite);
+    {   this._data = this.bus.Cpu_Access(address, value, readWrite);
         return !φ1;
     }
     public bool φ2(ushort address, ReadWrite readWrite)
