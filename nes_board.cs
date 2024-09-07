@@ -20,8 +20,8 @@ class NesBoard:IBus
     public byte Access(ushort address, byte value, ReadWrite readWrite)
     {
         byte back = address_decoder.Access(address, value, readWrite);
-        cartridge_port.Whisper((ushort)(address & ((1 << 15) - 1)), value, readWrite);
-        return back;
+        byte? whisp = cartridge_port.Whisper((ushort)(address & ((1 << 15) - 1)), value, readWrite);
+        return whisp ?? back;
     }
 }
 
