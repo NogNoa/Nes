@@ -109,17 +109,17 @@ class Buffer
 {
     private byte _in = 0;
     private byte _out = 0;
-    public bool isOpen = true;
+    private bool _isOpen = true;
 
     public byte Read()
     {
-        if (isOpen){ return _in;}
+        if (_isOpen){ return _in;}
         else {return _out;}
     }
-    public byte Write(byte data, bool? isOpen)
-    {   this.isOpen = isOpen ?? this.isOpen;
+    public byte Write(byte data, bool isOpen)
+    {   this._isOpen = isOpen;
         _in = data;
-        if (this.isOpen) {_out = data;}
+        if (this._isOpen) {_out = data;}
         return data;
     }
 }
