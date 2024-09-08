@@ -1,4 +1,4 @@
-class NesBoard:ICpuBus
+class NesBoard:ICpuBus, IPpuBus
 {
     private readonly CPU2403 cpu;
     private readonly AddressDecoder address_decoder;
@@ -27,6 +27,16 @@ class NesBoard:ICpuBus
     {
         this.cpu.Nonmaskable_interrupt();
     }
+
+    public byte Ppu_Read(ushort address)
+    {
+        throw new NotImplementedException();
+    }
+
+    public byte Ppu_Write(ushort address, byte value)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 class AddressDecoder:ICpuBus
@@ -52,7 +62,7 @@ class DeadEnd: ICpuBus
     {return value;}
 }
 
-class RAM : ICpuBus
+class RAM : ICpuBus, IPpuBus
 {
     private readonly byte[] value;
 
@@ -80,5 +90,31 @@ class RAM : ICpuBus
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    public byte Ppu_Read(ushort address)
+    {
+        throw new NotImplementedException();
+    }
+
+    public byte Ppu_Write(ushort address, byte value)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+class Buffer
+{
+    private byte _in = 0;
+    private byte? _out = null;
+    private bool _control = true;
+
+    public byte Read()
+    {
+        if (_control)
+        {
+            return _in;
+        }
+        else {return _out}
     }
 }
