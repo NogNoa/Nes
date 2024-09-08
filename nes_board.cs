@@ -5,6 +5,7 @@ class NesBoard:ICpuBus, IPpuBus
     private readonly RAM iram, vram;
     private readonly CartridgePort cartridge_port;
     private readonly Ppu ppu;
+    private readonly Buffer ppu_address_buffer;
 
     public NesBoard()
     {
@@ -15,6 +16,7 @@ class NesBoard:ICpuBus, IPpuBus
         ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
         this.address_decoder = new AddressDecoder([iram, ppu, null, null, cartridge_port], masks);
         this.cpu = new CPU2403(this, new Controller[2]);
+        this.ppu_address_buffer = new Buffer();
     } 
 
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
@@ -114,10 +116,10 @@ class Buffer
         if (isOpen){ return _in;}
         else {return _out;}
     }
-    public byte Write(byte data, bool isOpen)
-    {   this.isOpen = isOpen;
+    public byte Write(byte data, bool? isOpen)
+    {   this.isOpen = isOpen ?? this.isOpen;
         _in = data;
-        if (isOpen) {_out = data;}
+        if (this.isOpen) {_out = data;}
         return data;
     }
 }
