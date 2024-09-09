@@ -108,18 +108,14 @@ class RAM : ICpuBus, IPpuBus
 class Buffer
 {
     private byte _in = 0;
-    private byte _out = 0;
-    private bool _isOpen = true;
-
-    public byte Read()
-    {
-        if (_isOpen){ return _in;}
-        else {return _out;}
-    }
-    public byte Write(byte data, bool isOpen)
-    {   this._isOpen = isOpen;
-        _in = data;
-        if (this._isOpen) {_out = data;}
-        return data;
+    public byte Access(byte source, bool isOpen)
+    {   
+        if (isOpen)
+        {   return _in = source;}
+        else
+        {   byte _out = _in;
+            _in = source;
+            return _out;
+        }
     }
 }
