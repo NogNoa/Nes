@@ -1,3 +1,5 @@
+using uint11_t = ushort;
+
 class NesBoard:ICpuBus, IPpuBus
 {
     private readonly CPU2403 cpu;
@@ -80,7 +82,7 @@ class RAM : ICpuBus, IPpuBus
     {
         return this.value[address];
     }
-    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(uint11_t address, byte value, ReadWrite readWrite)
     {
         switch (readWrite)
         {
@@ -90,7 +92,9 @@ class RAM : ICpuBus, IPpuBus
             case ReadWrite.READ:
                 return Read(address);
             default:
-                throw new NotSupportedException();
+                throw new ArgumentException("RAM chip has only 11 lines of address",
+                                            nameof(address));
+
         }
     }
 
@@ -110,12 +114,7 @@ class Buffer
     private byte _in = 0;
     public byte Access(byte source, bool isOpen)
     {   
-        if (isOpen)
-        {   return _in = source;}
-        else
-        {   byte _out = _in;
-            _in = source;
-            return _out;
-        }
+        if (isOpen){_in = source;}
+        return _in;
     }
 }

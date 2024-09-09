@@ -1,4 +1,5 @@
 using Microsoft.VisualBasic;
+using uint3_t = byte;
 
 class Ppu : ICpuBus
 {
@@ -50,9 +51,9 @@ class Ppu : ICpuBus
     
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
-        return Access((byte) address, value, readWrite);
+        return Access((uint3_t) address, value, readWrite);
     }
-    public byte Access(byte address, byte data, ReadWrite readWrite)
+    public byte Access(uint3_t address, byte data, ReadWrite readWrite)
     {
         switch (address)
         {
@@ -93,7 +94,8 @@ class Ppu : ICpuBus
                     {return Vram.Read(Vram_address);}
                 break;
             default:
-                break;
+                throw new ArgumentException("PPU has only 3 lines of address", 
+                                            nameof(address));
         }
         return data;
     }
