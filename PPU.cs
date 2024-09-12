@@ -106,7 +106,7 @@ class Ppu : ICpuBus
     public void Reset()
     {;}
     private byte Read(byte lo_address, uint6 hi_address)
-        {return Bus.Ppu_Read(lo_address, hi_address);}
+        {return Bus.Ppu_Read(lo_address, hi_address, true);}
     private void Write(byte lo_address, uint6 hi_address, byte data)
         {;}
     private void latch(){;}

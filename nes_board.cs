@@ -1,5 +1,7 @@
-using uint11 = ushort;
 using uint6 = byte;
+using uint11 = ushort;
+using uint14 = ushort;
+using System.Net.Sockets;
 
 class NesBoard:ICpuBus, IPpuBus
 {
@@ -33,9 +35,10 @@ class NesBoard:ICpuBus, IPpuBus
         this.cpu.Nonmaskable_interrupt();
     }
 
-    public byte Ppu_Read(byte lo_address, uint6 hi_address)
+    public byte Ppu_Read(byte lo_address, uint6 hi_address, bool latch_enable)
     {
-        address = (address << 7) | ppu_address_buffer.Access()
+        uint14 address = (ushort) (( hi_address << 8) | ppu_address_buffer.Access(lo_address, latch_enable));
+        return vram.Read(address);
     }
 
     public byte Ppu_Write(ushort address, byte value)
@@ -67,7 +70,7 @@ class DeadEnd: ICpuBus
     {return value;}
 }
 
-class RAM : ICpuBus, IPpuBus
+class RAM : ICpuBus
 {
     private readonly byte[] value;
 
