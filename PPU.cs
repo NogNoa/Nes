@@ -74,10 +74,7 @@ class Ppu : ICpuBus
                     {Oam_address =data;}
                 break;
             case 4:
-                if (readWrite == ReadWrite.WRITE)
-                    {Oam.Write(Oam_address,data);}
-                else
-                    {return Oam.Read(Oam_address);}
+                {Oam.Access(Oam_address,data, readWrite);}
                 break;
             case 5:
                 if (readWrite == ReadWrite.WRITE)
@@ -88,10 +85,7 @@ class Ppu : ICpuBus
                     {Vram_address =data;}
                 break;
             case 7:
-                if (readWrite == ReadWrite.WRITE)
-                    {Vram.Write(Vram_address,data);}
-                else
-                    {return Vram.Read(Vram_address);}
+                {Vram.Access(Vram_address,data, readWrite);}
                 break;
             default:
                 throw new ArgumentException("PPU has only 3 lines of address", 

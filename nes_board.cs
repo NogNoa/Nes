@@ -43,7 +43,7 @@ class NesBoard:ICpuBus
     public byte Vram_access(byte data_address_plex, uint6 hi_address, bool latch_enable, ReadWrite readWrite)
     {
         uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(data_address_plex, latch_enable));
-        byte back = (byte) (data_address_plex & vram.Ppu_access(address, data_address_plex, readWrite));
+        byte back = (byte) (data_address_plex & vram.Access(address, data_address_plex, readWrite));
         Ppu_Latch(back, latch_enable);
         return back;
     }
@@ -80,33 +80,13 @@ class RAM : ICpuBus
     {
         value = new byte[0x800];
     }
-    public byte Write(ushort address, byte value)
+    public byte Access(uint11 address, byte value, ReadWrite readWrite)
     {
-        return this.value[address] = value;
-    }
-    public byte Read(ushort address)
-    {
+        if (readWrite == ReadWrite.WRITE) {this.value[address] = value;}
         return this.value[address];
     }
-    public byte Cpu_Access(uint11 address, byte value, ReadWrite readWrite)
-    {
-        switch (readWrite)
-        {
-            case ReadWrite.WRITE:
-                Write(address, value);
-                return value;
-            case ReadWrite.READ:
-                return Read(address);
-            default:
-                throw new ArgumentException("RAM chip has only 11 lines of address",
-                                            nameof(address));
-
-        }
-    }
-    public byte Ppu_access(uint11 address, byte value, ReadWrite readWrite)
-    {
-        return (readWrite == ReadWrite.WRITE) ? this.Write(address, value) : this.Read(address); 
-    }
+    public byte Cpu_Access(uint11 address, byte value, ReadWrite readWrite) 
+        => Access(address, value, readWrite);
 }
 
 class Buffer
