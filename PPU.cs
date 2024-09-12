@@ -1,5 +1,5 @@
-using Microsoft.VisualBasic;
-using uint3_t = byte;
+using uint3 = byte;
+using uint6 = byte;
 
 class Ppu : ICpuBus
 {
@@ -51,9 +51,9 @@ class Ppu : ICpuBus
     
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
-        return Access((uint3_t) address, value, readWrite);
+        return Access((uint3) address, value, readWrite);
     }
-    public byte Access(uint3_t address, byte data, ReadWrite readWrite)
+    public byte Access(uint3 address, byte data, ReadWrite readWrite)
     {
         switch (address)
         {
@@ -105,9 +105,9 @@ class Ppu : ICpuBus
     }
     public void Reset()
     {;}
-    private byte Read(ushort address)
-        {return Bus.Ppu_read(address);}
-    private void Write(ushort address, byte data)
+    private byte Read(byte lo_address, uint6 hi_address)
+        {return Bus.Ppu_Read(lo_address, hi_address);}
+    private void Write(byte lo_address, uint6 hi_address, byte data)
         {;}
     private void latch(){;}
 }

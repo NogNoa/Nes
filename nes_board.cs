@@ -1,4 +1,5 @@
-using uint11_t = ushort;
+using uint11 = ushort;
+using uint6 = byte;
 
 class NesBoard:ICpuBus, IPpuBus
 {
@@ -32,9 +33,9 @@ class NesBoard:ICpuBus, IPpuBus
         this.cpu.Nonmaskable_interrupt();
     }
 
-    public byte Ppu_Read(ushort address)
+    public byte Ppu_Read(byte lo_address, uint6 hi_address)
     {
-        throw new NotImplementedException();
+        address = (address << 7) | ppu_address_buffer.Access()
     }
 
     public byte Ppu_Write(ushort address, byte value)
@@ -82,7 +83,7 @@ class RAM : ICpuBus, IPpuBus
     {
         return this.value[address];
     }
-    public byte Cpu_Access(uint11_t address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(uint11 address, byte value, ReadWrite readWrite)
     {
         switch (readWrite)
         {

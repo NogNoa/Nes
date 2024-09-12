@@ -1,11 +1,16 @@
-using System.Diagnostics.Contracts;
+using System.Diagnostics;
 
-class Cartridge(string Name, string Game_id, string Pcb_class, int Mapper_id)
+class Cartridge(string Name, string Game_id, string Pcb_class, int Mapper_id): ICpuBus
 {
     public string Name = Name;
     public string Game_id = Game_id; 
     public string Pcb_class = Pcb_class;
     public int Mapper_id = Mapper_id;
+
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 class CartridgePort : ICpuBus
@@ -22,11 +27,9 @@ class CartridgePort : ICpuBus
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         ROMSEL = true;
-        throw new NotImplementedException();
-        if (readWrite == ReadWrite.READ)
-            {return 0;}
-        else
-            {return value;}
+        Debug.Assert(address <  1 << 15);
+        return Cartridge?.Cpu_Access((ushort)(address |  1 << 15), value, 
+                                     readWrite) ?? value;
     }
     public byte? Whisper(ushort address, byte value, ReadWrite readWrite)
     {
@@ -34,7 +37,8 @@ class CartridgePort : ICpuBus
         {   ROMSEL = false; 
             return null;
         }
-        throw new NotImplementedException();
+        Debug.Assert(address <  1 << 15);
+        return Cartridge?.Cpu_Access(address, value, readWrite);
     }
 }
 

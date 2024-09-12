@@ -1,3 +1,4 @@
+using uint6 = byte;
 
 public enum ReadWrite {WRITE, READ}
 interface ICpuBus
@@ -6,8 +7,8 @@ interface ICpuBus
 }
 interface IPpuBus
 {
-    byte Ppu_Read(ushort address);
-    byte Ppu_Write(ushort address, byte value);
+    byte Ppu_Read(byte lo_address, uint6 hi_address);
+    byte Ppu_Write(byte lo_address, uint6 hi_address, byte value);
 }
 
 class Controller {public byte get_buttons(byte outsig){return 0;}}
