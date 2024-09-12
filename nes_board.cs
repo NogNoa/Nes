@@ -40,19 +40,12 @@ class NesBoard:ICpuBus, IPpuBus
     {
         return ppu_address_buffer.Access(data, latch_enable);
     }
-    public byte Ppu_Read(byte lo_address, uint6 hi_address, bool latch_enable)
+    public byte Vram_access(byte data_address_plex, uint6 hi_address, bool latch_enable)
     {
-        uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(lo_address, latch_enable));
-        byte back = (byte) (lo_address & vram.Read(address));
+        uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(data_address_plex, latch_enable));
+        byte back = (byte) (data_address_plex & vram.Read(address));
         Ppu_Latch(back, latch_enable);
         return back;
-    }
-
-    public byte Ppu_Write(byte value, uint6 hi_address, bool latch_enable)
-    {
-        uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(value, latch_enable));
-        vram.Write(address, value);
-        return value;
     }
 }
 
@@ -87,9 +80,9 @@ class RAM : ICpuBus
     {
         value = new byte[0x800];
     }
-    public void Write(ushort address, byte value)
+    public byte Write(ushort address, byte value)
     {
-        this.value[address] = value;
+        return this.value[address] = value;
     }
     public byte Read(ushort address)
     {
