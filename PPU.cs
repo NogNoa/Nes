@@ -107,11 +107,11 @@ class Ppu : ICpuBus
     {;}
     private byte Read(byte lo_address, uint6 hi_address)
         {   Bus.Ppu_Latch(lo_address, false);
-            return Bus.Vram_access(0xFF, hi_address, true);
+            return Bus.Vram_access(0xFF, hi_address, true, ReadWrite.READ);
         }
     private void Write(byte lo_address, uint6 hi_address, byte data)
         {   Bus.Ppu_Latch(lo_address, false);
-            Bus.Vram_access(data, hi_address, true);
+            Bus.Vram_access(data, hi_address, true, ReadWrite.WRITE);
         }
     private void latch(){;}
 }

@@ -4,7 +4,7 @@ using uint14 = ushort;
 using System.Net.Sockets;
 using System.ComponentModel;
 
-class NesBoard:ICpuBus, IPpuBus
+class NesBoard:ICpuBus
 {
     private readonly CPU2403 cpu;
     private readonly AddressDecoder address_decoder;
@@ -40,10 +40,10 @@ class NesBoard:ICpuBus, IPpuBus
     {
         return ppu_address_buffer.Access(data, latch_enable);
     }
-    public byte Vram_access(byte data_address_plex, uint6 hi_address, bool latch_enable)
+    public byte Vram_access(byte data_address_plex, uint6 hi_address, bool latch_enable, ReadWrite readWrite)
     {
         uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(data_address_plex, latch_enable));
-        byte back = (byte) (data_address_plex & vram.Read(address));
+        byte back = (byte) (data_address_plex & vram.Ppu_access(address, data_address_plex, readWrite));
         Ppu_Latch(back, latch_enable);
         return back;
     }
@@ -103,15 +103,9 @@ class RAM : ICpuBus
 
         }
     }
-
-    public byte Ppu_Read(ushort address)
+    public byte Ppu_access(uint11 address, byte value, ReadWrite readWrite)
     {
-        throw new NotImplementedException();
-    }
-
-    public byte Ppu_Write(ushort address, byte value)
-    {
-        throw new NotImplementedException();
+        return (readWrite == ReadWrite.WRITE) ? this.Write(address, value) : this.Read(address); 
     }
 }
 
