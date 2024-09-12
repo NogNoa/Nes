@@ -7,8 +7,8 @@ interface ICpuBus
 }
 interface IPpuBus
 {
-    byte Ppu_Read(byte lo_address, uint6 hi_address);
-    byte Ppu_Write(byte lo_address, uint6 hi_address, byte value);
+    byte Ppu_Read(byte lo_address, uint6 hi_address, bool latch_enable);
+    byte Ppu_Write(byte value, uint6 hi_address, bool latch_enable);
 }
 
 class Controller {public byte get_buttons(byte outsig){return 0;}}
