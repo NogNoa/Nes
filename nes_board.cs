@@ -17,7 +17,7 @@ class NesBoard:ICpuBus
     {
         this.iram = new RAM();
         this.vram = new RAM();
-        this.cartridge_port = new CartridgePort();   
+        this.cartridge_port = new CartridgePort(this);   
         this.ppu = new Ppu(this, vram);
         ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
         this.address_decoder = new AddressDecoder([iram, ppu, null, null, cartridge_port], masks);
@@ -34,6 +34,10 @@ class NesBoard:ICpuBus
     public void Nonmaskable_interrupt()
     {
         this.cpu.Nonmaskable_interrupt();
+    }
+    public void Interrupt_request()
+    {
+        this.cpu.Interrupt_request();
     }
     
     public byte Ppu_Latch(byte data, bool latch_enable)
