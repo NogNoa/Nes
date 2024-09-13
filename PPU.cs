@@ -6,9 +6,9 @@ class Ppu : ICpuBus
     private byte Ppu_control;
     private byte Ppu_mask;
     private byte Ppu_status;
-    public byte Oam_address;
+    public byte Cpu_Oam_address;
     private byte Ppu_scroll;
-    public byte Vram_address;
+    public byte Cpu_Vram_address;
 
     private readonly RAM Vram, Oam;
     private NesBoard Bus;
@@ -71,22 +71,20 @@ class Ppu : ICpuBus
                 break;
             case 3:
                 if (readWrite == ReadWrite.WRITE)
-                    {Oam_address =data;}
+                    {Cpu_Oam_address =data;}
                 break;
             case 4:
-                {Oam.Access(Oam_address,data, readWrite);}
-                break;
+                {return Oam.Access(Cpu_Oam_address, data, readWrite);}
             case 5:
                 if (readWrite == ReadWrite.WRITE)
                     {Ppu_scroll = data;}
                 break;
             case 6:
                 if (readWrite == ReadWrite.WRITE)
-                    {Vram_address =data;}
+                    {Cpu_Vram_address =data;}
                 break;
             case 7:
-                {Vram.Access(Vram_address,data, readWrite);}
-                break;
+                {return Vram.Access(Cpu_Vram_address,data, readWrite);}
             default:
                 throw new ArgumentException("PPU has only 3 lines of address", 
                                             nameof(address));
@@ -101,11 +99,11 @@ class Ppu : ICpuBus
     {;}
     private byte Read(byte lo_address, uint6 hi_address)
         {   Bus.Ppu_Latch(lo_address, false);
-            return Bus.Vram_access(0xFF, hi_address, true, ReadWrite.READ);
+            return Bus.Ppu_access(0xFF, hi_address, true, ReadWrite.READ);
         }
     private void Write(byte lo_address, uint6 hi_address, byte data)
         {   Bus.Ppu_Latch(lo_address, false);
-            Bus.Vram_access(data, hi_address, true, ReadWrite.WRITE);
+            Bus.Ppu_access(data, hi_address, true, ReadWrite.WRITE);
         }
     private void latch(){;}
 }

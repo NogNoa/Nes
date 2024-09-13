@@ -11,6 +11,10 @@ class Cartridge(string Name, string Game_id, string Pcb_class, int Mapper_id): I
     {
         throw new NotImplementedException();
     }
+    internal byte Ppu_Access(ushort address, byte da_duplex, ReadWrite readWrite)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 class CartridgePort : ICpuBus
@@ -39,6 +43,11 @@ class CartridgePort : ICpuBus
         }
         Debug.Assert(address <  1 << 15);
         return Cartridge?.Cpu_Access(address, value, readWrite);
+    }
+
+    internal byte Ppu_Access(ushort address, byte da_duplex, ReadWrite readWrite)
+    {
+        return Cartridge?.Ppu_Access(address, da_duplex, readWrite) ?? da_duplex;
     }
 }
 

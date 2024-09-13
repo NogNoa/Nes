@@ -35,15 +35,15 @@ class NesBoard:ICpuBus
     {
         this.cpu.Nonmaskable_interrupt();
     }
-
+    
     public byte Ppu_Latch(byte data, bool latch_enable)
     {
         return ppu_address_buffer.Access(data, latch_enable);
     }
-    public byte Vram_access(byte data_address_plex, uint6 hi_address, bool latch_enable, ReadWrite readWrite)
+    public byte Ppu_access(byte da_duplex, uint6 hi_address, bool latch_enable, ReadWrite readWrite)
     {
-        uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(data_address_plex, latch_enable));
-        byte back = (byte) (data_address_plex & vram.Access(address, data_address_plex, readWrite));
+        uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(da_duplex, latch_enable));
+        byte back = (byte) (da_duplex & cartridge_port.Ppu_Access(address, da_duplex, readWrite));
         Ppu_Latch(back, latch_enable);
         return back;
     }

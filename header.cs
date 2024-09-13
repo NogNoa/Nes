@@ -1,5 +1,3 @@
-using uint6 = byte;
-
 public enum ReadWrite {WRITE, READ}
 interface ICpuBus
 {
