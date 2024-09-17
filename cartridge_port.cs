@@ -9,8 +9,8 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
     public string Pcb_class = Pcb_class;
     public int Mapper_id = Mapper_id;
     required internal CartridgePort bus;
-    private byte[]? chr_rom;
-    private byte[]? prg_rom;
+    protected byte[]? chr_rom;
+    protected byte[]? prg_rom;
 
     abstract internal byte Cpu_Access(ushort address, byte value, ReadWrite readWrite);
 
@@ -32,6 +32,9 @@ class Nrom: Cartridge
     {
         bool ciram_ce = ((address & (1 << 13)) == 0); // not ppu_a13
         bool ciram_a10 = (1 & ((this.Mirroring == Mirroring.Vertical) ? (address >> 10) : (address >> 11))) == 1;
+        bool chr_cs = (1 & (address >> 13)) == 1;
+        ushort chr_address = (ushort) (address & ((1 << 13) - 1));
+        if (readWrite == ReadWrite.READ && chr_cs) {return chr_rom[address];}
         throw new NotImplementedException();
     }
     public new void Interrupt_request(){;}
