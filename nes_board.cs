@@ -46,10 +46,16 @@ class NesBoard:ICpuBus
     }
     public byte Ppu_access(byte da_duplex, uint6 hi_address, bool latch_enable, ReadWrite? readWrite)
     {
+        byte vram_data_bus = da_duplex;
+        bool chip_ebable_vram;
+        uint11 vram_address;
+        (bool, byte?, uint11)? cart_status;
         uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(da_duplex, latch_enable));
-        if (readWrite != null)
+        cart_status = cartridge_port.Ppu_Access(address, da_duplex, readWrite);
+        if (cart_status != null)
         {
-            da_duplex = (byte) (da_duplex & cartridge_port.Ppu_Access(address, da_duplex, (ReadWrite)readWrite));
+            (chip_ebable_vram, da_duplex, vram_address) = cart_status;
+            da_duplex = (byte) (da_duplex & );
             Ppu_Latch(da_duplex, latch_enable);
         }
         return da_duplex;
