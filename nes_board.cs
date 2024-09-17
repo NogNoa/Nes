@@ -44,12 +44,15 @@ class NesBoard:ICpuBus
     {
         return ppu_address_buffer.Access(data, latch_enable);
     }
-    public byte Ppu_access(byte da_duplex, uint6 hi_address, bool latch_enable, ReadWrite readWrite)
+    public byte Ppu_access(byte da_duplex, uint6 hi_address, bool latch_enable, ReadWrite? readWrite)
     {
         uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(da_duplex, latch_enable));
-        byte back = (byte) (da_duplex & cartridge_port.Ppu_Access(address, da_duplex, readWrite));
-        Ppu_Latch(back, latch_enable);
-        return back;
+        if (readWrite != null)
+        {
+            da_duplex = (byte) (da_duplex & cartridge_port.Ppu_Access(address, da_duplex, (ReadWrite)readWrite));
+            Ppu_Latch(da_duplex, latch_enable);
+        }
+        return da_duplex;
     }
 }
 

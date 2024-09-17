@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using uint14 = ushort;
+using uint10 = ushort;
 
 public enum Mirroring {Horizontal, Vertical}
 
@@ -14,7 +16,7 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
 
     abstract internal byte Cpu_Access(ushort address, byte value, ReadWrite readWrite);
 
-    abstract internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite);
+    abstract internal (bool, byte?, uint10) Ppu_Access(ushort address, byte data, ReadWrite readWrite);
 
     public void Interrupt_request()
     {
@@ -28,14 +30,17 @@ class Nrom: Cartridge
     public Nrom(string Name, string Game_id, Mirroring mirroring) : base(Name, Game_id, "Nrom", 0) 
     {this.Mirroring = mirroring;}
 
-    internal override byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)
+    internal override (bool, byte?, uint10) Ppu_Access(uint14 address, byte data, ReadWrite readWrite)
     {
+        uint10 ciram_address = (uint10) ((this.Mirroring == Mirroring.Vertical) ? 
+                               (address &  (1 << 10) - 1) : 
+                               (address &  (1 <<  9) - 1) | ((address &  1 << 11) >> 1));   
         bool ciram_ce = ((address & (1 << 13)) == 0); // not ppu_a13
-        bool ciram_a10 = (1 & ((this.Mirroring == Mirroring.Vertical) ? (address >> 10) : (address >> 11))) == 1;
-        bool chr_cs = (1 & (address >> 13)) == 1;
-        ushort chr_address = (ushort) (address & ((1 << 13) - 1));
-        if (readWrite == ReadWrite.READ && chr_cs) {return chr_rom[address];}
-        throw new NotImplementedException();
+        bool chr_cs = !ciram_ce;
+        byte? chr_data;
+        if (readWrite == ReadWrite.READ && chr_cs) {chr_data = chr_rom?[address];}
+        else {chr_data = null;}
+        return (ciram_ce, chr_data, ciram_address);
     }
     public new void Interrupt_request(){;}
 
@@ -80,9 +85,9 @@ class CartridgePort : ICpuBus
         return Cartridge?.Cpu_Access(address, value, readWrite);
     }
 
-    internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)
+    internal (bool, byte?, uint10)? Ppu_Access(ushort address, byte data, ReadWrite readWrite)
     {
-        return Cartridge?.Ppu_Access(address, data, readWrite) ?? data;
+        return Cartridge?.Ppu_Access(address, data, readWrite) ?? (true, null, (uint14)(address & (1 << 9 - 1)));
     }
     internal void Interrupt_request()
     {
