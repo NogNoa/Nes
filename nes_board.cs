@@ -40,18 +40,20 @@ class NesBoard:ICpuBus
         this.cpu.Interrupt_request();
     }
     
-    public byte Ppu_Latch(byte data, bool latch_enable)
+    private byte Ppu_Latch(byte data, bool latch_enable)
     {
         return ppu_address_buffer.Access(data, latch_enable);
     }
     public byte Ppu_access(byte vram_data_bus, uint6 hi_address, bool latch_enable, ReadWrite? readWrite)
     {
-        uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(vram_data_bus, latch_enable));
-        vram_data_bus |= cartridge_port.Ppu_Access(address, vram_data_bus, readWrite);
+        if (readWrite != null)
+        {   uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(vram_data_bus, latch_enable));
+            vram_data_bus |= cartridge_port.Ppu_Access(address, vram_data_bus, (ReadWrite) readWrite);
+        }
         Ppu_Latch(vram_data_bus, latch_enable);
         return vram_data_bus;
     }
-    public byte Access_Vram(uint11 address, byte value, ReadWrite? readWrite)
+    public byte Access_Vram(uint11 address, byte value, ReadWrite readWrite)
     {
         return vram.Access(address, value, readWrite);
     }

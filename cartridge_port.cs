@@ -38,8 +38,7 @@ class Nrom: Cartridge
 
     internal override byte? Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
     {
-        if (readWrite == ReadWrite.WRITE) {this.chr_rom[address] = data;}
-        return chr_rom?[address];
+        return (readWrite == ReadWrite.READ) ? chr_rom?[address] : data;
     }
     public new void Interrupt_request(){;}
 
@@ -99,7 +98,7 @@ class CartridgePort : ICpuBus
         return Cartridge?.Cpu_Access(address, value, readWrite);
     }
 
-    internal byte Ppu_Access(ushort address, byte data, ReadWrite? readWrite)
+    internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)
     {
         byte back = 0;
         if (Cartridge == null) {return back;}
@@ -109,8 +108,7 @@ class CartridgePort : ICpuBus
             back |= bus.Access_Vram(vram_address, data, readWrite);   
         }
         if (Cartridge.Chr_CS(address, readWrite))
-        {
-            back |= Cartridge?.Ppu_Access(address, data, readWrite) ?? 0;
+        {   back |= Cartridge?.Ppu_Access(address, data, readWrite) ?? 0;
         }
         return back;
     }

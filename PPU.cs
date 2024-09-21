@@ -98,12 +98,13 @@ class Ppu : ICpuBus
     public void Reset()
     {;}
     private byte Read(byte lo_address, uint6 hi_address)
-        {   Bus.Ppu_Latch(lo_address, false);
-            return Bus.Ppu_access(0xFF, hi_address, true, ReadWrite.READ);
+        {   Latch(lo_address);
+            return Bus.Ppu_access(0, hi_address, true, ReadWrite.READ);
         }
     private void Write(byte lo_address, uint6 hi_address, byte data)
-        {   Bus.Ppu_Latch(lo_address, false);
+        {   Latch(lo_address);
             Bus.Ppu_access(data, hi_address, true, ReadWrite.WRITE);
         }
-    private void latch(){;}
+    private void Latch(byte lo_address)
+    {Bus.Ppu_access(lo_address, 0, false, null);}
 }
