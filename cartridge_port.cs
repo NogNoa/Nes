@@ -16,12 +16,18 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
 
     abstract internal byte Cpu_Access(ushort address, byte value, ReadWrite readWrite);
 
-    abstract internal (bool, byte?, uint11) Ppu_Access(ushort address, byte data, ReadWrite? readWrite);
+    abstract internal byte? Ppu_Access(ushort address, byte data, ReadWrite? readWrite);
 
     public void Interrupt_request()
     {
         bus?.Interrupt_request();
     }
+
+    abstract internal bool Ciram_CS(ushort address, ReadWrite? readWrite);
+
+    abstract internal bool Ciram_A10(ushort address, ReadWrite? readWrite);
+
+    abstract internal bool Chr_CS(ushort address, ReadWrite? readWrite);
 }
 
 class Nrom: Cartridge
@@ -30,23 +36,30 @@ class Nrom: Cartridge
     public Nrom(string Name, string Game_id, Mirroring mirroring) : base(Name, Game_id, "Nrom", 0) 
     {this.Mirroring = mirroring;}
 
-    internal override (bool, byte?, uint11) Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
+    internal override byte? Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
     {
-        uint11 ciram_address = (uint11) ((this.Mirroring == Mirroring.Vertical) ? 
-                               (address &  (1 << 10) - 1) : 
-                               (address &  (1 <<  9) - 1) | ((address &  1 << 11) >> 1));   
-        bool ciram_ce = ((address & (1 << 13)) == 0); // not ppu_a13
-        bool chr_cs = !ciram_ce;
-        byte? chr_data;
-        if (readWrite == ReadWrite.READ && chr_cs) {chr_data = chr_rom?[address];}
-        else {chr_data = null;}
-        return (ciram_ce, chr_data, ciram_address);
+        return chr_rom?[address];
     }
     public new void Interrupt_request(){;}
 
     internal override byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         throw new NotImplementedException();
+    }
+
+    internal override bool Ciram_CS(ushort address, ReadWrite? readWrite)
+    {
+        return (address & (1 << 13)) == 0;
+    }
+
+    internal override bool Ciram_A10(ushort address, ReadWrite? readWrite)
+    {
+        return  (address & (1 << ((this.Mirroring == Mirroring.Vertical) ? 10 : 9))) != 0;
+    }
+
+    internal override bool Chr_CS(ushort address, ReadWrite? readWrite)
+    {
+        return ((address & (1 << 13)) != 0); //!ciram_cs
     }
 }
 
@@ -85,8 +98,17 @@ class CartridgePort : ICpuBus
         return Cartridge?.Cpu_Access(address, value, readWrite);
     }
 
-    internal (bool, byte?, uint11)? Ppu_Access(ushort address, byte data, ReadWrite? readWrite)
+    internal byte? Ppu_Access(ushort address, byte data, ReadWrite? readWrite)
     {
+        byte back = 0;
+        if (Cartridge.Ciram_CS(address, readWrite))
+        {   uint11 vram_address = (uint11) ((address &  (1 <<  9) - 1) | ((Cartridge.Ciram_A10(address, readWrite)? 1 : 0) << 10));
+            back |= bus.Access_Vram(vram_address, data, readWrite);   
+        }
+        if (Cartridge.Chr_CS(address, readWrite))
+        {
+            back |= Cartridge?.Ppu_Access(address, data, readWrite) ?? 0;
+        }
         return Cartridge?.Ppu_Access(address, data, readWrite) ?? null;
     }
     internal void Interrupt_request()

@@ -58,6 +58,10 @@ class NesBoard:ICpuBus
         }
         return da_duplex;
     }
+    public byte Access_Vram(uint11 address, byte value, ReadWrite? readWrite)
+    {
+        return vram.Access(address, value, readWrite);
+    }
 }
 
 class AddressDecoder:ICpuBus
@@ -91,8 +95,9 @@ class RAM : ICpuBus
     {
         value = new byte[0x800];
     }
-    public byte Access(uint11 address, byte value, ReadWrite readWrite)
+    public byte Access(uint11 address, byte value, ReadWrite? readWrite)
     {
+        if (readWrite == null) {return 0;}
         if (readWrite == ReadWrite.WRITE) {this.value[address] = value;}
         return this.value[address];
     }
