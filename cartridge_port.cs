@@ -11,8 +11,8 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
     public string Pcb_class = Pcb_class;
     public int Mapper_id = Mapper_id;
     required internal CartridgePort bus;
-    protected byte[]? chr_rom;
-    protected byte[]? prg_rom;
+    protected byte[] chr_rom = [];
+    protected byte[] prg_rom = [];
 
     abstract internal byte Cpu_Access(ushort address, byte value, ReadWrite readWrite);
 
@@ -38,6 +38,7 @@ class Nrom: Cartridge
 
     internal override byte? Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
     {
+        if (readWrite == ReadWrite.WRITE) {this.chr_rom[address] = data;}
         return chr_rom?[address];
     }
     public new void Interrupt_request(){;}
@@ -98,9 +99,11 @@ class CartridgePort : ICpuBus
         return Cartridge?.Cpu_Access(address, value, readWrite);
     }
 
-    internal byte? Ppu_Access(ushort address, byte data, ReadWrite? readWrite)
+    internal byte Ppu_Access(ushort address, byte data, ReadWrite? readWrite)
     {
         byte back = 0;
+        if (Cartridge == null) {return back;}
+        else {Cartridge Cartridge = (Cartridge) this.Cartridge;}
         if (Cartridge.Ciram_CS(address, readWrite))
         {   uint11 vram_address = (uint11) ((address &  (1 <<  9) - 1) | ((Cartridge.Ciram_A10(address, readWrite)? 1 : 0) << 10));
             back |= bus.Access_Vram(vram_address, data, readWrite);   
@@ -109,7 +112,7 @@ class CartridgePort : ICpuBus
         {
             back |= Cartridge?.Ppu_Access(address, data, readWrite) ?? 0;
         }
-        return Cartridge?.Ppu_Access(address, data, readWrite) ?? null;
+        return back;
     }
     internal void Interrupt_request()
     {
