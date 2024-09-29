@@ -1,8 +1,6 @@
 using uint6 = byte;
 using uint11 = ushort;
 using uint14 = ushort;
-using System.Net.Sockets;
-using System.ComponentModel;
 
 class NesBoard:ICpuBus
 {
@@ -12,6 +10,7 @@ class NesBoard:ICpuBus
     private readonly CartridgePort cartridge_port;
     private readonly Ppu ppu;
     private readonly Buffer ppu_address_buffer;
+    readonly Controller[] controllers; //len 2
 
     public NesBoard()
     {
@@ -21,7 +20,8 @@ class NesBoard:ICpuBus
         this.ppu = new Ppu(this, vram);
         ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
         this.address_decoder = new AddressDecoder([iram, ppu, null, null, cartridge_port], masks);
-        this.cpu = new CPU2403(this, new Controller[2]);
+        this.controllers = new Controller[2];
+        this.cpu = new CPU2403(this);
         this.ppu_address_buffer = new Buffer();
     } 
 
@@ -56,6 +56,11 @@ class NesBoard:ICpuBus
     public byte Access_Vram(uint11 address, byte value, ReadWrite readWrite)
     {
         return vram.Access(address, value, readWrite);
+    }
+    public byte Get_controller(byte index, byte outsig)
+    {
+        outsig &= (1 << 3) - 1;
+        return this.controllers[index].get_buttons(outsig);
     }
 }
 

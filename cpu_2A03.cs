@@ -1,13 +1,12 @@
 class CPU2403: ICpuBus
 {
     readonly CPU6502 cpu;
-    readonly ICpuBus bus;
-    readonly Controller[] controller; //len 2
+    readonly NesBoard bus;
+
     
-    public CPU2403(ICpuBus bus, Controller[] controller) 
+    public CPU2403(NesBoard bus) 
     {
         this.bus = bus;
-        this.controller = controller;
         this.cpu = new CPU6502(this);
     }
 
@@ -28,8 +27,7 @@ class CPU2403: ICpuBus
 
     private byte Get_controller(byte index, byte outsig)
     {
-        outsig &= (1 << 3) - 1;
-        return this.controller[index].get_buttons(outsig);
+        return this.bus.Get_controller(index, outsig);
     }
     // object audio()
 }
