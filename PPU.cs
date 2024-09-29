@@ -1,7 +1,7 @@
 using uint3 = byte;
 using uint6 = byte;
 
-class Ppu : ICpuBus
+class Ppu : ICpuAccessible
 {
     private byte Ppu_control;
     private byte Ppu_mask;
@@ -11,9 +11,9 @@ class Ppu : ICpuBus
     public byte Cpu_Vram_address;
 
     private readonly RAM Vram, Oam;
-    private NesBoard Bus;
+    private IPpuBus Bus;
 
-    public Ppu(NesBoard Bus, RAM Vram)
+    public Ppu(IPpuBus Bus, RAM Vram)
     {
         this.Bus = Bus;
         this.Vram = Vram;

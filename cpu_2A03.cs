@@ -1,10 +1,10 @@
-class CPU2403: ICpuBus
+class CPU2403: ICpuAccessible
 {
     readonly CPU6502 cpu;
-    readonly NesBoard bus;
+    readonly ICpuBus bus;
 
     
-    public CPU2403(NesBoard bus) 
+    public CPU2403(ICpuBus bus) 
     {
         this.bus = bus;
         this.cpu = new CPU6502(this);

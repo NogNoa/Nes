@@ -2,7 +2,7 @@ using uint6 = byte;
 using uint11 = ushort;
 using uint14 = ushort;
 
-class NesBoard:ICpuBus
+class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
 {
     private readonly CPU2403 cpu;
     private readonly AddressDecoder address_decoder;
@@ -38,6 +38,7 @@ class NesBoard:ICpuBus
     public void Interrupt_request()
     {
         this.cpu.Interrupt_request();
+
     }
     
     private byte Ppu_Latch(byte data, bool latch_enable)
@@ -64,12 +65,12 @@ class NesBoard:ICpuBus
     }
 }
 
-class AddressDecoder:ICpuBus
+class AddressDecoder:ICpuAccessible
 {
-    readonly ICpuBus?[] recipients;
+    readonly ICpuAccessible?[] recipients;
     readonly ushort[] masks;
 
-    public AddressDecoder(ICpuBus?[] recipients, ushort[] masks) {
+    public AddressDecoder(ICpuAccessible?[] recipients, ushort[] masks) {
         this.recipients = recipients;
         this.masks = masks;
     }
@@ -81,13 +82,13 @@ class AddressDecoder:ICpuBus
     }
 }
 
-class DeadEnd: ICpuBus
+class DeadEnd: ICpuAccessible
 {
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {return value;}
 }
 
-class RAM : ICpuBus
+class RAM : ICpuAccessible, IAccessible
 {
     private readonly byte[] value;
 

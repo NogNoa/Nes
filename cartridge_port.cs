@@ -80,15 +80,15 @@ class Nrom_128K(string Name, string Game_id, Mirroring mirroring) : Nrom(Name, G
     }
 }
 
-class CartridgePort : ICpuBus
+class CartridgePort : ICpuAccessible
 {
     Cartridge? _cartridge;
     public Cartridge? Cartridge {get => _cartridge;}
-    private NesBoard bus;
+    private ICartridgeBus bus;
 
     private bool ROMSEL;
 
-    public CartridgePort(NesBoard bus)
+    public CartridgePort(ICartridgeBus bus)
     {
         this.bus = bus;
     }

@@ -1,4 +1,4 @@
-internal class CPU6502(ICpuBus bus)
+internal class CPU6502(ICpuAccessible bus)
 {
     private byte A;
     private byte X;
@@ -9,7 +9,7 @@ internal class CPU6502(ICpuBus bus)
     private bool φ0;
     private byte _data;
     public bool φ1 {get => !φ0;}
-    private readonly ICpuBus bus = bus;
+    private readonly ICpuAccessible bus = bus;
 
     private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
         (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
