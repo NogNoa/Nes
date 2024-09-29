@@ -16,7 +16,7 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
 
     abstract internal byte Cpu_Access(ushort address, byte value, ReadWrite readWrite);
 
-    abstract internal byte? Ppu_Access(ushort address, byte data, ReadWrite? readWrite);
+    abstract internal byte Ppu_Access(ushort address, byte data, ReadWrite? readWrite);
 
     public void Interrupt_request()
     {
@@ -33,18 +33,23 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
 class Nrom: Cartridge
 {
     readonly Mirroring Mirroring;
+    
+    /* byte[0x2000] chr_rom;
+       byte[0x8000] or byte[0x4000] prg_rom;
+    */
+
     public Nrom(string Name, string Game_id, Mirroring mirroring) : base(Name, Game_id, "Nrom", 0) 
     {this.Mirroring = mirroring;}
 
-    internal override byte? Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
+    internal override byte Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
     {
-        return (readWrite == ReadWrite.READ) ? chr_rom?[address] : data;
+        return (readWrite == ReadWrite.READ) ? chr_rom[address] : data;
     }
     public new void Interrupt_request(){;}
 
-    internal override byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    internal override byte Cpu_Access(ushort address, byte data, ReadWrite readWrite)
     {
-        throw new NotImplementedException();
+         return (readWrite == ReadWrite.READ) ? prg_rom[address] : data;
     }
 
     internal override bool Ciram_CS(ushort address, ReadWrite? readWrite)
