@@ -1,3 +1,4 @@
+using uint3 = byte;
 using uint6 = byte;
 using uint11 = ushort;
 
@@ -28,6 +29,6 @@ interface ICartridgeBus
      void Interrupt_request();
 }
 
-class Controller {public byte get_buttons(byte outsig){return 0;}}
+class Controller {public byte get_buttons(uint3 outsig){return 0;}}
 
 

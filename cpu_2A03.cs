@@ -27,6 +27,7 @@ class CPU2403: ICpuAccessible
 
     private byte Get_controller(byte index, byte outsig)
     {
+        outsig &= 1<<3 - 1;
         return this.bus.Get_controller(index, outsig);
     }
     // object audio()

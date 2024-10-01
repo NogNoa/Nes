@@ -11,7 +11,7 @@ class Ppu : ICpuAccessible
     public byte Cpu_Vram_address;
 
     private readonly RAM Vram, Oam;
-    private IPpuBus Bus;
+    private readonly IPpuBus Bus;
 
     public Ppu(IPpuBus Bus, RAM Vram)
     {
@@ -53,7 +53,7 @@ class Ppu : ICpuAccessible
     {
         return Access((uint3) address, value, readWrite);
     }
-    public byte Access(uint3 address, byte data, ReadWrite readWrite)
+    private byte Access(uint3 address, byte data, ReadWrite readWrite)
     {
         switch (address)
         {

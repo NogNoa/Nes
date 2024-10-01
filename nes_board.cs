@@ -1,3 +1,4 @@
+using uint3 = byte;
 using uint6 = byte;
 using uint11 = ushort;
 using uint14 = ushort;
@@ -31,20 +32,12 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
         byte? whisp = cartridge_port.Whisper((ushort)(address & ((1 << 15) - 1)), value, readWrite);
         return whisp ?? back;
     }
-    public void Nonmaskable_interrupt()
-    {
-        this.cpu.Nonmaskable_interrupt();
-    }
-    public void Interrupt_request()
-    {
-        this.cpu.Interrupt_request();
-
-    }
+    public void Nonmaskable_interrupt() => cpu.Nonmaskable_interrupt();
+    public void Interrupt_request() => cpu.Interrupt_request();
     
     private byte Ppu_Latch(byte data, bool latch_enable)
-    {
-        return ppu_address_buffer.Access(data, latch_enable);
-    }
+     => ppu_address_buffer.Access(data, latch_enable);
+
     public byte Ppu_access(byte vram_data_bus, uint6 hi_address, bool latch_enable, ReadWrite? readWrite)
     {
         if (readWrite != null)
@@ -55,12 +48,10 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
         return vram_data_bus;
     }
     public byte Access_Vram(uint11 address, byte value, ReadWrite readWrite)
+     => vram.Access(address, value, readWrite);
+    
+    public byte Get_controller(byte index, uint3 outsig)
     {
-        return vram.Access(address, value, readWrite);
-    }
-    public byte Get_controller(byte index, byte outsig)
-    {
-        outsig &= (1 << 3) - 1;
         return this.controllers[index].get_buttons(outsig);
     }
 }

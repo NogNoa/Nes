@@ -1,6 +1,7 @@
 using System.Diagnostics;
-using uint14 = ushort;
 using uint11 = ushort;
+using uint14 = ushort;
+using uint15 = ushort;
 
 public enum Mirroring {Horizontal, Vertical}
 
@@ -84,7 +85,7 @@ class CartridgePort : ICpuAccessible
 {
     Cartridge? _cartridge;
     public Cartridge? Cartridge {get => _cartridge;}
-    private ICartridgeBus bus;
+    private readonly ICartridgeBus bus;
 
     private bool ROMSEL;
 
@@ -98,14 +99,14 @@ class CartridgePort : ICpuAccessible
         this._cartridge = cartridge;
         _cartridge.bus = this;
     }
-    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(uint15 address, byte value, ReadWrite readWrite)
     {
         ROMSEL = true;
         Debug.Assert(address <  1<<15);
         return Cartridge?.Cpu_Access(address, value, 
                                      readWrite, ROMSEL) ?? value;
     }
-    public byte? Whisper(ushort address, byte value, ReadWrite readWrite)
+    public byte? Whisper(uint15 address, byte value, ReadWrite readWrite)
     {
         if (ROMSEL) 
         {   ROMSEL = false; 
