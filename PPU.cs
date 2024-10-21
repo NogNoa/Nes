@@ -6,9 +6,9 @@ class Ppu : ICpuAccessible
     private byte Ppu_control;
     private byte Ppu_mask;
     private byte Ppu_status;
-    public byte Cpu_Oam_address;
+    private byte Cpu_Oam_address;
     private byte Ppu_scroll;
-    public byte Cpu_Vram_address;
+    private byte Cpu_Vram_address;
 
     private readonly RAM Vram, Oam;
     private readonly IPpuBus Bus;

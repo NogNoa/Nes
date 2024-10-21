@@ -10,11 +10,11 @@ class CPU2403: ICpuAccessible
         this.cpu = new CPU6502(this);
     }
 
-    public bool M2(ushort address, byte value, ReadWrite readWrite)
+    private bool M2(ushort address, byte value, ReadWrite readWrite)
     {   Cpu_Access(address, value, readWrite); 
         return !cpu.φ1;
     }
-    public bool M2(ushort address, ReadWrite readWrite)
+    private bool M2(ushort address, ReadWrite readWrite)
         =>   cpu.φ2(address, readWrite);
 
     public void Interrupt_request() {cpu.Interrupt_request();}

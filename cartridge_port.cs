@@ -15,9 +15,9 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
     protected byte[] chr_rom = [];
     protected byte[] prg_rom = [];
 
-    abstract internal byte? Cpu_Access(ushort address, byte value, ReadWrite readWrite, bool romsel);
+    abstract internal byte? Prg_Access(ushort address, byte value, ReadWrite readWrite, bool romsel);
 
-    abstract internal byte Ppu_Access(ushort address, byte data, ReadWrite? readWrite);
+    abstract internal byte Chr_Access(ushort address, byte data, ReadWrite? readWrite);
 
     public void Interrupt_request()
     {
@@ -42,13 +42,13 @@ class Nrom: Cartridge
     public Nrom(string Name, string Game_id, Mirroring mirroring) : base(Name, Game_id, "Nrom", 0) 
     {this.Mirroring = mirroring;}
 
-    internal override byte Ppu_Access(uint14 address, byte data, ReadWrite? readWrite)
+    internal override byte Chr_Access(uint14 address, byte data, ReadWrite? readWrite)
     {
         return (readWrite == ReadWrite.READ) ? chr_rom[address] : data;
     }
     public new void Interrupt_request(){;}
 
-    internal override byte? Cpu_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
+    internal override byte? Prg_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
     {
         return (romsel == true) ? prg_rom[address] : null;
     }
@@ -74,7 +74,7 @@ class Nrom_128K(string Name, string Game_id, Mirroring mirroring) : Nrom(Name, G
     /* byte[0x2000] chr_rom;
        byte[0x4000] prg_rom;
     */
-    internal override byte? Cpu_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
+    internal override byte? Prg_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
     {
         address &= 1<<14 - 1;
         return (romsel == true) ? prg_rom[address] : null;
@@ -103,7 +103,7 @@ class CartridgePort : ICpuAccessible
     {
         ROMSEL = true;
         Debug.Assert(address <  1<<15);
-        return Cartridge?.Cpu_Access(address, value, 
+        return Cartridge?.Prg_Access(address, value, 
                                      readWrite, ROMSEL) ?? value;
     }
     public byte? Whisper(uint15 address, byte value, ReadWrite readWrite)
@@ -113,20 +113,21 @@ class CartridgePort : ICpuAccessible
             return null;
         }
         Debug.Assert(address <  1<<15);
-        return Cartridge?.Cpu_Access(address, value, readWrite, false);
+        return Cartridge?.Prg_Access(address, value, readWrite, ROMSEL);
     }
 
     internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)
     {
         byte back = 0;
-        if (Cartridge == null) {return back;}
-        else {Cartridge Cartridge = (Cartridge) this.Cartridge;}
-        if (Cartridge.Ciram_CS(address, readWrite))
-        {   uint11 vram_address = (uint11) ((address &  (1 <<  9) - 1) | ((Cartridge.Ciram_A10(address, readWrite)? 1 : 0) << 10));
+        Cartridge cartridge;
+        if (this.Cartridge == null) {return back;}
+        else {cartridge = (Cartridge) this.Cartridge;}
+        if (cartridge.Ciram_CS(address, readWrite))
+        {   uint11 vram_address = (uint11) ((address &  (1 <<  9) - 1) | ((cartridge.Ciram_A10(address, readWrite)? 1 : 0) << 10));
             back |= bus.Access_Vram(vram_address, data, readWrite);   
         }
-        if (Cartridge.Chr_CS(address, readWrite))
-        {   back |= Cartridge?.Ppu_Access(address, data, readWrite) ?? 0;
+        if (cartridge.Chr_CS(address, readWrite))
+        {   back |= cartridge?.Chr_Access(address, data, readWrite) ?? 0;
         }
         return back;
     }
