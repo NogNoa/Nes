@@ -99,22 +99,14 @@ class CartridgePort : ICpuAccessible
         this._cartridge = cartridge;
         _cartridge.bus = this;
     }
-    public byte Cpu_Access(uint15 address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(uint15 address, byte value, ReadWrite readWrite, bool romsel)
     {
-        ROMSEL = true;
-        Debug.Assert(address <  1<<15);
+        address &= (1 << 15) - 1;
         return Cartridge?.Prg_Access(address, value, 
-                                     readWrite, ROMSEL) ?? value;
+                                     readWrite, romsel) ?? value;
     }
-    public byte? Whisper(uint15 address, byte value, ReadWrite readWrite)
-    {
-        if (ROMSEL) 
-        {   ROMSEL = false; 
-            return null;
-        }
-        Debug.Assert(address <  1<<15);
-        return Cartridge?.Prg_Access(address, value, readWrite, ROMSEL);
-    }
+    public byte Cpu_Access(uint15 address, byte value, ReadWrite readWrite)
+    => Cpu_Access(address, value,readWrite, false);
 
     internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)
     {

@@ -27,10 +27,18 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
     } 
 
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
-    {
-        byte back = address_decoder.Cpu_Access(address, value, readWrite);
-        byte? whisp = cartridge_port.Whisper((ushort)(address & ((1 << 15) - 1)), value, readWrite);
-        return whisp ?? back;
+    {   
+        byte back;
+        ICpuAccessible destination = address_decoder.Decode(address);
+        if (destination == cartridge_port)
+        {   back = cartridge_port.Cpu_Access(address, value, readWrite); 
+            
+        }
+        else 
+        {   back = destination.Cpu_Access(address, value, readWrite);
+            cartridge_port.Cpu_Access(address, value, readWrite, false);
+        }
+        return back;
     }
     public void Nonmaskable_interrupt() => cpu.Nonmaskable_interrupt();
     public void Interrupt_request() => cpu.Interrupt_request();
@@ -56,7 +64,7 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
     }
 }
 
-class AddressDecoder:ICpuAccessible
+class AddressDecoder
 {
     readonly ICpuAccessible?[] recipients;
     readonly ushort[] masks;
@@ -65,11 +73,12 @@ class AddressDecoder:ICpuAccessible
         this.recipients = recipients;
         this.masks = masks;
     }
-    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+
+    public ICpuAccessible Decode(ushort address)
     {
         int index = (new int[] {4, (address >> 13) & 0b11})
         [address >> 15];
-        return (recipients[index] ?? new DeadEnd()).Cpu_Access((ushort)(address & masks[index]), value, readWrite);
+        return recipients[index] ?? new DeadEnd();
     }
 }
 
@@ -93,8 +102,8 @@ class RAM : ICpuAccessible, IAccessible
         if (readWrite == ReadWrite.WRITE) {this.value[address] = value;}
         return this.value[address];
     }
-    public byte Cpu_Access(uint11 address, byte value, ReadWrite readWrite) 
-        => Access(address, value, readWrite);
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) 
+        => Access((uint11)(address & ((1 << 11) - 1)), value, readWrite);
 }
 
 class Buffer
