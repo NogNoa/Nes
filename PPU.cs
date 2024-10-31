@@ -50,9 +50,8 @@ class Ppu : ICpuAccessible
     //     }
     
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
-    {
-        return Access((uint3) (address & ((1 << 3) - 1)), value, readWrite);
-    }
+        => Access((uint3) (address & ((1 << 3) - 1)), value, readWrite);
+    
     private byte Access(uint3 address, byte data, ReadWrite readWrite)
     {
         switch (address)

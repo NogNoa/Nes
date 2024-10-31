@@ -103,7 +103,10 @@ class RAM : ICpuAccessible, IAccessible
         return this.value[address];
     }
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) 
-        => Access((uint11)(address & ((1 << 11) - 1)), value, readWrite);
+    {   
+        address &= (1 << 11) - 1;
+        return Access(address, value, readWrite);
+    }
 }
 
 class Buffer

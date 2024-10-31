@@ -100,13 +100,12 @@ class CartridgePort : ICpuAccessible
         _cartridge.bus = this;
     }
     public byte Cpu_Access(uint15 address, byte value, ReadWrite readWrite, bool romsel)
-    {
-        address &= (1 << 15) - 1;
-        return Cartridge?.Prg_Access(address, value, 
-                                     readWrite, romsel) ?? value;
+        => Cartridge?.Prg_Access(address, value, 
+                                 readWrite, romsel) ?? value;
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    {   address &= (1 << 15) - 1;
+        return Cpu_Access(address, value,readWrite, false);
     }
-    public byte Cpu_Access(uint15 address, byte value, ReadWrite readWrite)
-    => Cpu_Access(address, value,readWrite, false);
 
     internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)
     {
