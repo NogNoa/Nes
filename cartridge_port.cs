@@ -50,7 +50,7 @@ class Nrom: Cartridge
 
     internal override byte? Prg_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
     {
-        return (romsel == true) ? prg_rom[address] : null;
+        return romsel ? prg_rom[address] : null;
     }
 
     internal override bool Ciram_CS(ushort address, ReadWrite? readWrite)
@@ -77,7 +77,7 @@ class Nrom_128K(string Name, string Game_id, Mirroring mirroring) : Nrom(Name, G
     internal override byte? Prg_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
     {
         address &= 1<<14 - 1;
-        return (romsel == true) ? prg_rom[address] : null;
+        return romsel ? prg_rom[address] : null;
     }
 }
 
@@ -103,8 +103,7 @@ class CartridgePort : ICpuAccessible
         => Cartridge?.Prg_Access(address, value, 
                                  readWrite, romsel) ?? value;
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
-    {   address &= (1 << 15) - 1;
-        return Cpu_Access(address, value,readWrite, false);
+    {   return Cpu_Access(address, value,readWrite, false);
     }
 
     internal byte Ppu_Access(ushort address, byte data, ReadWrite readWrite)

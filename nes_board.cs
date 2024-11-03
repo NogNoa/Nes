@@ -9,6 +9,8 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
     private readonly AddressDecoder address_decoder;
     private readonly RAM iram, vram;
     private readonly CartridgePort cartridge_port;
+    private readonly ICpuAccessible?[] cpu_recipients;
+    private readonly ushort[] masks;
     private readonly Ppu ppu;
     private readonly Buffer ppu_address_buffer;
     readonly Controller[] controllers; //len 2
@@ -19,24 +21,30 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
         this.vram = new RAM();
         this.cartridge_port = new CartridgePort(this);   
         this.ppu = new Ppu(this, vram);
-        ushort[] masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
-        this.address_decoder = new AddressDecoder([iram, ppu, null, null, cartridge_port], masks);
+        this.cpu_recipients = [iram, ppu, null, null, cartridge_port];
+        this.masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
+        this.address_decoder = new AddressDecoder();
         this.controllers = new Controller[2];
         this.cpu = new CPU2403(this);
         this.ppu_address_buffer = new Buffer();
     } 
 
-    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    public byte Cpu_Access(ushort full_address, byte value, ReadWrite readWrite)
     {   
         byte back;
-        ICpuAccessible destination = address_decoder.Decode(address);
+        ushort address = full_address;
+        int recipient_index = address_decoder.Decode(full_address);
+        ICpuAccessible destination = cpu_recipients[recipient_index] ??
+                                     new DeadEnd();
+        address &= masks[recipient_index];
         if (destination == cartridge_port)
-        {   back = cartridge_port.Cpu_Access(address, value, readWrite); 
-            
+        {   
+            back = cartridge_port.Cpu_Access(address, value, readWrite); 
         }
         else 
-        {   back = destination.Cpu_Access(address, value, readWrite);
-            cartridge_port.Cpu_Access(address, value, readWrite, false);
+        {   full_address &= masks[4];
+            back = destination.Cpu_Access(address, value, readWrite);
+            cartridge_port.Cpu_Access(full_address, value, readWrite, false);
         }
         return back;
     }
@@ -66,19 +74,11 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
 
 class AddressDecoder
 {
-    readonly ICpuAccessible?[] recipients;
-    readonly ushort[] masks;
-
-    public AddressDecoder(ICpuAccessible?[] recipients, ushort[] masks) {
-        this.recipients = recipients;
-        this.masks = masks;
-    }
-
-    public ICpuAccessible Decode(ushort address)
+    public int Decode(ushort address)
     {
         int index = (new int[] {4, (address >> 13) & 0b11})
         [address >> 15];
-        return recipients[index] ?? new DeadEnd();
+        return index;
     }
 }
 
@@ -104,7 +104,6 @@ class RAM : ICpuAccessible, IAccessible
     }
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) 
     {   
-        address &= (1 << 11) - 1;
         return Access(address, value, readWrite);
     }
 }
