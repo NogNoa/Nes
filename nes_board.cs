@@ -6,11 +6,12 @@ using uint14 = ushort;
 class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
 {
     private readonly CPU2403 cpu;
-    private readonly AddressDecoder address_decoder;
+    private readonly static AddressDecoder address_decoder = new AddressDecoder();
     private readonly RAM iram, vram;
     private readonly CartridgePort cartridge_port;
     private readonly ICpuAccessible?[] cpu_recipients;
-    private readonly ushort[] masks;
+    private readonly static ushort[] masks = 
+            [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
     private readonly Ppu ppu;
     private readonly Buffer ppu_address_buffer;
     readonly Controller[] controllers; //len 2
@@ -22,8 +23,6 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
         this.cartridge_port = new CartridgePort(this);   
         this.ppu = new Ppu(this, vram);
         this.cpu_recipients = [iram, ppu, null, null, cartridge_port];
-        this.masks = [((1 << 11) - 1), ((1 << 3) - 1), 0, 0,  ((1 << 15) - 1)];
-        this.address_decoder = new AddressDecoder();
         this.controllers = new Controller[2];
         this.cpu = new CPU2403(this);
         this.ppu_address_buffer = new Buffer();
@@ -75,11 +74,7 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
 class AddressDecoder
 {
     public int Decode(ushort address)
-    {
-        int index = (new int[] {4, (address >> 13) & 0b11})
-        [address >> 15];
-        return index;
-    }
+        => (new int[] {4, (address >> 13) & 0b11})[address >> 15];
 }
 
 class DeadEnd: ICpuAccessible
