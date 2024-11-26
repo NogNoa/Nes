@@ -53,17 +53,17 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
     private byte Ppu_Latch(byte data, bool latch_enable)
      => ppu_address_buffer.Access(data, latch_enable);
 
-    public byte Ppu_access(byte vram_data_bus, uint6 hi_address, bool latch_enable, ReadWrite? readWrite)
+    public byte Ppu_access(byte vram_data_bus, uint6 hi_address, bool latch_enable,  bool write, bool read)
     {
-        if (readWrite != null)
+        if (write || read)
         {   uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(vram_data_bus, latch_enable));
-            vram_data_bus |= cartridge_port.Ppu_Access(address, vram_data_bus, (ReadWrite) readWrite);
+            vram_data_bus |= cartridge_port.Ppu_Access(address, vram_data_bus, write, read);
         }
         Ppu_Latch(vram_data_bus, latch_enable);
         return vram_data_bus;
     }
     public byte Access_Vram(uint11 address, byte value, ReadWrite readWrite)
-     => vram.Access(address, value, readWrite);
+     => vram.Access(address, value, readWrite, true);
     
     public byte Get_controller(byte index, uint3 outsig)
     {
@@ -91,15 +91,14 @@ class RAM : ICpuAccessible, IAccessible
     {
         value = new byte[0x800];
     }
-    public byte Access(uint11 address, byte value, ReadWrite? readWrite)
-    {
-        if (readWrite == null) {return 0;}
-        if (readWrite == ReadWrite.WRITE) {this.value[address] = value;}
-        return this.value[address];
+    public byte Access(uint11 address, byte value, ReadWrite wrt_enabl, bool out_enabl)
+    {   /*the very fact of the call indicate chip_select low*/
+        if (wrt_enabl == ReadWrite.WRITE) {this.value[address] = value;}
+        return out_enabl ? this.value[address]: value;
     }
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) 
     {   
-        return Access(address, value, readWrite);
+        return Access(address, value, readWrite, true);
     }
 }
 

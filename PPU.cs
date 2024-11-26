@@ -73,7 +73,7 @@ class Ppu : ICpuAccessible
                     {Cpu_Oam_address =data;}
                 break;
             case 4:
-                {return Oam.Access(Cpu_Oam_address, data, readWrite);}
+                {return Oam.Access(Cpu_Oam_address, data, readWrite, true);}
             case 5:
                 if (readWrite == ReadWrite.WRITE)
                     {Ppu_scroll = data;}
@@ -83,7 +83,7 @@ class Ppu : ICpuAccessible
                     {Cpu_Vram_address =data;}
                 break;
             case 7:
-                {return Vram.Access(Cpu_Vram_address,data, readWrite);}
+                {return Vram.Access(Cpu_Vram_address,data, readWrite, true);}
             default:
                 throw new ArgumentException("PPU has only 3 lines of address", 
                                             nameof(address));
@@ -98,12 +98,12 @@ class Ppu : ICpuAccessible
     {;}
     private byte Read(byte lo_address, uint6 hi_address)
         {   Latch(lo_address);
-            return Bus.Ppu_access(0, hi_address, true, ReadWrite.READ);
+            return Bus.Ppu_access(0, hi_address, true, false, true);
         }
     private void Write(byte lo_address, uint6 hi_address, byte data)
         {   Latch(lo_address);
-            Bus.Ppu_access(data, hi_address, true, ReadWrite.WRITE);
+            Bus.Ppu_access(data, hi_address, true, true, false);
         }
     private void Latch(byte lo_address)
-    {Bus.Ppu_access(lo_address, 0, false, null);}
+    {Bus.Ppu_access(lo_address, 0, false, false, false);}
 }
