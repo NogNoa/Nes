@@ -111,12 +111,18 @@ internal class CPU6502(ICpuAccessible bus)
     {   this.Zero = (result == 0);
         this.Negative = (result < 0);
     }
-    void TXA(){ A = X;}
-    void TYA(){ A = Y;}
-    void TAX(){ X = A;}
-    void TAY(){ Y = A;}
-    void TSX(){ X = SP;}
-    void TXS(){ SP = X;}
+    
+    void decode_instrcution(byte inst)
+    {
+        bool AF = (inst & 1) != 0;
+        bool XF = (inst & 2) != 0;
+        byte adrs_group = (byte)((inst >> 2) & 7);
+        byte oper_group = (byte)(inst >> 5);
+        if (!AF && !XF && (adrs_group & 4) == 0)
+        {   
+
+        }
+    }
 }
 
 /* todo:next probably want to make clock 2 an event for both decoder and cartridge */
