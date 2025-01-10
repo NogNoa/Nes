@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+
 internal class CPU6502(ICpuAccessible bus)
 {
     private byte A;
@@ -136,14 +138,27 @@ internal class CPU6502(ICpuAccessible bus)
         }
         return new Instruct();
     }
-    private class execution_unit {}
-    void execute()
-    {   
-        byte opcode = Read(PC++);
-        Instruct operation = decode_instrcution(opcode);
-        for (int t=0; t<operation.cycles-1; t++)
-        {   execute_step(operation.steps[t], operation.addressing);
-            
+    private class execution_unit 
+    {
+        private int T = 0;
+        private byte opcode;
+        Instruct operation;
+        private CPU6502 parent;
+
+        public execution_unit(CPU6502 parent)
+        {
+            this.parent = parent;
+        }
+        public void step()
+        {   if (T == 0)
+            {   opcode = parent.Read(parent.PC++);
+                operation = parent.decode_instrcution(opcode);
+            }
+            else
+            {
+                //execute step
+            }
+            if (++T >= operation.cycles) {T=0;}
         }
     }
 }
