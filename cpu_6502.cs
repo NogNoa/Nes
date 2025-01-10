@@ -11,6 +11,15 @@ internal class CPU6502(ICpuAccessible bus)
     public bool φ1 {get => !φ0;}
     private readonly ICpuAccessible bus = bus;
 
+    private class Instruct
+    {
+        public readonly int arity;
+        public readonly int cycles;
+        public readonly object GetAddress;
+        public readonly object[] steps = new object[] {};
+
+    }
+
     private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
         (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
 
@@ -112,7 +121,7 @@ internal class CPU6502(ICpuAccessible bus)
         this.Negative = (result < 0);
     }
     
-    void decode_instrcution(byte inst)
+    Instruct decode_instrcution(byte inst)
     {
         bool AF = (inst & 1) != 0;
         bool XF = (inst & 2) != 0;
@@ -121,6 +130,17 @@ internal class CPU6502(ICpuAccessible bus)
         if (!AF && !XF && (adrs_group & 4) == 0)
         {   
 
+        }
+        return new Instruct();
+    }
+    private class execution_unit {}
+    void execute()
+    {   
+        byte opcode = Read(PC++);
+        Instruct operation = decode_instrcution(opcode);
+        for (int t=0; t<operation.cycles-1; t++)
+        {   operation.steps[t](operation.GetAddress());
+            
         }
     }
 }
