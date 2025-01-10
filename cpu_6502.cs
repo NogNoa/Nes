@@ -16,10 +16,10 @@ internal class CPU6502(ICpuAccessible bus)
         public readonly int arity;
         public readonly int cycles;
 
-        public delegate byte AddressingDelegate();
-        public delegate void ExectionDelegate(byte argument);
-        public readonly AddressingDelegate Addressing;
-        public readonly ExectionDelegate[] steps = [];
+        public enum Addressing;
+        public enum Microcode;
+        public readonly Addressing addressing;
+        public readonly Microcode[] steps = [];
 
     }
 
@@ -142,7 +142,7 @@ internal class CPU6502(ICpuAccessible bus)
         byte opcode = Read(PC++);
         Instruct operation = decode_instrcution(opcode);
         for (int t=0; t<operation.cycles-1; t++)
-        {   operation.steps[t](operation.Addressing());
+        {   execute_step(operation.steps[t], operation.addressing);
             
         }
     }
