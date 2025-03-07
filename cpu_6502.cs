@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Security.Cryptography;
 
 internal class CPU6502(ICpuAccessible bus)
@@ -15,13 +16,15 @@ internal class CPU6502(ICpuAccessible bus)
 
     private class Instruct
     {
-        public readonly int arity;
-        public readonly int cycles;
+        public int Arity {get; init;}
+        public int Cycles {get; init;}
 
-        public enum Addressing;
-        public enum Microcode;
-        public readonly Addressing addressing;
-        public readonly Microcode[] steps = [];
+        
+
+        public enum Addressing {Implied};
+        public delegate void Microcode();
+        public Addressing addressing{get; init;}
+        public Microcode[] steps = [];
 
     }
 
@@ -145,9 +148,15 @@ internal class CPU6502(ICpuAccessible bus)
         Instruct operation;
         private CPU6502 parent;
 
+        static readonly Instruct nop = 
+            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied};
+        static readonly Instruct clc =
+            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied, steps=[()=>parent.Carry = 0]};
+
         public execution_unit(CPU6502 parent)
         {
             this.parent = parent;
+            this.operation = nop;
         }
         public void step()
         {   if (T == 0)
@@ -158,7 +167,7 @@ internal class CPU6502(ICpuAccessible bus)
             {
                 //execute step
             }
-            if (++T >= operation.cycles) {T=0;}
+            if (++T >= operation.Cycles) {T=0;}
         }
     }
 }
