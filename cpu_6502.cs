@@ -22,7 +22,7 @@ internal class CPU6502(ICpuAccessible bus)
         
 
         public enum Addressing {Implied};
-        public delegate void Microcode();
+        public enum  Microcode {CLC};
         public Addressing addressing{get; init;}
         public Microcode[] steps = [];
 
@@ -151,7 +151,7 @@ internal class CPU6502(ICpuAccessible bus)
         static readonly Instruct nop = 
             new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied};
         static readonly Instruct clc =
-            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied, steps=[()=>parent.Carry = 0]};
+            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied, steps= new Instruct.Microcode[] {Instruct.Microcode.CLC}};
 
         public execution_unit(CPU6502 parent)
         {
