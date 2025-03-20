@@ -14,20 +14,6 @@ internal class CPU6502(ICpuAccessible bus)
     public bool φ1 {get => !φ0;}
     private readonly ICpuAccessible bus = bus;
 
-    private class Instruct
-    {
-        public int Arity {get; init;}
-        public int Cycles {get; init;}
-
-        
-
-        public enum Addressing {Implied};
-        public enum  Microcode {CLC};
-        public Addressing addressing{get; init;}
-        public Microcode[] steps = [];
-
-    }
-
     private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
         (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
 
@@ -151,7 +137,8 @@ internal class CPU6502(ICpuAccessible bus)
         static readonly Instruct nop = 
             new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied};
         static readonly Instruct clc =
-            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied, steps= new Instruct.Microcode[] {Instruct.Microcode.CLC}};
+            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied, steps= new Instruct.Microcode[] 
+                    {new Instruct.Microcode() {Dest='C', Operand=0}}}; 
 
         public execution_unit(CPU6502 parent)
         {
