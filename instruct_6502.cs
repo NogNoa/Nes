@@ -7,7 +7,7 @@ public class Instruct
 
         
 
-        public enum Addressing {Implied};
+        public enum Addressing {Impl, Zpg, Abs, Rel, ZpgI, AbsI, XInd, IndY, Imm};
         public struct Microcode
         {   //Source and dest could only be a name of a register, with M for memory
             public char? Source {get; init;}    //null: source=dest
@@ -16,7 +16,7 @@ public class Instruct
             public byte? Operand {get; init;}    //only a direct or address
 
         }
-        public Addressing addressing{get; init;}
+        public Addressing addressing{get; set;} = Addressing.Impl;
         public Microcode[] steps = [];
         
 

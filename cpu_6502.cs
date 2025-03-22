@@ -117,15 +117,40 @@ internal class CPU6502(ICpuAccessible bus)
     
     Instruct decode_instrcution(byte inst)
     {
-        bool AF = (inst & 1) != 0;
-        bool XF = (inst & 2) != 0;
+        Instruct back = new();
+        bool AF = (inst & 1) != 0; // Accumulator function
+        bool XF = (inst & 2) != 0; /* X-register function
+                                      Y-register function is implied 
+                                      by nither of the above */
         byte adrs_group = (byte)((inst >> 2) & 7);
         byte oper_group = (byte)(inst >> 5);
+        if (!AF) 
+        {   switch (adrs_group)
+            {   case 1: back.addressing = Instruct.Addressing.Zpg; break; //zero page
+                case 3: back.addressing= Instruct.Addressing.Abs; break; //absolute
+                case 4: back.addressing = Instruct.Addressing.Rel; break; //relative
+                case 5: back.addressing = Instruct.Addressing.ZpgI; break; //zero page, indexed
+                case 7: back.addressing = Instruct.Addressing.AbsI; break; //absolute, indexed
+            }
+        }
+        else // AF
+        {   switch (adrs_group)
+            {   case 0: back.addressing = Instruct.Addressing.XInd; break;//x-indirect
+                case 1: back.addressing = Instruct.Addressing.Zpg; break;//accumulator
+                case 2: back.addressing = Instruct.Addressing.Imm; break;//immediate
+                case 3: back.addressing = Instruct.Addressing.Abs; break;//absolute
+                case 4: back.addressing = Instruct.Addressing.IndY; break;//indirect-Y
+                case 5: back.addressing = Instruct.Addressing.ZpgI; break;//zero page, indexed
+                case 6: back.addressing = Instruct.Addressing.AbsI; break;//
+                case 7: back.addressing = Instruct.Addressing.AbsI; break;//absolute,indexed
+            }
+        }
+
         if (!AF && !XF && (adrs_group & 4) == 0)
         {   
 
         }
-        return new Instruct();
+        return back;
     }
     private class execution_unit 
     {
@@ -135,9 +160,9 @@ internal class CPU6502(ICpuAccessible bus)
         private CPU6502 parent;
 
         static readonly Instruct nop = 
-            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied};
+            new() { Arity=1, Cycles=2};
         static readonly Instruct clc =
-            new() { Arity=1, Cycles=2, addressing=Instruct.Addressing.Implied, steps= new Instruct.Microcode[] 
+            new() { Arity=1, Cycles=2, steps= new Instruct.Microcode[] 
                     {new Instruct.Microcode() {Dest='C', Operand=0}}}; 
 
         public execution_unit(CPU6502 parent)
