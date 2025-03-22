@@ -124,28 +124,23 @@ internal class CPU6502(ICpuAccessible bus)
                                       by nither of the above */
         byte adrs_group = (byte)((inst >> 2) & 7);
         byte oper_group = (byte)(inst >> 5);
-        if (!AF) 
-        {   switch (adrs_group)
-            {   case 1: back.addressing = Instruct.Addressing.Zpg; break; //zero page
-                case 3: back.addressing= Instruct.Addressing.Abs; break; //absolute
-                case 4: back.addressing = Instruct.Addressing.Rel; break; //relative
-                case 5: back.addressing = Instruct.Addressing.ZpgI; break; //zero page, indexed
-                case 7: back.addressing = Instruct.Addressing.AbsI; break; //absolute, indexed
+        if ((adrs_group & 1) == 1)
+            { switch(adrs_group >> 1)
+                {    case 0: back.addressing = Instruct.Addressing.Zpg; break; //zero page
+                    case 1: back.addressing= Instruct.Addressing.Abs; break; //absolute
+                    case 2: back.addressing = Instruct.Addressing.ZpgI; break; //zero page, indexed
+                    case 3: back.addressing = Instruct.Addressing.AbsI; break; //absolute, indexed
+                }
             }
-        }
-        else // AF
-        {   switch (adrs_group)
-            {   case 0: back.addressing = Instruct.Addressing.XInd; break;//x-indirect
-                case 1: back.addressing = Instruct.Addressing.Zpg; break;//accumulator
-                case 2: back.addressing = Instruct.Addressing.Imm; break;//immediate
-                case 3: back.addressing = Instruct.Addressing.Abs; break;//absolute
-                case 4: back.addressing = Instruct.Addressing.IndY; break;//indirect-Y
-                case 5: back.addressing = Instruct.Addressing.ZpgI; break;//zero page, indexed
-                case 6: back.addressing = Instruct.Addressing.AbsI; break;//
-                case 7: back.addressing = Instruct.Addressing.AbsI; break;//absolute,indexed
+        else if (AF) 
+            {   switch (adrs_group >> 1)
+                {   case 0: back.addressing = Instruct.Addressing.XInd; break;//x-indirect
+                    case 2: back.addressing = Instruct.Addressing.IndY; break;//indirect-Y
+                    case 3: back.addressing = Instruct.Addressing.AbsI; break;//
+                }
             }
-        }
-
+        /* if !AF and !(adrs_group & 1) we don't really care since everything is implied
+           addressing or addresing implied from the operation*/
         if (!AF && !XF && (adrs_group & 4) == 0)
         {   
 
@@ -159,16 +154,12 @@ internal class CPU6502(ICpuAccessible bus)
         Instruct operation;
         private CPU6502 parent;
 
-        static readonly Instruct nop = 
-            new() { Arity=1, Cycles=2};
-        static readonly Instruct clc =
-            new() { Arity=1, Cycles=2, steps= new Instruct.Microcode[] 
-                    {new Instruct.Microcode() {Dest='C', Operand=0}}}; 
+        static readonly Instruct clc = new() {steps= [new Instruct.Microcode() {Dest='C', Operand=0}]}; 
 
         public execution_unit(CPU6502 parent)
         {
             this.parent = parent;
-            this.operation = nop;
+            this.operation = new();
         }
         public void step()
         {   if (T == 0)
