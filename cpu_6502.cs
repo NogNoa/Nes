@@ -125,22 +125,24 @@ internal class CPU6502(ICpuAccessible bus)
         byte adrs_group = (byte)((inst >> 2) & 7);
         byte oper_group = (byte)(inst >> 5);
         if ((adrs_group & 1) == 1)
-            { switch(adrs_group >> 1)
-                {    case 0: back.addressing = Instruct.Addressing.Zpg; break; //zero page
-                    case 1: back.addressing= Instruct.Addressing.Abs; break; //absolute
-                    case 2: back.addressing = Instruct.Addressing.ZpgI; break; //zero page, indexed
-                    case 3: back.addressing = Instruct.Addressing.AbsI; break; //absolute, indexed
+            { switch(adrs_group >> 2)
+                {   case 0:back.addressing= Instruct.Addressing.Dir; break;
+                    case 1: back.addressing = Instruct.Addressing.IndX; break;
+                }
+              switch(adrs_group & 2)
+                {   case 0: back.Arity = 2; break;
+                    case 1: back.Arity = 3; break;
                 }
             }
         else if (AF) 
             {   switch (adrs_group >> 1)
-                {   case 0: back.addressing = Instruct.Addressing.XInd; break;//x-indirect
-                    case 2: back.addressing = Instruct.Addressing.IndY; break;//indirect-Y
-                    case 3: back.addressing = Instruct.Addressing.AbsI; break;//
+                {   case 0: back.addressing = Instruct.Addressing.XDRef; back.Arity = 2; break;//x-indirect
+                    case 2: back.addressing = Instruct.Addressing.DRefY; back.Arity = 2; break;//indirect-Y
+                    case 3: back.addressing = Instruct.Addressing.IndY; back.Arity = 3; break;//indirect-Y
                 }
             }
-        /* if !AF and !(adrs_group & 1) we don't really care since everything is implied
-           addressing or addresing implied from the operation*/
+        /* if !AF and !(adrs_group & 1) we don't really care 
+           since everything is implied addressing arity 1*/
         if (!AF && !XF && (adrs_group & 4) == 0)
         {   
 
