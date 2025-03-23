@@ -125,14 +125,10 @@ internal class CPU6502(ICpuAccessible bus)
         byte adrs_group = (byte)((inst >> 2) & 7);
         byte oper_group = (byte)(inst >> 5);
         if ((adrs_group & 1) == 1)
-            { switch(adrs_group >> 2)
-                {   case 0:back.addressing= Instruct.Addressing.Dir; break;
-                    case 1: back.addressing = Instruct.Addressing.IndX; break;
-                }
-              switch(adrs_group & 2)
-                {   case 0: back.Arity = 2; break;
-                    case 1: back.Arity = 3; break;
-                }
+            {   back.addressing = (adrs_group >> 2 == 0) ? 
+                    Instruct.Addressing.Dir : 
+                    Instruct.Addressing.IndX;
+                back.Arity = ((adrs_group & 2) == 0) ?  2: back.Arity = 3;
             }
         else if (AF) 
             {   switch (adrs_group >> 1)
