@@ -128,20 +128,42 @@ internal class CPU6502(ICpuAccessible bus)
             {   back.addressing = (adrs_group >> 2 == 0) ? 
                     Instruct.Addressing.Dir : 
                     Instruct.Addressing.IndX;
-                back.Arity = ((adrs_group & 2) == 0) ?  2: back.Arity = 3;
+                // 1, 3->Dir; 5, 7->Indexed-X;
+                back.Arity = ((adrs_group >> 1) & 1) +  2;
+                //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
             }
         else if (AF) 
             {   switch (adrs_group >> 1)
-                {   case 0: back.addressing = Instruct.Addressing.XDRef; back.Arity = 2; break;//x-indirect
-                    case 2: back.addressing = Instruct.Addressing.DRefY; back.Arity = 2; break;//indirect-Y
-                    case 3: back.addressing = Instruct.Addressing.IndY; back.Arity = 3; break;//indirect-Y
+                {   case 0: back.addressing = Instruct.Addressing.XDRef; 
+                            back.Arity = 2; 
+                            break;//0->X-indirect;
+                                  //2->implied
+                    case 2: back.addressing = Instruct.Addressing.DRefY; 
+                            back.Arity = 2; 
+                            break;//4->indirect-Y;
+                    case 3: back.addressing = Instruct.Addressing.IndY;
+                            back.Arity = 3;
+                            break;//6->indexed-Y;
                 }
             }
         /* if !AF and !(adrs_group & 1) we don't really care 
-           since everything is implied addressing arity 1*/
-        if (!AF && !XF && (adrs_group & 4) == 0)
-        {   
-
+           since everything is implied (arity 1) Immediate or relative (arity 2)
+           immediate is also treated as implied, and relative is implicit from the
+           opperation.
+           */
+        if (inst == 0x20) {back.Arity = 3;} // JSR abs
+        // if the X index is alrady an operand, we'll treat IndX as IndY
+        if (!XF && !AF && adrs_group == 6)
+        {
+            Instruct.Microcode flagop = new();
+            switch (oper_group >> 1)
+            {   case 0: flagop.Dest = 'C'; break;
+                case 1: flagop.Dest = 'I'; break;
+                case 2: flagop.Dest = 'V'; break;
+                case 3: flagop.Dest = 'D'; break;
+            }
+            flagop.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
+            back.steps.Add(flagop);
         }
         return back;
     }
