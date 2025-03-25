@@ -17,7 +17,7 @@ public class Instruct
             public char? Source {get; set;}    //null: source=dest
             public char Dest {get; set;}       //
             public string? Operation {get; set;} //null: = mov
-            public byte? Operand {get; set;}    //only a direct or address
+            public byte? Operand {get; set;}    //only an immediate or address
 
         }
         public Addressing addressing{get; set;} = Addressing.Impl;

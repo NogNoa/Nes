@@ -44,7 +44,7 @@ internal class CPU6502(ICpuAccessible bus)
     private bool Overflow
     {
         get => (P & 0b100000) != 0;
-        set { P = Bit_set(value, P, 0b100000); }
+        set {if (!value) {P = Bit_set(false, P, 0b100000);} }
     }
 
     private bool Negative
@@ -153,17 +153,23 @@ internal class CPU6502(ICpuAccessible bus)
            */
         if (inst == 0x20) {back.Arity = 3;} // JSR abs
         // if the X index is alrady an operand, we'll treat IndX as IndY
-        if (!XF && !AF && adrs_group == 6)
-        {
-            Instruct.Microcode flagop = new();
-            switch (oper_group >> 1)
-            {   case 0: flagop.Dest = 'C'; break;
-                case 1: flagop.Dest = 'I'; break;
-                case 2: flagop.Dest = 'V'; break;
-                case 3: flagop.Dest = 'D'; break;
+        if (!XF && !AF)
+        { if (adrs_group == 6)
+            {
+                Instruct.Microcode flagop = new();
+                switch (oper_group >> 1)
+                {   case 0: flagop.Dest = 'C'; break;
+                    case 1: flagop.Dest = 'I'; break;
+                    case 2: flagop.Dest = 'V'; break;
+                    case 3: flagop.Dest = 'D'; break;
+                }
+                flagop.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
+                back.steps.Add(flagop);
             }
-            flagop.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
-            back.steps.Add(flagop);
+          if (oper_group == 4)
+          { Instruct.Microcode strop = new();
+            
+          }
         }
         return back;
     }
