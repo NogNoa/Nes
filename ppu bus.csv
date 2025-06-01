@@ -1,0 +1,23 @@
+,ALE,RD,WR,CS,,AD07,driver,listens,function,path
+,0,0,0,0,,,X,no one,,
+,0,0,0,1,,,X,no one,,
+,0,0,1,0,,,ppu,cart,ppu.write,ppu->board->cart
+,0,0,1,1,,,ppu,cart and vram,ppu.write,ppu->board->cart->vram
+,0,1,0,0,,,cart,ppu,ppu.read,ppu->board->cart
+,0,1,0,1,,,vram,ppu,ppu.read,ppu->board->cart->vram
+,0,1,1,0,,,ppu,cart,ppu.write,ppu->board->cart
+,,1,1,1,,,ppu,cart and vram,ppu.write,ppu->board->cart->vram
+,,,,,,,,,,
+,,,,,,,,,,
+activator,ppu,ppu,ppu,cart,,,,,,
+slave,buffer,vram and cart,vram and cart,vram,,,,,,
+listen on active,buffer,ppu,vram or cart,?,,,,,,
+drive on active,?,vram or cart,ppu,?,,,,,,
+listen on inactive,buffer,none,none,?,,,,,,
+,,,,,,,,,,
+,,,,,,,,,,
+,,,,,,,,notes:,Everything is pesented active high for simplicity,Both RD and WR active shouldn't happen. Or is it RD inactive and WR active?
+,,,,,,,,pa89,ppu_a89,always driven by ppu
+,,,,,,,,Q,ppu_a07,always driven by buffer
+,,,,,,,,AD07,ppu_ad07,shared
+,,,,,,,,ALE,CK,
