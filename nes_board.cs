@@ -15,15 +15,12 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
     private readonly Ppu ppu;
     private readonly Buffer ppu_address_buffer;
     readonly Controller[] controllers; //len 2
-    private byte cpu_data = 0xFF;
-    private byte ppu_data = 0xFF;
-
 
     public NesBoard()
     {
         this.iram = new RAM();
         this.vram = new RAM();
-        this.cartridge_port = new CartridgePort(this);
+        this.cartridge_port = new CartridgePort(this);   
         this.ppu = new Ppu(this, vram);
         this.cpu_recipients = [iram, ppu, null, null, cartridge_port];
         this.controllers = new Controller[2];
@@ -33,6 +30,7 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
 
     public byte Cpu_Access(ushort full_address, byte value, ReadWrite readWrite)
     {   
+        byte back;
         ushort address = full_address;
         int recipient_index = address_decoder.Decode(full_address);
         ICpuAccessible destination = cpu_recipients[recipient_index] ??
@@ -40,14 +38,14 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
         address &= masks[recipient_index];
         if (destination == cartridge_port)
         {   
-            cpu_data = cartridge_port.Cpu_Access(address, value, readWrite); 
+            back = cartridge_port.Cpu_Access(address, value, readWrite); 
         }
         else 
         {   full_address &= masks[4];
-            cpu_data = destination.Cpu_Access(address, value, readWrite);
+            back = destination.Cpu_Access(address, value, readWrite);
             cartridge_port.Cpu_Access(full_address, value, readWrite, false);
         }
-        return cpu_data;
+        return back;
     }
     public void Nonmaskable_interrupt() => cpu.Nonmaskable_interrupt();
     public void Interrupt_request() => cpu.Interrupt_request();
