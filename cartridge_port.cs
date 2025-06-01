@@ -108,16 +108,16 @@ class CartridgePort : ICpuAccessible
 
     internal byte Ppu_Access(ushort address, byte data, bool ppu_write, bool ppu_read)
     {
-        byte back = 0;
+        byte back = 0xFF;
         Cartridge cartridge;
         if (this.Cartridge == null) {return back;}
         else {cartridge = (Cartridge) this.Cartridge;}
         if (cartridge.Ciram_CS(address, ppu_write, ppu_read))
         {   uint11 vram_address = (uint11) ((address &  (1 <<  9) - 1) | ((cartridge.Ciram_A10(address, ppu_write, ppu_read)? 1 : 0) << 10));
-            back |= bus.Access_Vram(vram_address, data, ppu_write ? ReadWrite.WRITE: ReadWrite.READ);   
+            back &= bus.Access_Vram(vram_address, data, ppu_write ? ReadWrite.WRITE: ReadWrite.READ);   
         }
         if (cartridge.Chr_CS(address, ppu_write, ppu_read))
-        {   back |= cartridge?.Chr_Access(address, data, ppu_write, ppu_read) ?? 0;
+        {   back &= cartridge?.Chr_Access(address, data, ppu_write, ppu_read) ?? 0xFF;
         }
         return back;
     }

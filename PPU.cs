@@ -98,7 +98,7 @@ class Ppu : ICpuAccessible
     {;}
     private byte Read(byte lo_address, uint6 hi_address)
         {   Latch(lo_address);
-            return Bus.Ppu_access(0, hi_address, true, false, true);
+            return Bus.Ppu_access(0xFF, hi_address, true, false, true);
         }
     private void Write(byte lo_address, uint6 hi_address, byte data)
         {   Latch(lo_address);

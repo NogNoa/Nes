@@ -57,7 +57,7 @@ class NesBoard:ICpuBus, IPpuBus, ICartridgeBus
     {
         if (write || read)
         {   uint14 address = (ushort) (( hi_address << 8) | Ppu_Latch(vram_data_bus, latch_enable));
-            vram_data_bus |= cartridge_port.Ppu_Access(address, vram_data_bus, write, read);
+            vram_data_bus &= cartridge_port.Ppu_Access(address, vram_data_bus, write, read);
         }
         Ppu_Latch(vram_data_bus, latch_enable);
         return vram_data_bus;
