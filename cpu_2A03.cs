@@ -2,10 +2,9 @@ class CPU2403: ICpuAccessible
 {
     readonly CPU6502 cpu;
     readonly ICpuBus bus;
-    byte data = 0xFF;
 
     
-    public CPU2403(ICpuBus bus)
+    public CPU2403(ICpuBus bus) 
     {
         this.bus = bus;
         this.cpu = new CPU6502(this);
@@ -23,8 +22,8 @@ class CPU2403: ICpuAccessible
     public void Reset() {cpu.Reset();}
     public void Set_overflow() {cpu.Set_overflow();}
 
-    public byte Cpu_Access(ushort address, byte? value, ReadWrite readWrite) => 
-        this.bus.Cpu_Access(address, value ?? data, readWrite);
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) => 
+        this.bus.Cpu_Access(address, value, readWrite);
 
     private byte Get_controller(byte index, byte outsig)
     {

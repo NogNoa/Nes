@@ -10,7 +10,7 @@ interface IAccessible
 }
 interface ICpuAccessible
 {
-    byte Cpu_Access(ushort address, byte? value, ReadWrite readWrite);
+    byte Cpu_Access(ushort address, byte value, ReadWrite readWrite);
 }
 
 interface ICpuBus: ICpuAccessible

@@ -10,7 +10,7 @@ internal class CPU6502(ICpuAccessible bus)
     private byte P;
     private ushort PC;
     private bool φ0;
-    private byte _data;
+    private byte _data = 0xFF;
     public bool φ1 {get => !φ0;}
     private readonly ICpuAccessible bus = bus;
 
@@ -95,12 +95,11 @@ internal class CPU6502(ICpuAccessible bus)
         this.Read((ushort)(0x100 | SP++));
 
     private byte Read(ushort address)
-        =>  this.bus.Cpu_Access(address, this._data, ReadWrite.READ);
+        =>  this._data = this.bus.Cpu_Access(address, this._data, ReadWrite.READ);
 
     private void Write(ushort address, byte value)
     {
-        this._data = value;
-        this.bus.Cpu_Access(address, value, ReadWrite.WRITE);
+        this.bus.Cpu_Access(address, this._data = value, ReadWrite.WRITE);
     }
 
     public bool φ2(ushort address, byte value, ReadWrite readWrite)
