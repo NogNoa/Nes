@@ -1,7 +1,7 @@
 Mnemonic    addressing  argument-bytes
 [
     operation   src '->' dest
-    // load next instruction is implied: read-prog - opcode
+    // load next instruction is implied: move ' ' opcode
 ]
 
 CLf Impl    0
@@ -16,10 +16,11 @@ SEf Impl    0
 
 LDr Dir     1
 [
-    read-prog  - r
+    move    ' ' r
 ]
 
 CMr Dir     1
 [
-    
+    move    ' ' O
+    sub     O   r
 ]
