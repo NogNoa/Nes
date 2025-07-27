@@ -1,3 +1,4 @@
+using System.Collections;
 using System.ComponentModel;
 using System.Security.Cryptography;
 
@@ -198,18 +199,37 @@ internal class CPU6502(ICpuAccessible bus)
                 address = GetAddress(operation.addressing, operation.Length);
                 if (operation.Source == 'M')
                 {
-                    operand = parent.Read(address);
+
                 }
             }
-            else if (operation.Source == 'N')
-            {   operand = fetch_prg(); }
-            else
-            {switch (operation.Source)
-                case 'N'
-
+            switch (operation.Source)
+            {
+                case 'M':
+                    operand = parent.Read(address);
+                    break;
+                case 'N':
+                    operand = fetch_prg();
+                    break;
+                case 'A':
+                    operand = parent.A;
+                    break;
+                case 'X':
+                    operand = parent.X;
+                    break;
+                case 'Y':
+                    operand = parent.Y;
+                    break;
+                case 'S':
+                    operand = parent.SP;
+                    break;
+                case null:
+                    break;
+                default:
+                    throw new Exception();
             }
-            operand = this.operate();
-            Post_op_update(operand);
+            operand = this.operate(operation);
+            parent.Post_op_update(operand);
+            
         }
 
         private ushort GetAddress(Instruct.Addressing addressing, int arity)
