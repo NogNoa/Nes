@@ -208,18 +208,33 @@ internal class CPU6502(ICpuAccessible bus)
             if (++T >= operation.Cycles) { T = 0; }
         }
 
-        private ushort? GetAddress(Instruct.Addressing addressing)
-        {
+        private ushort? GetAddress(Instruct.Addressing addressing, int arity)
+        {   int back = 0;
             switch (addressing)
             {
-                case Instruct.Addressing.Impl: return null;
-                case Instruct.Addressing.Immd: return this.fetch_prg();
+                case Instruct.Addressing.Impl: //fall down
+                case Instruct.Addressing.Immd: //fall down
+                case Instruct.Addressing.Rel: return null;
                 case Instruct.Addressing.Dir:
-                case Instruct.Addressing.Rel:
+                    {
+                        for (int i = 0; i < arity - 1; ++i)
+                        {
+                            back |= fetch_prg() << (8 * i);
+                        }
+                        return (ushort)back;
+                    }
                 case Instruct.Addressing.IndX:
+                    return (ushort?)(GetAddress(Instruct.Addressing.Dir, arity) + parent.X);
                 case Instruct.Addressing.IndY:
+                    return (ushort?)(GetAddress(Instruct.Addressing.Dir, arity) + parent.Y);
                 case Instruct.Addressing.XDRef:
-                case Instruct.Addressing.DRefY
+                    back = GetAddress(Instruct.Addressing.IndX, arity);
+                    return parent.Read((ushort)back);
+                case Instruct.Addressing.DRefY:
+                    back = GetAddress(Instruct.Addressing.Dir, arity);
+                    return (ushort?)(parent.Read((ushort)back) + parent.Y);
+                default:
+                    throw new Exception();
             }
         }
     }
