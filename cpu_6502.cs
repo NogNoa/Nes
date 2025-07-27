@@ -179,7 +179,10 @@ internal class CPU6502(ICpuAccessible bus)
         Instruct operation;
         private CPU6502 parent;
 
-        static readonly Instruct clc = new() {steps= [new Instruct.Microcode() {Dest='C', Operand=0}]}; 
+        private ushort address;
+        private byte operand;
+
+        static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Operand = 0 }] }; 
 
         public execution_unit(CPU6502 parent)
         {
@@ -188,12 +191,19 @@ internal class CPU6502(ICpuAccessible bus)
         }
         public void step()
         {   if (T == 0)
-            {   opcode = parent.Read(parent.PC++);
+            {
+                opcode = parent.Read(parent.PC++);
                 operation = parent.decode_instrcution(opcode);
             }
             else
             {
                 //execute step
+                Instruct.Microcode step = operation.steps[T];
+                operand = this.GetOperand(step, operation.addressing)
+                if (step.Source != null)
+                { }
+                else
+                { operand = this }
             }
             if (++T >= operation.Cycles) {T=0;}
         }
