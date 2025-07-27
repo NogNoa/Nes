@@ -162,7 +162,7 @@ internal class CPU6502(ICpuAccessible bus)
                     case 2: flagop.Dest = 'V'; break;
                     case 3: flagop.Dest = 'D'; break;
                 }
-                flagop.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
+                back.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
                 back.steps.Add(flagop);
             }
           if (oper_group == 4)
@@ -182,7 +182,7 @@ internal class CPU6502(ICpuAccessible bus)
         private ushort address;
         private byte operand;
 
-        static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Operand = 0 }] }; 
+        static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Source = '0' }],  }; 
 
         public execution_unit(CPU6502 parent)
         {
@@ -199,11 +199,11 @@ internal class CPU6502(ICpuAccessible bus)
             {
                 //execute step
                 Instruct.Microcode step = operation.steps[T];
-                operand = this.GetOperand(step, operation.addressing)
+                operand = this.GetOperand(step, operation.addressing);
                 if (step.Source != null)
                 { }
                 else
-                { operand = this }
+                { operand = this; }
             }
             if (++T >= operation.Cycles) {T=0;}
         }
