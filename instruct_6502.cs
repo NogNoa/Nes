@@ -5,8 +5,7 @@ public class Instruct
     public int Arity { get; set; } = 1;
     public int Cycles { get; set; } = 2;
 
-    public enum Addressing { Impl, Dir, Rel, IndX, IndY, XDRef, DRefY };
-    // Immediate is included in implied
+    public enum Addressing { Impl, Immd, Dir, Rel, IndX, IndY, XDRef, DRefY };
     // Dir is direct. 
     // Ind is indexed. 
     // DRef is dereferenced i.e. indirect

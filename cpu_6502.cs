@@ -172,28 +172,29 @@ internal class CPU6502(ICpuAccessible bus)
         }
         return back;
     }
-    private class execution_unit 
+    private class execution_unit
     {
         private byte opcode;
         Instruct operation;
         private CPU6502 parent;
 
-        private ushort address;
+        private ushort? address;
         private byte operand;
 
-        static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Source = '0' }],  }; 
+        static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Source = '0' }], };
 
         public execution_unit(CPU6502 parent)
         {
             this.parent = parent;
             this.operation = new();
         }
-        public void step()
-        {   if (T == 0)
-            {
-                opcode = parent.Read(parent.PC++);
-                operation = parent.decode_instrcution(opcode);
-            }
+        private byte fetch_prg() => parent.Read(parent.PC++);
+        public void execute()
+        {
+            opcode = fetch_prg();
+            operation = parent.decode_instrcution(opcode);
+            address = GetAddress(operation.addressing);
+
             else
             {
                 //execute step
@@ -204,7 +205,22 @@ internal class CPU6502(ICpuAccessible bus)
                 else
                 { operand = this; }
             }
-            if (++T >= operation.Cycles) {T=0;}
+            if (++T >= operation.Cycles) { T = 0; }
+        }
+
+        private ushort? GetAddress(Instruct.Addressing addressing)
+        {
+            switch (addressing)
+            {
+                case Instruct.Addressing.Impl: return null;
+                case Instruct.Addressing.Immd: return this.fetch_prg();
+                case Instruct.Addressing.Dir:
+                case Instruct.Addressing.Rel:
+                case Instruct.Addressing.IndX:
+                case Instruct.Addressing.IndY:
+                case Instruct.Addressing.XDRef:
+                case Instruct.Addressing.DRefY
+            }
         }
     }
 }
