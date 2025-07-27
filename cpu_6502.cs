@@ -128,20 +128,20 @@ internal class CPU6502(ICpuAccessible bus)
                     Instruct.Addressing.Dir : 
                     Instruct.Addressing.IndX;
                 // 1, 3->Dir; 5, 7->Indexed-X;
-                back.Arity = ((adrs_group >> 1) & 1) +  2;
+                back.Length = ((adrs_group >> 1) & 1) +  2;
                 //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
             }
         else if (AF) 
             {   switch (adrs_group >> 1)
                 {   case 0: back.addressing = Instruct.Addressing.XDRef; 
-                            back.Arity = 2; 
+                            back.Length = 2; 
                             break;//0->X-indirect;
                                   //2->implied
                     case 2: back.addressing = Instruct.Addressing.DRefY; 
-                            back.Arity = 2; 
+                            back.Length = 2; 
                             break;//4->indirect-Y;
                     case 3: back.addressing = Instruct.Addressing.IndY;
-                            back.Arity = 3;
+                            back.Length = 3;
                             break;//6->indexed-Y;
                 }
             }
@@ -150,7 +150,7 @@ internal class CPU6502(ICpuAccessible bus)
            immediate is also treated as implied, and relative is implicit from the
            opperation.
            */
-        if (inst == 0x20) {back.Arity = 3;} // JSR abs
+        if (inst == 0x20) {back.Length = 3;} // JSR abs
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
         { if (adrs_group == 6)
@@ -193,30 +193,23 @@ internal class CPU6502(ICpuAccessible bus)
         {
             opcode = fetch_prg();
             operation = parent.decode_instrcution(opcode);
-            if (operation.addressing != Instruct.Addressing.Impl &&
-            operation.addressing != Instruct.Addressing.Rel)
+            if (operation.addressing != Instruct.Addressing.Impl)
             {
-                address = GetAddress(operation.addressing, operation.Arity);
+                address = GetAddress(operation.addressing, operation.Length);
                 if (operation.Source == 'M')
                 {
                     operand = parent.Read(address);
                 }
             }
-            else if (operation.addressing == Instruct.Addressing.Impl &&
-                    operation.Arity == 2)
-                    { operand = fetch_prg(); }
-
+            else if (operation.Source == 'N')
+            {   operand = fetch_prg(); }
             else
-                    {
-                        //execute step
-                        Instruct.Microcode step = operation.steps[T];
-                        operand = this.GetOperand(step, operation.addressing);
-                        if (step.Source != null)
-                        { }
-                        else
-                        { operand = this; }
-                    }
-            if (++T >= operation.Cycles) { T = 0; }
+            {switch (operation.Source)
+                case 'N'
+
+            }
+            operand = this.operate();
+            Post_op_update(operand);
         }
 
         private ushort GetAddress(Instruct.Addressing addressing, int arity)
