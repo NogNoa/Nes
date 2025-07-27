@@ -173,63 +173,77 @@ internal class CPU6502(ICpuAccessible bus)
         }
         return back;
     }
-    private class execution_unit
+    private class execution_unit(CPU6502 parent)
     {
         private byte opcode;
-        Instruct operation;
-        private CPU6502 parent;
+        Instruct operation = new();
+        private readonly CPU6502 parent = parent;
 
         private ushort address;
         private byte operand;
 
         static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Source = '0' }], };
 
-        public execution_unit(CPU6502 parent)
+
+        private byte Fetch_prg() => parent.Read(parent.PC++);
+        public void Execute()
         {
-            this.parent = parent;
-            this.operation = new();
-        }
-        private byte fetch_prg() => parent.Read(parent.PC++);
-        public void execute()
-        {
-            opcode = fetch_prg();
+            opcode = Fetch_prg();
             operation = parent.decode_instrcution(opcode);
             if (operation.addressing != Instruct.Addressing.Impl)
             {
                 address = GetAddress(operation.addressing, operation.Length);
-                if (operation.Source == 'M')
-                {
-
-                }
             }
-            switch (operation.Source)
+            operand = this.Read(operation.Source);
+            operand = this.operate(operation);
+            parent.Post_op_update(operand);
+            this.Write(operation.Dest, operand);
+        }
+        
+        private byte Read(char? src)
+        {   switch (src)
             {
                 case 'M':
-                    operand = parent.Read(address);
+                    return parent.Read(address);
+                case 'N':
+                    return Fetch_prg();
+                case 'A':
+                    return parent.A;
+                case 'X':
+                    return parent.X;
+                case 'Y':
+                    return parent.Y;
+                case 'S':
+                    return parent.SP;
+                case null:
+                    return Read(this.operation.Dest);
+                default:
+                    throw new Exception();
+            }
+        }
+        private void Write(char dst, byte data)
+        {   switch (dst)
+            {
+                case 'M':
+                    parent.Write(address, data);
                     break;
                 case 'N':
-                    operand = fetch_prg();
                     break;
                 case 'A':
-                    operand = parent.A;
+                    parent.A = data;
                     break;
                 case 'X':
-                    operand = parent.X;
+                    parent.X = data;
                     break;
                 case 'Y':
-                    operand = parent.Y;
+                    parent.Y = data;
                     break;
                 case 'S':
-                    operand = parent.SP;
-                    break;
-                case null:
+                    parent.SP = data;
                     break;
                 default:
                     throw new Exception();
             }
-            operand = this.operate(operation);
-            parent.Post_op_update(operand);
-            
         }
 
         private ushort GetAddress(Instruct.Addressing addressing, int arity)
@@ -241,7 +255,7 @@ internal class CPU6502(ICpuAccessible bus)
                     {
                         for (int i = 0; i < arity - 1; ++i)
                         {
-                            back |= fetch_prg() << (8 * i);
+                            back |= Fetch_prg() << (8 * i);
                         }
                         break;
                     }
@@ -261,7 +275,7 @@ internal class CPU6502(ICpuAccessible bus)
                 default:
                     throw new Exception();
             }
-            return (ushort) back;
+            return (ushort)back;
         }
     }
 }
