@@ -1,0 +1,20 @@
+each operation has 3 parts
+adressing:
+    load value to address based on the addressing mode
+    if operation is with memory source: load value to operand from read based on address
+operate:
+    either on A and operand, or just operand, saving the result in operand
+    load the value from operand to destination
+    if operation is with memory destination: use write based on address
+update flags:
+    update flags based on operand
+
+each operation therfore has:
+    src: name of a register, or M for memory, or N for next bytes in PC
+    dest: "
+    operation: string
+    addressing mode
+
+execution unit has internal registers: Operand, and Address
+
+operations could call additional function, such as pushes and pulls

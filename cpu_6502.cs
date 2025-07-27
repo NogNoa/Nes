@@ -174,7 +174,6 @@ internal class CPU6502(ICpuAccessible bus)
     }
     private class execution_unit 
     {
-        private int T = 0;
         private byte opcode;
         Instruct operation;
         private CPU6502 parent;
