@@ -2,6 +2,7 @@ each operation has 3 parts
 adressing:
     load value to address based on the addressing mode
     if operation is with memory source: load value to operand from read based on address
+    if operation with N source: load to operand from program.
 operate:
     either on A and operand, or just operand, saving the result in operand
     load the value from operand to destination

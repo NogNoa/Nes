@@ -178,7 +178,7 @@ internal class CPU6502(ICpuAccessible bus)
         Instruct operation;
         private CPU6502 parent;
 
-        private ushort? address;
+        private ushort address;
         private byte operand;
 
         static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Source = '0' }], };
@@ -193,49 +193,62 @@ internal class CPU6502(ICpuAccessible bus)
         {
             opcode = fetch_prg();
             operation = parent.decode_instrcution(opcode);
-            address = GetAddress(operation.addressing);
+            if (operation.addressing != Instruct.Addressing.Impl &&
+            operation.addressing != Instruct.Addressing.Rel)
+            {
+                address = GetAddress(operation.addressing, operation.Arity);
+                if (operation.Source == 'M')
+                {
+                    operand = parent.Read(address);
+                }
+            }
+            else if (operation.addressing == Instruct.Addressing.Impl &&
+                    operation.Arity == 2)
+                    { operand = fetch_prg(); }
 
             else
-            {
-                //execute step
-                Instruct.Microcode step = operation.steps[T];
-                operand = this.GetOperand(step, operation.addressing);
-                if (step.Source != null)
-                { }
-                else
-                { operand = this; }
-            }
+                    {
+                        //execute step
+                        Instruct.Microcode step = operation.steps[T];
+                        operand = this.GetOperand(step, operation.addressing);
+                        if (step.Source != null)
+                        { }
+                        else
+                        { operand = this; }
+                    }
             if (++T >= operation.Cycles) { T = 0; }
         }
 
-        private ushort? GetAddress(Instruct.Addressing addressing, int arity)
-        {   int back = 0;
+        private ushort GetAddress(Instruct.Addressing addressing, int arity)
+        {
+            int back = 0;
             switch (addressing)
             {
-                case Instruct.Addressing.Impl: //fall down
-                case Instruct.Addressing.Immd: //fall down
-                case Instruct.Addressing.Rel: return null;
                 case Instruct.Addressing.Dir:
                     {
                         for (int i = 0; i < arity - 1; ++i)
                         {
                             back |= fetch_prg() << (8 * i);
                         }
-                        return (ushort)back;
+                        break;
                     }
                 case Instruct.Addressing.IndX:
-                    return (ushort?)(GetAddress(Instruct.Addressing.Dir, arity) + parent.X);
+                    back = GetAddress(Instruct.Addressing.Dir, arity) + parent.X;
+                    break;
                 case Instruct.Addressing.IndY:
-                    return (ushort?)(GetAddress(Instruct.Addressing.Dir, arity) + parent.Y);
+                    back = GetAddress(Instruct.Addressing.Dir, arity) + parent.Y;
+                    break;
                 case Instruct.Addressing.XDRef:
                     back = GetAddress(Instruct.Addressing.IndX, arity);
                     return parent.Read((ushort)back);
                 case Instruct.Addressing.DRefY:
                     back = GetAddress(Instruct.Addressing.Dir, arity);
-                    return (ushort?)(parent.Read((ushort)back) + parent.Y);
+                    back = parent.Read((ushort)back) + parent.Y;
+                    break;
                 default:
                     throw new Exception();
             }
+            return (ushort) back;
         }
     }
 }
