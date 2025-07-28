@@ -221,6 +221,8 @@ internal class CPU6502(ICpuAccessible bus)
                 case 'B':
                 case 'Z':
                     return parent.P;
+                case 'E':
+                    return (byte)parent.PC;
                 case null:
                     return Read(this.operation.Dest);
                 default:
@@ -257,6 +259,10 @@ internal class CPU6502(ICpuAccessible bus)
                     break;
                 case 'D':
                     parent.Mode_decimal = data == 1;
+                    break;
+                case 'E':
+                    parent.PC &= 0xff00;
+                    parent.PC |= data;
                     break;
                 default:
                     throw new Exception();
@@ -368,7 +374,6 @@ internal class CPU6502(ICpuAccessible bus)
                 default:
                     throw new Exception();
             }
-
         }
 
         private byte Branch(bool ifSet)
@@ -381,13 +386,23 @@ internal class CPU6502(ICpuAccessible bus)
             sbyte relop;
             unchecked
             {
-                relop = (sbyte) operand;
-            }     
+                relop = (sbyte)operand;
+            }
             if (source == ifSet)
             {
-                parent.PC = (ushort)(parent.PC + relop);
+                int temp = parent.PC + relop;
+                if (temp < 0)
+                {
+                    parent.PC -= 0x100;
+                }
+                else if (temp > 0x100)
+                {
+                    parent.PC += 0x100;
+                }
+                return (byte)temp;
             }
-            return (byte)parent.PC;
+            else
+                {return (byte)parent.PC; }
         }
 
         private void Post_op_update(byte result)
