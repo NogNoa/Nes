@@ -182,7 +182,7 @@ internal class CPU6502(ICpuAccessible bus)
         private ushort address;
         private byte operand;
 
-        static readonly Instruct clc = new() { steps = [new Instruct.Microcode() { Dest = 'C', Source = '0' }], };
+        static readonly Instruct clc = new() { Dest = 'C', Source = null, Operation = "clear", };
 
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
@@ -195,13 +195,14 @@ internal class CPU6502(ICpuAccessible bus)
                 address = GetAddress(operation.addressing, operation.Length);
             }
             operand = this.Read(operation.Source);
-            operand = this.operate(operation);
+            operand = this.Operate(operation);
             parent.Post_op_update(operand);
             this.Write(operation.Dest, operand);
         }
-        
+
         private byte Read(char? src)
-        {   switch (src)
+        {
+            switch (src)
             {
                 case 'M':
                     return parent.Read(address);
@@ -215,6 +216,14 @@ internal class CPU6502(ICpuAccessible bus)
                     return parent.Y;
                 case 'S':
                     return parent.SP;
+                case 'C':
+                    return (byte)(parent.Carry ? 1 : 0);
+                case 'I':
+                    return (byte)(parent.Interrupt_disable ? 1 : 0);
+                case 'V':
+                    return (byte)(parent.Overflow ? 1 : 0);
+                case 'D':
+                    return (byte)(parent.Mode_decimal ? 1 : 0); ;
                 case null:
                     return Read(this.operation.Dest);
                 default:
@@ -222,7 +231,8 @@ internal class CPU6502(ICpuAccessible bus)
             }
         }
         private void Write(char dst, byte data)
-        {   switch (dst)
+        {
+            switch (dst)
             {
                 case 'M':
                     parent.Write(address, data);
@@ -240,6 +250,15 @@ internal class CPU6502(ICpuAccessible bus)
                     break;
                 case 'S':
                     parent.SP = data;
+                    break;
+                case 'C':
+                    parent.Carry = data == 1;
+                    break;
+                case 'V':
+                    parent.Overflow = data == 1;
+                    break;
+                case 'D':
+                    parent.Mode_decimal = data == 1;
                     break;
                 default:
                     throw new Exception();
@@ -276,6 +295,19 @@ internal class CPU6502(ICpuAccessible bus)
                     throw new Exception();
             }
             return (ushort)back;
+        }
+
+        private byte Operate(Instruct operation)
+        { switch (operation.Operation)
+            {
+                case "clear":
+                    return 0;
+                case "set":
+                    return 1;
+                default:
+                    throw new Exception();
+            }        
+            
         }
     }
 }
