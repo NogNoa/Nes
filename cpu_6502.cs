@@ -178,6 +178,7 @@ internal class CPU6502(ICpuAccessible bus)
         private byte operand;
 
         static readonly Instruct clc = new() { Dest = 'C', Source = 'X', Operation = "clear", };
+        static readonly Instruct cmp = new() { Dest = 'O', Source = 'M', Operation = "cmpa", };
 
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
@@ -232,6 +233,7 @@ internal class CPU6502(ICpuAccessible bus)
                     parent.Write(address, data);
                     break;
                 case 'N':
+                case 'O':
                     break;
                 case 'A':
                     parent.A = data;
@@ -297,6 +299,7 @@ internal class CPU6502(ICpuAccessible bus)
             switch (operation.Operation)
             {
                 case "clear":
+                case "clr":
                     return 0;
                 case "set":
                     return 1;
@@ -338,7 +341,7 @@ internal class CPU6502(ICpuAccessible bus)
                 case "add":
                 case "adc":
                     temp = operand + parent.A + (parent.Carry ? 1 : 0);
-                    Carry_update(temp);
+                    parent.Carry = temp > 0x100;
                     Overflow_update(temp);
                     return (byte)temp;
                 case "sbc":
@@ -347,8 +350,10 @@ internal class CPU6502(ICpuAccessible bus)
                     parent.Carry = temp >= 0;
                     Overflow_update(temp);
                     return (byte)temp;
-                case "cmp":
-                    break;
+                case "cmpa":
+                    temp = parent.A - operand;
+                    parent.Carry = temp >= 0;
+                    return (byte)temp;
                 default:
                     throw new Exception();
             }
@@ -360,10 +365,6 @@ internal class CPU6502(ICpuAccessible bus)
             parent.Negative = result < 0;
         }
 
-        private void Carry_update(int result)
-        {
-            parent.Carry = result > 0x100;
-        }
         private void Overflow_update(int result)
         {
             parent.Overflow = -0x80 > result || result > 0x7F;
