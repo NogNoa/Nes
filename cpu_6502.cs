@@ -109,11 +109,6 @@ internal class CPU6502(ICpuAccessible bus)
     }
     public bool φ2(ushort address, ReadWrite readWrite)
         =>  φ2(address, this._data, readWrite);
-
-    private void Post_op_update(byte result)
-    {   this.Zero = (result == 0);
-        this.Negative = (result < 0);
-    }
     
     Instruct decode_instrcution(byte inst)
     {
@@ -196,7 +191,7 @@ internal class CPU6502(ICpuAccessible bus)
             }
             operand = this.Read(operation.Source);
             operand = this.Operate(operation);
-            parent.Post_op_update(operand);
+            Post_op_update(operand);
             this.Write(operation.Dest, operand);
         }
 
@@ -297,7 +292,9 @@ internal class CPU6502(ICpuAccessible bus)
         }
 
         private byte Operate(Instruct operation)
-        { switch (operation.Operation)
+        {
+            int temp;
+            switch (operation.Operation)
             {
                 case "clear":
                     return 0;
@@ -318,17 +315,58 @@ internal class CPU6502(ICpuAccessible bus)
                 case "dec":
                     return --operand;
                 case "asl":
-                    return (byte) (operand << 1);
+                    parent.Carry = (operand & 0x80) != 0;
+                    return (byte)(operand << 1);
                 case "lsr":
+                    parent.Carry = (operand & 1) != 0;
                     return (byte)(operand >> 1);
                 case "rol":
-                    return (byte) ((operand << 1) | (parent.Carry ? 1 : 0));
+                    temp = parent.Carry ? 1 : 0;
+                    parent.Carry = (operand & 0x80) != 0;
+                    return (byte)((operand << 1) | temp);
                 case "ror":
-                    return (byte) ((operand >> 1) | (parent.Carry ? 0x80 : 0));
+                    temp = parent.Carry ? 0x80 : 0;
+                    parent.Carry = (operand & 1) != 0;
+                    return (byte)((operand >> 1) | (temp));
+                case "or":
+                    return (byte)(operand | parent.A);
+                case "and":
+                    return (byte)(operand & parent.A);
+                case "xor":
+                case "eor":
+                    return (byte)(operand ^ parent.A);
+                case "add":
+                case "adc":
+                    temp = operand + parent.A + (parent.Carry ? 1 : 0);
+                    Carry_update(temp);
+                    Overflow_update(temp);
+                    return (byte)temp;
+                case "sbc":
+                case "sub":
+                    temp = parent.A - operand + (parent.Carry ? 0 : -1);
+                    parent.Carry = temp >= 0;
+                    Overflow_update(temp);
+                    return (byte)temp;
+                case "cmp":
+                    break;
                 default:
                     throw new Exception();
-            }        
-            
+            }
+
+        }
+        private void Post_op_update(byte result)
+        {
+            parent.Zero = result == 0;
+            parent.Negative = result < 0;
+        }
+
+        private void Carry_update(int result)
+        {
+            parent.Carry = result > 0x100;
+        }
+        private void Overflow_update(int result)
+        {
+            parent.Overflow = -0x80 > result || result > 0x7F;
         }
     }
 }
