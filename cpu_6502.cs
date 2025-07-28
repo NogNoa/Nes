@@ -182,7 +182,7 @@ internal class CPU6502(ICpuAccessible bus)
         private ushort address;
         private byte operand;
 
-        static readonly Instruct clc = new() { Dest = 'C', Source = null, Operation = "clear", };
+        static readonly Instruct clc = new() { Dest = 'C', Source = 'X', Operation = "clear", };
 
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
@@ -217,13 +217,12 @@ internal class CPU6502(ICpuAccessible bus)
                 case 'S':
                     return parent.SP;
                 case 'C':
-                    return (byte)(parent.Carry ? 1 : 0);
                 case 'I':
-                    return (byte)(parent.Interrupt_disable ? 1 : 0);
                 case 'V':
-                    return (byte)(parent.Overflow ? 1 : 0);
                 case 'D':
-                    return (byte)(parent.Mode_decimal ? 1 : 0); ;
+                case 'B':
+                case 'Z':
+                    return parent.P;
                 case null:
                     return Read(this.operation.Dest);
                 default:
@@ -304,6 +303,28 @@ internal class CPU6502(ICpuAccessible bus)
                     return 0;
                 case "set":
                     return 1;
+                case "load":
+                case "store":
+                case "transfer":
+                case "move":
+                    return operand;
+                case "push":
+                    parent.Push(operand);
+                    return operand;
+                case "pull":
+                    return parent.Pull();
+                case "inc":
+                    return ++operand; //side-effective option saves me the cast
+                case "dec":
+                    return --operand;
+                case "asl":
+                    return (byte) (operand << 1);
+                case "lsr":
+                    return (byte)(operand >> 1);
+                case "rol":
+                    return (byte) ((operand << 1) | (parent.Carry ? 1 : 0));
+                case "ror":
+                    return (byte) ((operand >> 1) | (parent.Carry ? 0x80 : 0));
                 default:
                     throw new Exception();
             }        
