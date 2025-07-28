@@ -178,7 +178,7 @@ internal class CPU6502(ICpuAccessible bus)
         private byte operand;
 
         static readonly Instruct clc = new() { Dest = 'C', Source = 'X', Operation = "clear", };
-        static readonly Instruct cmp = new() { Dest = 'O', Source = 'M', Operation = "cmpa", };
+        static readonly Instruct cmp = new() { Dest = 'A', Source = 'M', Operation = "cmp", };
 
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
@@ -192,8 +192,10 @@ internal class CPU6502(ICpuAccessible bus)
             }
             operand = this.Read(operation.Source);
             operand = this.Operate(operation);
-            Post_op_update(operand);
-            this.Write(operation.Dest, operand);
+            if (operation.Operation != "bit")
+                Post_op_update(operand);
+            if (operation.Operation != "cmp")
+            { this.Write(operation.Dest, operand); }
         }
 
         private byte Read(char? src)
@@ -350,25 +352,55 @@ internal class CPU6502(ICpuAccessible bus)
                     parent.Carry = temp >= 0;
                     Overflow_update(temp);
                     return (byte)temp;
-                case "cmpa":
-                    temp = parent.A - operand;
+                case "cmp":
+                    temp = operation.Dest - operand;
                     parent.Carry = temp >= 0;
                     return (byte)temp;
+                case "bit":
+                    parent.Negative = (operand & 0x80) != 0;
+                    parent.Overflow = (operand & 0x40) != 0;
+                    parent.Zero = (operand & parent.A) == 0;
+                    return operand;
+                case "branch if":
+                    return Branch(true);
+                case "branch nif":
+                    return Branch(false);
                 default:
                     throw new Exception();
             }
 
         }
+
+        private byte Branch(bool ifSet)
+        {
+            bool source = (operation.Source == 'N') ? parent.Negative :
+                        (operation.Source == 'V') ? parent.Overflow :
+                        (operation.Source == 'C') ? parent.Carry :
+                        (operation.Source == 'Z') ? parent.Zero :
+                        throw new Exception();
+            sbyte relop;
+            unchecked
+            {
+                relop = (sbyte) operand;
+            }     
+            if (source == ifSet)
+            {
+                parent.PC = (ushort)(parent.PC + relop);
+            }
+            return (byte)parent.PC;
+        }
+
         private void Post_op_update(byte result)
         {
             parent.Zero = result == 0;
-            parent.Negative = result < 0;
+            parent.Negative = (operand & 0x80) != 0;
         }
 
         private void Overflow_update(int result)
         {
             parent.Overflow = -0x80 > result || result > 0x7F;
         }
+        
     }
 }
 
