@@ -58,11 +58,11 @@ internal class CPU6502(ICpuAccessible bus)
 
     private void Interrupt(Interrupt_vector vector)
     {
-        Push((byte)(PC >> 8));
-        Push((byte) PC);
-        Push(P);
+        Push(PC);
+        Push((byte)(P | 0x20));
         this.Interrupt_disable = true;
-        PC = (ushort)vector;
+        PC = (ushort) ((Read((ushort) (vector + 1)) << 8) | Read((ushort)vector));
+        --PC;
     }
 
     public void Interrupt_request()
@@ -387,10 +387,9 @@ internal class CPU6502(ICpuAccessible bus)
                 case "branch nif":
                     return Branch(false);
                 case "break":
-                    parent.Push((ushort) (parent.PC + 2));
-                    parent.Push((byte)(parent.P | 0x30));
-                    parent.PC = (ushort) ((parent.Read(0xfffb) << 8) | parent.Read(0xfffa));
-                    --parent.PC;
+                    parent.PC |= 0x10;
+                    parent.Interrupt(Interrupt_vector.NMI);
+                    parent.PC ^= 0x10;
                     return (byte)address;
                 case "call":
                 case "ret int":
