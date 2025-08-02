@@ -56,14 +56,17 @@ internal class CPU6502(ICpuAccessible bus)
 
     private enum Interrupt_vector { NMI = 0xFFFA, RST = 0xFFFC, IRQ = 0xFFFE };
 
-    private void Interrupt(Interrupt_vector vector)
+    private void Interrupt(Interrupt_vector vector, bool isSoft)
     {
         Push(PC);
-        Push((byte)(P | 0x20));
+        Push((byte)(P |
+                    (isSoft ? 0x30 : 0x20)));
         this.Interrupt_disable = true;
         PC = (ushort) ((Read((ushort) (vector + 1)) << 8) | Read((ushort)vector));
         --PC;
     }
+
+    private void Interrupt(Interrupt_vector vector) => Interrupt(vector, false);
 
     public void Interrupt_request()
     {
@@ -204,7 +207,12 @@ internal class CPU6502(ICpuAccessible bus)
             }
             operand = this.Read(operation.Source);
             operand = this.Operate(operation);
-            if (operation.Operation != "bit")
+            if (operation.Operation != "bit" &&
+                operation.Operation != "branch if" &&
+                operation.Operation != "branch nif" &&
+                operation.Operation != "break" &&
+                operation.Operation != "clear"
+            )
                 Post_op_update(operand);
             if (operation.Operation != "cmp")
             { this.Write(operation.Dest, operand); }
@@ -387,13 +395,19 @@ internal class CPU6502(ICpuAccessible bus)
                 case "branch nif":
                     return Branch(false);
                 case "break":
-                    parent.PC |= 0x10;
-                    parent.Interrupt(Interrupt_vector.NMI);
-                    parent.PC ^= 0x10;
-                    return (byte)address;
+                    parent.Interrupt(Interrupt_vector.NMI, isSoft:true);
+                    return (byte)--address;
                 case "call":
+                    parent.Push(parent.PC);
+                    parent.PC = --address;
+                    return (byte)address;
                 case "ret int":
+                    parent.P = parent.Pull();
+                    parent.PC = (ushort)(parent.Pull() - 1);
+                    return (byte)parent.PC;
                 case "ret sub":
+                    parent.PC = (ushort)(parent.Pull() - 1);
+                    return (byte)parent.PC;
                 default:
                     throw new Exception();
             }
