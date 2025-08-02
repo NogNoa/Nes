@@ -16,5 +16,6 @@ public class Instruct
     public char Dest { get; set; }       //
     public string? Operation { get; set; } //null: = mov
     public Addressing addressing { get; set; } = Addressing.Impl;
+    public bool PostOp { get; set; } = true;
     }
 

@@ -207,12 +207,7 @@ internal class CPU6502(ICpuAccessible bus)
             }
             operand = this.Read(operation.Source);
             operand = this.Operate(operation);
-            if (operation.Operation != "bit" &&
-                operation.Operation != "branch if" &&
-                operation.Operation != "branch nif" &&
-                operation.Operation != "break" &&
-                operation.Operation != "clear"
-            )
+            if (operation.PostOp)
                 Post_op_update(operand);
             if (operation.Operation != "cmp")
             { this.Write(operation.Dest, operand); }
