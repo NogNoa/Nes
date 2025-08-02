@@ -92,11 +92,23 @@ internal class CPU6502(ICpuAccessible bus)
         this.Write(stack_adr, value);
     }
 
-    private byte Pull() => 
+    private void Push(ushort value)
+    {
+        Push((byte)(value >> 8));
+        Push((byte)value);
+    }
+    
+    private byte Pull() =>
         this.Read((ushort)(0x100 | SP++));
+        
+    private ushort Pull16()
+    {
+        byte temp = Pull();
+        return (ushort) (Pull() << 8 | temp);
+    }
 
     private byte Read(ushort address)
-        =>  this._data = this.bus.Cpu_Access(address, this._data, ReadWrite.READ);
+        => this._data = this.bus.Cpu_Access(address, this._data, ReadWrite.READ);
 
     private void Write(ushort address, byte value)
     {
@@ -367,10 +379,22 @@ internal class CPU6502(ICpuAccessible bus)
                     parent.Overflow = (operand & 0x40) != 0;
                     parent.Zero = (operand & parent.A) == 0;
                     return operand;
+                case "jmp":
+                    parent.PC = --address;
+                    return (byte)address;
                 case "branch if":
                     return Branch(true);
                 case "branch nif":
                     return Branch(false);
+                case "break":
+                    parent.Push((ushort) (parent.PC + 2));
+                    parent.Push((byte)(parent.P | 0x30));
+                    parent.PC = (ushort) ((parent.Read(0xfffb) << 8) | parent.Read(0xfffa));
+                    --parent.PC;
+                    return (byte)address;
+                case "call":
+                case "ret int":
+                case "ret sub":
                 default:
                     throw new Exception();
             }
@@ -390,7 +414,7 @@ internal class CPU6502(ICpuAccessible bus)
             }
             if (source == ifSet)
             {
-                int temp = parent.PC + relop;
+                int temp = parent.PC + relop - 1;
                 if (temp < 0)
                 {
                     parent.PC -= 0x100;
