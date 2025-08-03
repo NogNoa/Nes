@@ -113,6 +113,9 @@ internal class CPU6502(ICpuAccessible bus)
     private byte Read(ushort address)
         => this._data = this.bus.Cpu_Access(address, this._data, ReadWrite.READ);
 
+    private ushort Read16(ushort address)
+        =>(ushort) ((Read((ushort)(address + 1)) << 8) | Read(address));
+
     private void Write(ushort address, byte value)
     {
         this.bus.Cpu_Access(address, this._data = value, ReadWrite.WRITE);
@@ -236,6 +239,10 @@ internal class CPU6502(ICpuAccessible bus)
                     return parent.P;
                 case 'E':
                     return (byte)parent.PC;
+                case '1':
+                    return 1;
+                case '0':
+                    return 0;
                 case null:
                     return Read(this.operation.Dest);
                 default:
@@ -303,15 +310,14 @@ internal class CPU6502(ICpuAccessible bus)
                     break;
                 case Instruct.Addressing.DRef:
                     back = GetAddress(Instruct.Addressing.Dir, arity);
-                    back = parent.Read((ushort)back);
+                    back = parent.Read16((ushort)back);
                     break;
                 case Instruct.Addressing.XDRef:
                     back = GetAddress(Instruct.Addressing.IndX, arity);
-                    back = parent.Read((ushort)back);
+                    back = parent.Read16((ushort)back);
                     break;
                 case Instruct.Addressing.DRefY:
-                    back = GetAddress(Instruct.Addressing.Dir, arity);
-                    back = parent.Read((ushort)back) + parent.Y;
+                    back = GetAddress(Instruct.Addressing.DRef, arity) + parent.Y;
                     break;
                 default:
                     throw new Exception();
@@ -324,11 +330,6 @@ internal class CPU6502(ICpuAccessible bus)
             int temp;
             switch (operation.Operation)
             {
-                case "clear":
-                case "clr":
-                    return 0;
-                case "set":
-                    return 1;
                 case "load":
                 case "store":
                 case "transfer":
