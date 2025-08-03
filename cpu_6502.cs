@@ -180,35 +180,49 @@ internal class CPU6502(ICpuAccessible bus)
             else if (oper_group == 5)
             {
                 back.Source = 'M';
-
+                back.Dest = 'Y';
+                if (adrs_group == 2) { back.Dest = 'X'; }
+            }
+            else if (oper_group == 6)
+            {
+                back.Source = 'M';
+                back.Dest = 'Y';
+                back.Operation = "compare";
+            }
+            else if (oper_group == 7)
+            {
+                back.Source = 'M';
+                back.Dest = 'X';
+                back.Operation = "compare";
             }
             if (adrs_group == 6)
+            {
+                switch (oper_group >> 1)
                 {
-                    switch (oper_group >> 1)
-                    {
-                        case 0: back.Dest = 'C'; break;
-                        case 1: back.Dest = 'I'; break;
-                        case 2: back.Dest = 'V'; break;
-                        case 3: back.Dest = 'D'; break;
-                    }
-                    back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
+                    case 0: back.Dest = 'C'; break;
+                    case 1: back.Dest = 'I'; break;
+                    case 2: back.Dest = 'V'; break;
+                    case 3: back.Dest = 'D'; break;
                 }
-                else if (adrs_group == 4)
+                back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
+            }
+            else if (adrs_group == 4)
+            {
+                back.Dest = 'E';
+                switch (oper_group >> 1)
                 {
-                    back.Dest = 'E';
-                    switch (oper_group >> 1)
-                    {
-                        case 0: back.Source = 'N'; break;
-                        case 1: back.Source = 'V'; break;
-                        case 2: back.Source = 'C'; break;
-                        case 3: back.Source = 'Z'; break;
-                    }
-                    back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
+                    case 0: back.Source = 'N'; break;
+                    case 1: back.Source = 'V'; break;
+                    case 2: back.Source = 'C'; break;
+                    case 3: back.Source = 'Z'; break;
+                }
+                back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
 
-                }
+            }
                 
             
         }
+        //post_op
         return back;
     }
     private class execution_unit(CPU6502 parent)
@@ -405,6 +419,7 @@ internal class CPU6502(ICpuAccessible bus)
                     parent.Carry = temp >= 0;
                     Overflow_update(temp);
                     return (byte)temp;
+                case "compare":
                 case "cmp":
                     temp = operation.Dest - operand;
                     parent.Carry = temp >= 0;
