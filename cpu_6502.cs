@@ -174,33 +174,38 @@ internal class CPU6502(ICpuAccessible bus)
         {
             if (oper_group == 4)
             {
-                Instruct.Microcode strop = new();
+                back.Source = 'Y';
+                back.Dest = 'M';
+            }
+            else if (oper_group == 5)
+            {
+                back.Source = 'M';
 
             }
             if (adrs_group == 6)
-            {
-                switch (oper_group >> 1)
                 {
-                    case 0: back.Dest = 'C'; break;
-                    case 1: back.Dest = 'I'; break;
-                    case 2: back.Dest = 'V'; break;
-                    case 3: back.Dest = 'D'; break;
+                    switch (oper_group >> 1)
+                    {
+                        case 0: back.Dest = 'C'; break;
+                        case 1: back.Dest = 'I'; break;
+                        case 2: back.Dest = 'V'; break;
+                        case 3: back.Dest = 'D'; break;
+                    }
+                    back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
                 }
-                back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
-            }
-            else if (adrs_group == 4)
-            {
-                back.Dest = 'E';
-                switch (oper_group >> 1)
+                else if (adrs_group == 4)
                 {
-                    case 0: back.Source = 'N'; break;
-                    case 1: back.Source = 'V'; break;
-                    case 2: back.Source = 'C'; break;
-                    case 3: back.Source = 'Z'; break;
+                    back.Dest = 'E';
+                    switch (oper_group >> 1)
+                    {
+                        case 0: back.Source = 'N'; break;
+                        case 1: back.Source = 'V'; break;
+                        case 2: back.Source = 'C'; break;
+                        case 3: back.Source = 'Z'; break;
+                    }
+                    back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
+
                 }
-                back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
-                
-            }
                 
             
         }
