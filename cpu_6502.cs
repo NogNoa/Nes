@@ -62,7 +62,7 @@ internal class CPU6502(ICpuAccessible bus)
         Push((byte)(P |
                     (isSoft ? 0x30 : 0x20)));
         this.Interrupt_disable = true;
-        PC = (ushort) ((Read((ushort) (vector + 1)) << 8) | Read((ushort)vector));
+        PC = Read16((ushort)vector);
         --PC;
     }
 
@@ -161,26 +161,48 @@ internal class CPU6502(ICpuAccessible bus)
             }
         /* if !AF and !(adrs_group & 1) we don't really care 
            since everything is implied (arity 1) Immediate or relative (arity 2)
-           immediate is also treated as implied, and relative is implicit from the
-           opperation.
+           which are both also treated as implied.
+           Except JSR abs which we will treat personnaly now.
            */
-        if (inst == 0x20) {back.Length = 3;} // JSR abs
+        if (inst == 0x20) // JSR abs
+        {
+            back.addressing = Instruct.Addressing.Dir;
+            back.Length = 3;
+        }
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
-        { if (adrs_group == 6)
+        {
+            if (oper_group == 4)
+            {
+                Instruct.Microcode strop = new();
+
+            }
+            if (adrs_group == 6)
             {
                 switch (oper_group >> 1)
-                {   case 0: back.Dest = 'C'; break;
+                {
+                    case 0: back.Dest = 'C'; break;
                     case 1: back.Dest = 'I'; break;
                     case 2: back.Dest = 'V'; break;
                     case 3: back.Dest = 'D'; break;
                 }
-                back.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
+                back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
             }
-          if (oper_group == 4)
-          { Instruct.Microcode strop = new();
+            else if (adrs_group == 4)
+            {
+                back.Dest = 'E';
+                switch (oper_group >> 1)
+                {
+                    case 0: back.Source = 'N'; break;
+                    case 1: back.Source = 'V'; break;
+                    case 2: back.Source = 'C'; break;
+                    case 3: back.Source = 'Z'; break;
+                }
+                back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
+                
+            }
+                
             
-          }
         }
         return back;
     }
@@ -216,6 +238,7 @@ internal class CPU6502(ICpuAccessible bus)
 
         private byte Read(char? src)
         {
+            src = (src != null) ? char.ToUpper((char)src) : null;
             switch (src)
             {
                 case 'M':
@@ -250,7 +273,7 @@ internal class CPU6502(ICpuAccessible bus)
             }
         }
         private void Write(char dst, byte data)
-        {
+        {   dst = char.ToUpper(dst);
             switch (dst)
             {
                 case 'M':
@@ -426,13 +449,16 @@ internal class CPU6502(ICpuAccessible bus)
             }
             if (source == ifSet)
             {
+                ++operation.Cycles; 
                 int temp = parent.PC + relop - 1;
                 if (temp < 0)
                 {
+                    ++operation.Cycles;
                     parent.PC -= 0x100;
                 }
                 else if (temp > 0x100)
                 {
+                    ++operation.Cycles;
                     parent.PC += 0x100;
                 }
                 return (byte)temp;
