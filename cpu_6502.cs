@@ -166,15 +166,13 @@ internal class CPU6502(ICpuAccessible bus)
         if (!XF && !AF)
         { if (adrs_group == 6)
             {
-                Instruct.Microcode flagop = new();
                 switch (oper_group >> 1)
-                {   case 0: flagop.Dest = 'C'; break;
-                    case 1: flagop.Dest = 'I'; break;
-                    case 2: flagop.Dest = 'V'; break;
-                    case 3: flagop.Dest = 'D'; break;
+                {   case 0: back.Dest = 'C'; break;
+                    case 1: back.Dest = 'I'; break;
+                    case 2: back.Dest = 'V'; break;
+                    case 3: back.Dest = 'D'; break;
                 }
                 back.Operand = (byte) (oper_group & 1); //even -> clear; odd -> set;
-                back.steps.Add(flagop);
             }
           if (oper_group == 4)
           { Instruct.Microcode strop = new();
@@ -303,9 +301,14 @@ internal class CPU6502(ICpuAccessible bus)
                 case Instruct.Addressing.IndY:
                     back = GetAddress(Instruct.Addressing.Dir, arity) + parent.Y;
                     break;
+                case Instruct.Addressing.DRef:
+                    back = GetAddress(Instruct.Addressing.Dir, arity);
+                    back = parent.Read((ushort)back);
+                    break;
                 case Instruct.Addressing.XDRef:
                     back = GetAddress(Instruct.Addressing.IndX, arity);
-                    return parent.Read((ushort)back);
+                    back = parent.Read((ushort)back);
+                    break;
                 case Instruct.Addressing.DRefY:
                     back = GetAddress(Instruct.Addressing.Dir, arity);
                     back = parent.Read((ushort)back) + parent.Y;
