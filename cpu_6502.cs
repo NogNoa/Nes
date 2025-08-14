@@ -166,10 +166,6 @@ internal class CPU6502(ICpuAccessible bus)
            which are both also treated as implied.
            Except JSR abs which we will treat personnaly now.
            */
-        if (inst == 0x20) // JSR abs
-        {
-            
-        }
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
         {
@@ -268,6 +264,20 @@ internal class CPU6502(ICpuAccessible bus)
                     back.Operation = "bit";
                 }
             }
+        }
+        else if (AF)
+        {
+            back.Dest = 'A';
+            back.Source = (adrs_group != 2) ? 'M' : 'N';
+            back.Operation = (oper_group == 0) ? "or" :
+                             (oper_group == 1) ? "and" :
+                             (oper_group == 2) ? "xor" :
+                             (oper_group == 3) ? "adc" :
+                             (oper_group == 4) ? "store" :
+                             (oper_group == 5) ? "load" :
+                             (oper_group == 6) ? "cmp" :
+                             (oper_group == 7) ? "sbc" :
+                             throw new InvalidDataException();
         }
         else if (XF)
         {
