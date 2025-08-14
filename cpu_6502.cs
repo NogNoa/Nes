@@ -144,6 +144,7 @@ internal class CPU6502(ICpuAccessible bus)
                 // 1, 3->Dir; 5, 7->Indexed-X;
                 back.Length = ((adrs_group >> 1) & 1) +  2;
                 //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
+                back.Source = 'M';
             }
         else if (AF) 
             {   switch (adrs_group >> 1)
@@ -158,6 +159,7 @@ internal class CPU6502(ICpuAccessible bus)
                             back.Length = 3;
                             break;//6->indexed-Y;
                 }
+                back.Source = 'M';
             }
         /* if !AF and !(adrs_group & 1) we don't really care 
            since everything is implied (arity 1) Immediate or relative (arity 2)
@@ -177,22 +179,16 @@ internal class CPU6502(ICpuAccessible bus)
                 back.Source = 'Y';
                 back.Dest = 'M';
             }
-            else if (oper_group == 5)
+            else if (5 == oper_group || oper_group == 6)
             {
-                back.Source = 'M';
                 back.Dest = 'Y';
-                if (adrs_group == 2) { back.Dest = 'X'; }
-            }
-            else if (oper_group == 6)
-            {
-                back.Source = 'M';
-                back.Dest = 'Y';
-                back.Operation = "compare";
             }
             else if (oper_group == 7)
             {
-                back.Source = 'M';
                 back.Dest = 'X';
+            }
+            if ((oper_group & 6) == 6) //6,7
+            {
                 back.Operation = "compare";
             }
             if (adrs_group == 6)
@@ -205,6 +201,7 @@ internal class CPU6502(ICpuAccessible bus)
                     case 3: back.Dest = 'D'; break;
                 }
                 back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
+                if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; }
             }
             else if (adrs_group == 4)
             {
@@ -217,6 +214,20 @@ internal class CPU6502(ICpuAccessible bus)
                     case 3: back.Source = 'Z'; break;
                 }
                 back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
+
+            }
+            else if (adrs_group == 3)
+            {
+                if ((oper_group & 2) == 2)
+                {   back.Dest = 'E';
+                    back.Operation = "jmp";
+                }
+                else if (oper_group == 1)
+                {   back.Dest = 'P';
+                    back.Operation = "bit";
+                }
+                if (oper_group == 3)
+                    { back.addressing = Instruct.Addressing.DRef; }
 
             }
                 
@@ -429,6 +440,7 @@ internal class CPU6502(ICpuAccessible bus)
                     parent.Overflow = (operand & 0x40) != 0;
                     parent.Zero = (operand & parent.A) == 0;
                     return operand;
+                case "jump":
                 case "jmp":
                     parent.PC = --address;
                     return (byte)address;
