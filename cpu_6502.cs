@@ -218,23 +218,34 @@ internal class CPU6502(ICpuAccessible bus)
             }
             else if (adrs_group == 3)
             {
-                if ((oper_group & 2) == 2)
-                {   back.Dest = 'E';
+                if ((oper_group & 6) == 2) //(0,2,3) (0,3,3)
+                {
+                    back.Dest = 'E';
                     back.Operation = "jmp";
                 }
                 else if (oper_group == 1)
-                {   back.Dest = 'P';
+                {
+                    back.Dest = 'P';
                     back.Operation = "bit";
                 }
                 if (oper_group == 3)
-                    { back.addressing = Instruct.Addressing.DRef; }
+                {   back.addressing = Instruct.Addressing.DRef; }
 
             }
-                
-            
+
+
+        }
+        else if (XF)
+        {
+            if ((oper_group & 4) == 4)
+            {
+                if ((adrs_group & 5) == 5)
+                {   back.addressing = Instruct.Addressing.IndY; }
+                    
+            }
         }
         //post_op
-        return back;
+            return back;
     }
     private class execution_unit(CPU6502 parent)
     {
