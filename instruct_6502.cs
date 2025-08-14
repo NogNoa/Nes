@@ -18,7 +18,7 @@ public class Instruct
     public Addressing addressing { get; set; } = Addressing.Impl;
     public bool PostOp { get; set; } = true;
 
-    public static Instruct decode_instrcution(byte inst)
+    public static Instruct Decode_instrcution(byte inst)
     {
         Instruct back = new();
         bool AF = (inst & 1) != 0; // Accumulator function
@@ -28,29 +28,29 @@ public class Instruct
         byte adrs_group = (byte)((inst >> 2) & 7);
         byte oper_group = (byte)(inst >> 5);
         if ((adrs_group & 1) == 1)
-            {   back.addressing = (adrs_group >> 2 == 0) ? 
-                    Instruct.Addressing.Dir : 
-                    Instruct.Addressing.IndX;
-                // 1, 3->Dir; 5, 7->Indexed-X;
-                back.Length = ((adrs_group >> 1) & 1) +  2;
-                //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
-                back.Source = 'M';
-            }
+        {   back.addressing = (adrs_group >> 2 == 0) ? 
+                Addressing.Dir : 
+                Addressing.IndX;
+            // 1, 3->Dir; 5, 7->Indexed-X;
+            back.Length = ((adrs_group >> 1) & 1) +  2;
+            //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
+            back.Source = 'M';
+        }
         else if (AF) 
-            {   switch (adrs_group >> 1)
-                {   case 0: back.addressing = Instruct.Addressing.XDRef; 
-                            back.Length = 2; 
-                            break;//0->X-indirect;
-                                  //2->implied
-                    case 2: back.addressing = Instruct.Addressing.DRefY; 
-                            back.Length = 2; 
-                            break;//4->indirect-Y;
-                    case 3: back.addressing = Instruct.Addressing.IndY;
-                            back.Length = 3;
-                            break;//6->indexed-Y;
-                }
-                back.Source = 'M';
+        {   switch (adrs_group >> 1)
+            {   case 0: back.addressing = Addressing.XDRef; 
+                        back.Length = 2; 
+                        break;//0->X-indirect;
+                                //2->implied
+                case 2: back.addressing = Addressing.DRefY; 
+                        back.Length = 2; 
+                        break;//4->indirect-Y;
+                case 3: back.addressing = Addressing.IndY;
+                        back.Length = 3;
+                        break;//6->indexed-Y;
             }
+            back.Source = 'M';
+        }
         /* if !AF and !(adrs_group & 1) we don't really care 
            since everything is implied (arity 1) Immediate or relative (arity 2)
            which are both also treated as implied.
@@ -110,7 +110,7 @@ public class Instruct
                         back.Dest = 'E';
                         back.Operation = "jmp";
                         if (oper_group == 3)
-                        { back.addressing = Instruct.Addressing.DRef; }
+                        { back.addressing = Addressing.DRef; }
                     }
                 }
                 else if (adrs_group == 2)
@@ -137,7 +137,7 @@ public class Instruct
                             break;
                         case 1:
                             back.Operation = "call";
-                            back.addressing = Instruct.Addressing.Dir;
+                            back.addressing = Addressing.Dir;
                             back.Length = 3;
                             back.Source = 'M';
                             break;
@@ -172,30 +172,18 @@ public class Instruct
         }
         else if (XF)
         {
-            if (oper_group == 0)
-            {
-                back.Operation = "asl";
-            }
-            else if (oper_group == 1)
-            {
-                back.Operation = "rol";
-            }
-            else if (oper_group == 2)
-            {
-                back.Operation = "lsr";
-            }
-            else if (oper_group == 3)
-            {
-                back.Operation = "ror";
-            }
-            else if (oper_group == 4)
-            {
-                back.Operation = "store";
-            }
-
+            back.Operation = (oper_group == 0) ? "asl" :
+                             (oper_group == 1) ? "rol" :
+                             (oper_group == 2) ? "lsr" :
+                             (oper_group == 3) ? "ror" :
+                             (oper_group == 4) ? "store" :
+                             (oper_group == 5) ? "load" :
+                             (oper_group == 6) ? "dec" :
+                             (oper_group == 7) ? "inc" :
+                             throw new InvalidDataException();
         }
         //post_op
-            return back;
+        return back;
     }
 
 

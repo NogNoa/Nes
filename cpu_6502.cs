@@ -145,7 +145,7 @@ internal class CPU6502(ICpuAccessible bus)
         public void Execute()
         {
             opcode = Fetch_prg();
-            operation = Instruct.decode_instrcution(opcode);
+            operation = Instruct.Decode_instrcution(opcode);
             if (operation.addressing != Instruct.Addressing.Impl)
             {
                 address = GetAddress(operation.addressing, operation.Length);
