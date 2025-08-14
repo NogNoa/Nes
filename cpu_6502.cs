@@ -212,7 +212,8 @@ internal class CPU6502(ICpuAccessible bus)
 
             }
             if (oper_group < 4)
-            {   if (adrs_group == 3)
+            {
+                if (adrs_group == 3)
                 {
                     if ((oper_group & 2) == 2) //(0,2,3) (0,3,3)
                     {
@@ -281,7 +282,27 @@ internal class CPU6502(ICpuAccessible bus)
         }
         else if (XF)
         {
-            ;
+            if (oper_group == 0)
+            {
+                back.Operation = "asl";
+            }
+            else if (oper_group == 1)
+            {
+                back.Operation = "rol";
+            }
+            else if (oper_group == 2)
+            {
+                back.Operation = "lsr";
+            }
+            else if (oper_group == 3)
+            {
+                back.Operation = "ror";
+            }
+            else if (oper_group == 4)
+            {
+                back.Operation = "store";
+            }
+
         }
         //post_op
             return back;
