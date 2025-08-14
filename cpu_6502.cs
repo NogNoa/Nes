@@ -222,27 +222,30 @@ internal class CPU6502(ICpuAccessible bus)
                 {
                     back.Dest = 'E';
                     back.Operation = "jmp";
+                    if (oper_group == 3)
+                    { back.addressing = Instruct.Addressing.DRef; }
                 }
-                else if (oper_group == 1)
+            }
+            else if (adrs_group == 2)
+            {
+                if ((oper_group & 5) == 4)
+                {
+                    back.Operation = "push";
+                }
+                else
+            }
+            if (oper_group == 1 && (adrs_group & 5) == 1)
                 {
                     back.Dest = 'P';
                     back.Operation = "bit";
                 }
-                if (oper_group == 3)
-                {   back.addressing = Instruct.Addressing.DRef; }
-
-            }
+                
 
 
         }
         else if (XF)
         {
-            if ((oper_group & 4) == 4)
-            {
-                if ((adrs_group & 5) == 5)
-                {   back.addressing = Instruct.Addressing.IndY; }
-                    
-            }
+            ;
         }
         //post_op
             return back;
@@ -367,7 +370,8 @@ internal class CPU6502(ICpuAccessible bus)
                         break;
                     }
                 case Instruct.Addressing.IndX:
-                    back = GetAddress(Instruct.Addressing.Dir, arity) + parent.X;
+                    byte ind_reg = (operation.Dest == 'X' || operation.Source == 'X') ? parent.Y : parent.X;
+                    back = GetAddress(Instruct.Addressing.Dir, arity) + ind_reg;
                     break;
                 case Instruct.Addressing.IndY:
                     back = GetAddress(Instruct.Addressing.Dir, arity) + parent.Y;
