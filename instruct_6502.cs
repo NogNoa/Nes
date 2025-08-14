@@ -172,6 +172,19 @@ public class Instruct
         }
         else if (XF)
         {
+            if ((adrs_group & 1) == 1)
+            { back.Dest = 'M'; }
+            else if (adrs_group == 2)
+            {
+                back.Dest = 'A';
+                if (oper_group == 6)
+                { back.Source = back.Dest = 'X'; }
+                else if (oper_group == 7)
+                {
+                    back.Source = null;
+                    back.Dest = 'O';
+                }
+            }
             back.Operation = (oper_group == 0) ? "asl" :
                              (oper_group == 1) ? "rol" :
                              (oper_group == 2) ? "lsr" :
@@ -181,6 +194,26 @@ public class Instruct
                              (oper_group == 6) ? "dec" :
                              (oper_group == 7) ? "inc" :
                              throw new InvalidDataException();
+            if (oper_group == 4)
+            {
+                back.Source = 'X';
+                if (adrs_group == 6)
+                {
+                    back.Dest = 'S';
+                }
+            }
+            else if (oper_group == 5)
+            {
+                back.Dest = 'X';
+                if (adrs_group == 0)
+                {
+                    back.Source = 'N';
+                }
+                else if (adrs_group == 6)
+                {
+                    back.Source = 'S';
+                }
+            }
         }
         //post_op
         return back;
