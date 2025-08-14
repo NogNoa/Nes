@@ -168,8 +168,7 @@ internal class CPU6502(ICpuAccessible bus)
            */
         if (inst == 0x20) // JSR abs
         {
-            back.addressing = Instruct.Addressing.Dir;
-            back.Length = 3;
+            
         }
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
@@ -216,32 +215,59 @@ internal class CPU6502(ICpuAccessible bus)
                 back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
 
             }
-            else if (adrs_group == 3)
-            {
-                if ((oper_group & 6) == 2) //(0,2,3) (0,3,3)
+            if (oper_group < 4)
+            {   if (adrs_group == 3)
+                {
+                    if ((oper_group & 2) == 2) //(0,2,3) (0,3,3)
+                    {
+                        back.Dest = 'E';
+                        back.Operation = "jmp";
+                        if (oper_group == 3)
+                        { back.addressing = Instruct.Addressing.DRef; }
+                    }
+                }
+                else if (adrs_group == 2)
+                {
+                    char argument = ((oper_group & 2) == 0) ? 'P' : 'A';
+                    if ((oper_group & 1) == 0)
+                    {
+                        back.Operation = "push";
+                        back.Source = argument;
+                    }
+                    else
+                    {
+                        back.Operation = "pull";
+                        back.Dest = argument;
+                    }
+                }
+                else if (adrs_group == 0)
                 {
                     back.Dest = 'E';
-                    back.Operation = "jmp";
-                    if (oper_group == 3)
-                    { back.addressing = Instruct.Addressing.DRef; }
+                    switch (oper_group)
+                    {
+                        case 0:
+                            back.Operation = "brk";
+                            break;
+                        case 1:
+                            back.Operation = "call";
+                            back.addressing = Instruct.Addressing.Dir;
+                            back.Length = 3;
+                            back.Source = 'M';
+                            break;
+                        case 2:
+                            back.Operation = "ret int";
+                            break;
+                        case 3:
+                            back.Operation = "ret sub";
+                            break;
+                    }
                 }
-            }
-            else if (adrs_group == 2)
-            {
-                if ((oper_group & 5) == 4)
-                {
-                    back.Operation = "push";
-                }
-                else
-            }
-            if (oper_group == 1 && (adrs_group & 5) == 1)
+                if (oper_group == 1 && (adrs_group & 5) == 1)
                 {
                     back.Dest = 'P';
                     back.Operation = "bit";
                 }
-                
-
-
+            }
         }
         else if (XF)
         {
@@ -464,6 +490,7 @@ internal class CPU6502(ICpuAccessible bus)
                 case "branch nif":
                     return Branch(false);
                 case "break":
+                case "brk":
                     parent.Interrupt(Interrupt_vector.NMI, isSoft:true);
                     return (byte)--address;
                 case "call":
