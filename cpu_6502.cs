@@ -165,7 +165,7 @@ internal class CPU6502(ICpuAccessible bus)
             {
                 case 'M':
                     return parent.Read(address);
-                case 'N':
+                case 'O':
                     return Fetch_prg();
                 case 'A':
                     return parent.A;
@@ -181,6 +181,7 @@ internal class CPU6502(ICpuAccessible bus)
                 case 'D':
                 case 'B':
                 case 'Z':
+                case 'N':
                     return parent.P;
                 case 'E':
                     return (byte)parent.PC;
@@ -201,7 +202,6 @@ internal class CPU6502(ICpuAccessible bus)
                 case 'M':
                     parent.Write(address, data);
                     break;
-                case 'N':
                 case 'O':
                     break;
                 case 'A':
@@ -224,6 +224,9 @@ internal class CPU6502(ICpuAccessible bus)
                     break;
                 case 'D':
                     parent.Mode_decimal = data == 1;
+                    break;
+                case 'N':
+                    parent.Negative = data == 1;
                     break;
                 case 'E':
                     parent.PC &= 0xff00;

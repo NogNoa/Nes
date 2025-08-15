@@ -91,6 +91,7 @@ public class Instruct
             else if (adrs_group == 4)
             {
                 back.Dest = 'E';
+                back.Length = 2;
                 switch (oper_group >> 1)
                 {
                     case 0: back.Source = 'N'; break;
@@ -155,11 +156,15 @@ public class Instruct
                     back.Operation = "bit";
                 }
             }
+            else if (adrs_group == 0 && oper_group >= 4)
+            {
+                back.Length = 2;
+            }
         }
         else if (AF)
         {
             back.Dest = 'A';
-            back.Source = (adrs_group != 2) ? 'M' : 'N';
+            back.Source = (adrs_group != 2) ? 'M' : 'O';
             back.Operation = (oper_group == 0) ? "or" :
                              (oper_group == 1) ? "and" :
                              (oper_group == 2) ? "xor" :
@@ -207,7 +212,7 @@ public class Instruct
                 back.Dest = 'X';
                 if (adrs_group == 0)
                 {
-                    back.Source = 'N';
+                    back.Source = 'O';
                 }
                 else if (adrs_group == 6)
                 {
@@ -216,9 +221,8 @@ public class Instruct
             }
         }
         //post_op
+        //todo: bytes, cycles
         return back;
     }
-
-
 }
 
