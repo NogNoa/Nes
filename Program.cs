@@ -12,16 +12,11 @@ class Program
         Controller[] controllers = new Controller[2] { new Controller(), new Controller() };
 
         // Create the NES board (which initializes CPU, PPU, CartridgePort, etc.)
-        NesBoard nesBoard = new NesBoard();
+        NesBoard nesBoard = new();
 
         // Optionally, create a dummy cartridge and load it
-        Nrom dummyCartridge = new Nrom("Dummy Game", "DUMMY01", Mirroring.Horizontal);
-        nesBoard
-            .GetType()
-            .GetField("cartridge_port", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            ?.GetValue(nesBoard) is CartridgePort port
-            ? port.Load_Cartridge(dummyCartridge)
-            : throw new Exception("Failed to access cartridge port.");
+        Nrom dummyCartridge = new("Dummy Game", "DUMMY01", Mirroring.Horizontal);
+        nesBoard.Load_Cartridge(dummyCartridge);
 
         // The chips are now initialized and connected
         Console.WriteLine("NES chips initialized.");

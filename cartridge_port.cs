@@ -11,7 +11,7 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
     public string Game_id = Game_id; 
     public string Pcb_class = Pcb_class;
     public int Mapper_id = Mapper_id;
-    required internal CartridgePort bus;
+    internal CartridgePort? bus;
     protected byte[] chr_rom = [];
     protected byte[] prg_rom = [];
 
@@ -34,13 +34,13 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
 class Nrom: Cartridge
 {
     readonly Mirroring Mirroring;
-    
+
     /* byte[0x2000] chr_rom;
        byte[0x8000] prg_rom;
     */
 
-    public Nrom(string Name, string Game_id, Mirroring mirroring) : base(Name, Game_id, "Nrom", 0) 
-    {this.Mirroring = mirroring;}
+    public Nrom(string Name, string Game_id, Mirroring mirroring) : base(Name, Game_id, "Nrom", 0)
+    { this.Mirroring = mirroring; }
 
     internal override byte Chr_Access(uint14 address, byte data, bool _, bool ppu_read)
     {
