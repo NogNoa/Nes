@@ -36,21 +36,6 @@ public class Instruct
             //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
             back.Source = 'M';
         }
-        else if (AF) 
-        {   switch (adrs_group >> 1)
-            {   case 0: back.addressing = Addressing.XDRef; 
-                        back.Length = 2; 
-                        break;//0->X-indirect;
-                                //2->implied
-                case 2: back.addressing = Addressing.DRefY; 
-                        back.Length = 2; 
-                        break;//4->indirect-Y;
-                case 3: back.addressing = Addressing.IndY;
-                        back.Length = 3;
-                        break;//6->indexed-Y;
-            }
-            back.Source = 'M';
-        }
         /* if !AF and !(adrs_group & 1) we don't really care 
            since everything is implied (arity 1) Immediate or relative (arity 2)
            which are both also treated as implied.
@@ -87,6 +72,7 @@ public class Instruct
                 }
                 back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
                 if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; }
+                if (inst == 0x9C) { back.Source = '0'; }
             }
             else if (adrs_group == 4)
             {
@@ -158,11 +144,24 @@ public class Instruct
             }
             else if (adrs_group == 0 && oper_group >= 4)
             {
+                back.Source = 'O';
                 back.Length = 2;
             }
         }
         else if (AF)
         {
+            switch (adrs_group >> 1)
+            {   case 0: back.addressing = Addressing.XDRef; 
+                        back.Length = 2; 
+                        break;//0->X-indirect;
+                                //2->implied
+                case 2: back.addressing = Addressing.DRefY; 
+                        back.Length = 2; 
+                        break;//4->indirect-Y;
+                case 3: back.addressing = Addressing.IndY;
+                        back.Length = 3;
+                        break;//6->indexed-Y;
+            }
             back.Dest = 'A';
             back.Source = (adrs_group != 2) ? 'M' : 'O';
             back.Operation = (oper_group == 0) ? "or" :
@@ -213,6 +212,7 @@ public class Instruct
                 if (adrs_group == 0)
                 {
                     back.Source = 'O';
+                    back.Length = 2;
                 }
                 else if (adrs_group == 6)
                 {
