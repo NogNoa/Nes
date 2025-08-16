@@ -8,7 +8,7 @@ public enum Mirroring {Horizontal, Vertical}
 internal abstract class Cartridge(string Name, string Game_id, string Pcb_class, int Mapper_id)
 {
     public string Name = Name;
-    public string Game_id = Game_id; 
+    public string Game_id = Game_id;
     public string Pcb_class = Pcb_class;
     public int Mapper_id = Mapper_id;
     internal CartridgePort? bus;
@@ -24,12 +24,25 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
         bus?.Interrupt_request();
     }
 
-    abstract internal bool Ciram_CS(ushort address,  bool ppu_write, bool ppu_read);
+    abstract internal bool Ciram_CS(ushort address, bool ppu_write, bool ppu_read);
 
-    abstract internal bool Ciram_A10(ushort address,  bool ppu_write, bool ppu_read);
+    abstract internal bool Ciram_A10(ushort address, bool ppu_write, bool ppu_read);
 
     abstract internal bool Chr_CS(ushort address, bool ppu_write, bool ppu_read);
+
+    public static Cartridge From_file(string name, BinaryReader rom)
+    {
+        string magic = System.Text.Encoding.ASCII.GetString(rom.ReadBytes(4));
+        if (magic != "NES\x1a")
+        { throw new NotACartridge(); }
+        byte[] header = rom.ReadBytes(12);
+        
+
+    }
 }
+
+[Serializable]
+internal class NotACartridge : Exception{}
 
 class Nrom: Cartridge
 {
