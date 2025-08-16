@@ -2,7 +2,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Security.Cryptography;
 
-internal class CPU6502(ICpuAccessible bus)
+internal class CPU6502
 {
     private byte A;
     private byte X;
@@ -13,9 +13,17 @@ internal class CPU6502(ICpuAccessible bus)
     private bool φ0;
     private byte _data = 0xFF;
     public bool φ1 {get => !φ0;}
-    private readonly ICpuAccessible bus = bus;
+    private readonly ICpuAccessible bus;
 
-    private static byte Bit_set(bool value, byte the_byte, byte power_o_2) => 
+    private readonly execution_unit exu;
+
+    public CPU6502(ICpuAccessible bus)
+    {
+        this.bus = bus;
+        this.exu = new execution_unit(this);
+    }
+
+    private static byte Bit_set(bool value, byte the_byte, byte power_o_2) =>
         (byte)(value ? the_byte | power_o_2 : the_byte & ~power_o_2);
 
     private bool Carry
@@ -127,7 +135,12 @@ internal class CPU6502(ICpuAccessible bus)
     }
     public bool φ2(ushort address, ReadWrite readWrite)
         =>  φ2(address, this._data, readWrite);
-    
+
+    public void Execute()
+    {
+        exu.Execute();
+    }
+
     private class execution_unit(CPU6502 parent)
     {
         private byte opcode;
@@ -196,7 +209,8 @@ internal class CPU6502(ICpuAccessible bus)
             }
         }
         private void Write(char dst, byte data)
-        {   dst = char.ToUpper(dst);
+        {
+            dst = char.ToUpper(dst);
             switch (dst)
             {
                 case 'M':
@@ -346,7 +360,7 @@ internal class CPU6502(ICpuAccessible bus)
                     return Branch(false);
                 case "break":
                 case "brk":
-                    parent.Interrupt(Interrupt_vector.NMI, isSoft:true);
+                    parent.Interrupt(Interrupt_vector.NMI, isSoft: true);
                     return (byte)--address;
                 case "call":
                     parent.Push(parent.PC);
@@ -378,7 +392,7 @@ internal class CPU6502(ICpuAccessible bus)
             }
             if (source == ifSet)
             {
-                ++operation.Cycles; 
+                ++operation.Cycles;
                 int temp = parent.PC + relop - 1;
                 if (temp < 0)
                 {
@@ -393,7 +407,7 @@ internal class CPU6502(ICpuAccessible bus)
                 return (byte)temp;
             }
             else
-                {return (byte)parent.PC; }
+            { return (byte)parent.PC; }
         }
 
         private void Post_op_update(byte result)
@@ -406,7 +420,7 @@ internal class CPU6502(ICpuAccessible bus)
         {
             parent.Overflow = -0x80 > result || result > 0x7F;
         }
-        
+
     }
 }
 

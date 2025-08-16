@@ -73,8 +73,14 @@ class NesBoard : ICpuBus, IPpuBus, ICartridgeBus
     }
 
     public void Load_Cartridge(Cartridge cartridge)
-    { cartridge_port.Load_Cartridge(cartridge);
+    { cartridge_port.Load_Cartridge(cartridge); }
 
+    public void Run()
+    {
+        while (true)
+        {
+            cpu.Execute();
+        }
     }
 
 }

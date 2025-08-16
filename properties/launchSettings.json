@@ -1,0 +1,8 @@
+{
+    "profiles": {
+        "Nes": {
+            "commandName": "Project",
+            "commandLineArgs": "\"G:\\Roms\\nes\\Donkey Kong (Japan).nes\""
+        }
+    }
+}

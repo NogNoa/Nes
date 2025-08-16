@@ -1,4 +1,4 @@
-class CPU2403: ICpuAccessible
+class CPU2403 : ICpuAccessible
 {
     readonly CPU6502 cpu;
     readonly ICpuBus bus;
@@ -22,7 +22,7 @@ class CPU2403: ICpuAccessible
     public void Reset() {cpu.Reset();}
     public void Set_overflow() {cpu.Set_overflow();}
 
-    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) => 
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite) =>
         this.bus.Cpu_Access(address, value, readWrite);
 
     private byte Get_controller(byte index, byte outsig)
@@ -30,5 +30,10 @@ class CPU2403: ICpuAccessible
         outsig &= 1<<3 - 1;
         return this.bus.Get_controller(index, outsig);
     }
+    public void Execute()
+    {
+        cpu.Execute();
+    }
+
     // object audio()
 }

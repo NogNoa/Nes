@@ -7,10 +7,10 @@ class Program
 
         NesBoard nes = new();
 
-        BinaryReader file = new(new FileStream(@"<path>\Donkey Kong (Japan).nes", FileMode.Open));
+        BinaryReader file = new(new FileStream(args[0], FileMode.Open));
         Nrom dk = (Nrom) Cartridge.From_file("Donkey Kong (Japan)", file);
         nes.Load_Cartridge(dk);
-
+        nes.Run();
         
     }
 }
