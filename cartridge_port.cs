@@ -117,8 +117,6 @@ class CartridgePort : ICpuAccessible
     public Cartridge? Cartridge {get => _cartridge;}
     private readonly ICartridgeBus bus;
 
-    private bool ROMSEL;
-
     public CartridgePort(ICartridgeBus bus)
     {
         this.bus = bus;
