@@ -44,7 +44,7 @@ class NesBoard : ICpuBus, IPpuBus, ICartridgeBus
         {
             full_address &= masks[4];
             back = destination.Cpu_Access(address, value, readWrite);
-            cartridge_port.Cpu_Access(full_address, value, readWrite, false);
+            back = cartridge_port.Cpu_Access(full_address, back, readWrite, true);
         }
         return back;
     }
@@ -77,6 +77,7 @@ class NesBoard : ICpuBus, IPpuBus, ICartridgeBus
 
     public void Run()
     {
+        cpu.Reset();
         while (true)
         {
             cpu.Execute();

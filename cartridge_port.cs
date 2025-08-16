@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using uint11 = ushort;
 using uint14 = ushort;
@@ -17,6 +18,7 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
     protected byte[] prg_rom = [];
 
     const int PRGBlock = 0x4000;
+    const int CHRBlock = 0x2000;
 
     abstract internal byte Prg_Access(ushort address, byte value, ReadWrite readWrite, bool romsel);
 
@@ -40,21 +42,32 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
         if (magic != "NES\x1a")
         { throw new NotACartridge(); }
         int prg_sz = header[4];
+        int chr_sz = header[5];
         Mirroring mirroring = ((header[6] & 1) == 1) ? Mirroring.Horizontal : Mirroring.Vertical;
+        bool isTrainer = (header[6] & 4) == 4;
         int mapper = (header[6] & 0xf0) >> 4;
         mapper |= header[7] & 0xf0;
-        mapper |= (header[8] & 0xf) << 8;
-        prg_sz |= (header[9] & 0xf) << 8;
+        mapper |= (header[8] & 0x0f) << 8;
+        prg_sz |= (header[9] & 0x0f) << 8;
+        chr_sz |= (header[9] & 0xf0) << 4;
         prg_sz *= PRGBlock;
+        chr_sz *= CHRBlock;
+        Cartridge back;
         switch (mapper)
         {
             case 0:
-                return (prg_sz == 0x8000) ? new Nrom(name, "?", mirroring) :
+                back = (prg_sz == 0x8000) ? new Nrom(name, "?", mirroring) :
                        (prg_sz == 0x4000) ? new Nrom_128K(name, "?", mirroring) :
                         throw new NotACartridge();
+                break;
             default:
                 throw new NotACartridge();
         }
+        if (isTrainer)
+            rom.ReadBytes(0x200);
+        back.prg_rom = rom.ReadBytes(prg_sz);
+        back.chr_rom = rom.ReadBytes(chr_sz);
+        return back;
     }
 }
 

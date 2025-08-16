@@ -180,7 +180,7 @@ public class Instruct
             { back.Dest = 'M'; }
             else if (adrs_group == 2)
             {
-                back.Dest = 'A';
+                back.Source = back.Dest = 'A';
                 if (oper_group == 6)
                 { back.Source = back.Dest = 'X'; }
                 else if (oper_group == 7)
