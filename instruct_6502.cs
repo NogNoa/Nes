@@ -220,7 +220,10 @@ public class Instruct
                 }
             }
         }
-        //post_op
+        if (new List<string> {"branch if", "branch nif", "bit", "jmp", "push", "ret int", "ret sub"}.Contains(back.Operation) ||
+            back.Source == '0' || back.Source == '1' ||
+            back.Dest == 'S')
+            { back.PostOp = false; }
         //todo: bytes, cycles
         return back;
     }
