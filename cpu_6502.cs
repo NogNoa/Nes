@@ -92,7 +92,7 @@ internal class CPU6502
     public void Reset()
     {
         this.Interrupt_disable = true;
-        PC = (ushort)Interrupt_vector.RST;
+        PC = Read16((ushort)Interrupt_vector.RST);
     }
 
     public void Set_overflow() { this.Overflow = true; }
@@ -242,6 +242,9 @@ internal class CPU6502
                 case 'N':
                     parent.Negative = data == 1;
                     break;
+                case 'I':
+                    parent.Interrupt_disable = data == 1;
+                    break;
                 case 'E':
                     parent.PC &= 0xff00;
                     parent.PC |= data;
@@ -297,6 +300,7 @@ internal class CPU6502
                 case "store":
                 case "transfer":
                 case "move":
+                case "mov":
                     return operand;
                 case "push":
                     parent.Push(operand);

@@ -14,7 +14,7 @@ public class Instruct
     //Source and dest could only be a name of a register, with M for memory
     public char? Source { get; set; }    //null: source=dest
     public char Dest { get; set; }       //
-    public string? Operation { get; set; } //null: = mov
+    public string Operation { get; set; } = "mov";
     public Addressing addressing { get; set; } = Addressing.Impl;
     public bool PostOp { get; set; } = true;
 

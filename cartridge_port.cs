@@ -119,7 +119,7 @@ class Nrom_128K(string Name, string Game_id, Mirroring mirroring) : Nrom(Name, G
     */
     internal override byte Prg_Access(ushort address, byte data, ReadWrite readWrite, bool romsel)
     {
-        address &= 1<<14 - 1;
+        address &= (1<<14) - 1;
         return romsel ? prg_rom[address] : data;
     }
 }
