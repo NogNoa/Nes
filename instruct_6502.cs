@@ -60,6 +60,7 @@ public class Instruct
             if ((oper_group & 6) == 6) //6,7
             {
                 back.Operation = "compare";
+                if (inst == 0xD8) { back.Operation = "store"; }
             }
             if (adrs_group == 6)
             {
@@ -67,13 +68,13 @@ public class Instruct
                 {
                     case 0: back.Dest = 'C'; break;
                     case 1: back.Dest = 'I'; break;
-                    case 2: back.Dest = 'V'; break;
                     case 3: back.Dest = 'D'; break;
+                    case 2:
+                        if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; } else
+                        if (inst == 0xB8) { back.Source = '0'; back.Dest = 'V'; } break;
                 }
-                back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
-                if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; } else 
-                if (inst == 0xB8) { back.Source = '0'; } else 
-                if (inst == 0xD8) { back.Operation = "store"; }
+                if ((oper_group >> 1) != 2)
+                { back.Source = (oper_group & 1).ToString()[0];} //even -> clear; odd -> set;
             }
             else if (adrs_group == 4)
             {
