@@ -1,5 +1,6 @@
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Security.Cryptography;
 
 internal class CPU6502
@@ -10,7 +11,7 @@ internal class CPU6502
     private byte SP;
     private byte P;
     private ushort PC;
-    private bool φ0;
+    private bool φ0 = false;
     private byte _data = 0xFF;
     public bool φ1 {get => !φ0;}
     private readonly ICpuAccessible bus;
@@ -169,6 +170,7 @@ internal class CPU6502
                 Post_op_update(operand);
             if (operation.Operation != "cmp")
             { this.Write(operation.Dest, operand); }
+            Debug.Print(operation.format());
         }
 
         private byte Read(char? src)

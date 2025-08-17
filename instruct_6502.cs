@@ -32,7 +32,7 @@ public class Instruct
                 Addressing.Dir : 
                 Addressing.IndX;
             // 1, 3->Dir; 5, 7->Indexed-X;
-            back.Length = ((adrs_group >> 1) & 1) +  2;
+            back.Length = ((adrs_group >> 1) & 1) + 2;
             //1, 5->2 zeropaged   ; 3, 7->3 absolute; 
             back.Source = 'M';
         }
@@ -74,7 +74,7 @@ public class Instruct
                         if (inst == 0xB8) { back.Source = '0'; back.Dest = 'V'; } break;
                 }
                 if ((oper_group >> 1) != 2)
-                { back.Source = (oper_group & 1).ToString()[0];} //even -> clear; odd -> set;
+                { back.Source = (oper_group & 1).ToString()[0]; } //even -> clear; odd -> set;
             }
             else if (adrs_group == 4)
             {
@@ -222,12 +222,17 @@ public class Instruct
                 }
             }
         }
-        if (new List<string> {"branch if", "branch nif", "bit", "jmp", "push", "ret int", "ret sub"}.Contains(back.Operation) ||
+        if (new List<string> { "branch if", "branch nif", "bit", "jmp", "push", "ret int", "ret sub" }.Contains(back.Operation) ||
             back.Source == '0' || back.Source == '1' ||
             back.Dest == 'S')
-            { back.PostOp = false; }
-        //todo: bytes, cycles
+        { back.PostOp = false; }
+        //todo: cycles
         return back;
+    }
+
+    public string format()
+    {
+        return $"{Operation}: {addressing}; {Dest} <- {Source}";
     }
 }
 

@@ -3,12 +3,12 @@ using uint6 = byte;
 
 class Ppu : ICpuAccessible
 {
-    private byte Ppu_control;
-    private byte Ppu_mask;
-    private byte Ppu_status;
-    private byte Cpu_Oam_address;
-    private byte Ppu_scroll;
-    private byte Cpu_Vram_address;
+    private byte Ppu_control = 0;
+    private byte Ppu_mask = 0;
+    private byte Ppu_status = (byte) (new Random().Next(0,0x20) | 0xa0); //101x xxxx
+    private byte Cpu_Oam_address = 0;
+    private byte Ppu_scroll = 0;
+    private byte Cpu_Vram_address = 0;
 
     private readonly RAM Vram, Oam;
     private readonly IPpuBus Bus;
@@ -95,7 +95,9 @@ class Ppu : ICpuAccessible
         Bus.Nonmaskable_interrupt();
     }
     public void Reset()
-    {;}
+    {
+        Ppu_control = Ppu_mask = Ppu_scroll = 0;
+    }
     private byte Read(byte lo_address, uint6 hi_address)
         {   Latch(lo_address);
             return Bus.Ppu_access(0xFF, hi_address, true, false, true);
