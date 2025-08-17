@@ -71,8 +71,9 @@ public class Instruct
                     case 3: back.Dest = 'D'; break;
                 }
                 back.Source = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
-                if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; }
-                if (inst == 0x9C) { back.Source = '0'; }
+                if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; } else 
+                if (inst == 0xB8) { back.Source = '0'; } else 
+                if (inst == 0xD8) { back.Operation = "store"; }
             }
             else if (adrs_group == 4)
             {
