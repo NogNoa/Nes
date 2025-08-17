@@ -54,8 +54,7 @@ internal abstract class Cartridge(string Name, string Game_id, string Pcb_class,
         chr_sz *= CHRBlock;
         Cartridge back;
         switch (mapper)
-        {
-            case 0:
+        {   case 0:
                 back = (prg_sz == 0x8000) ? new Nrom(name, "?", mirroring) :
                        (prg_sz == 0x4000) ? new Nrom_128K(name, "?", mirroring) :
                         throw new NotACartridge();

@@ -80,9 +80,7 @@ internal class CPU6502
     public void Interrupt_request()
     {
         if (this.Interrupt_disable)
-        {
-            Interrupt(Interrupt_vector.IRQ);
-        }
+        {   Interrupt(Interrupt_vector.IRQ); }
     }
 
     public void Nonmaskable_interrupt()
@@ -157,13 +155,10 @@ internal class CPU6502
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
         public void Execute()
-        {
-            opcode = Fetch_prg();
+        {   opcode = Fetch_prg();
             operation = Instruct.Decode_instrcution(opcode);
             if (operation.addressing != Instruct.Addressing.Impl)
-            {
-                address = GetAddress(operation.addressing, operation.Length);
-            }
+            {   address = GetAddress(operation.addressing, operation.Length); }
             operand = this.Read(operation.Source);
             operand = this.Operate(operation);
             if (operation.PostOp)
@@ -174,11 +169,9 @@ internal class CPU6502
         }
 
         private byte Read(char? src)
-        {
-            src = (src != null) ? char.ToUpper((char)src) : null;
+        {   src = (src != null) ? char.ToUpper((char)src) : null;
             switch (src)
-            {
-                case 'M':
+            {   case 'M':
                     return parent.Read(address);
                 case 'O':
                     return Fetch_prg();
@@ -211,11 +204,9 @@ internal class CPU6502
             }
         }
         private void Write(char dst, byte data)
-        {
-            dst = char.ToUpper(dst);
+        {   dst = char.ToUpper(dst);
             switch (dst)
-            {
-                case 'M':
+            {   case 'M':
                     parent.Write(address, data);
                     break;
                 case 'O':
@@ -257,16 +248,11 @@ internal class CPU6502
         }
 
         private ushort GetAddress(Instruct.Addressing addressing, int arity)
-        {
-            int back = 0;
+        {   int back = 0;
             switch (addressing)
-            {
-                case Instruct.Addressing.Dir:
-                    {
-                        for (int i = 0; i < arity - 1; ++i)
-                        {
-                            back |= Fetch_prg() << (8 * i);
-                        }
+            {   case Instruct.Addressing.Dir:
+                    {   for (int i = 0; i < arity - 1; ++i)
+                        {   back |= Fetch_prg() << (8 * i); }
                         break;
                     }
                 case Instruct.Addressing.IndX:
@@ -294,11 +280,9 @@ internal class CPU6502
         }
 
         private byte Operate(Instruct operation)
-        {
-            int temp;
+        {   int temp;
             switch (operation.Operation)
-            {
-                case "load":
+            {   case "load":
                 case "store":
                 case "transfer":
                 case "move":
@@ -385,29 +369,24 @@ internal class CPU6502
         }
 
         private byte Branch(bool ifSet)
-        {
-            bool source = (operation.Source == 'N') ? parent.Negative :
+        {   bool source = (operation.Source == 'N') ? parent.Negative :
                         (operation.Source == 'V') ? parent.Overflow :
                         (operation.Source == 'C') ? parent.Carry :
                         (operation.Source == 'Z') ? parent.Zero :
                         throw new Exception();
             sbyte relop;
             unchecked
-            {
-                relop = (sbyte)operand;
+            {   relop = (sbyte)operand;
             }
             if (source == ifSet)
-            {
-                ++operation.Cycles;
+            {   ++operation.Cycles;
                 int temp =  (byte) parent.PC + relop;
                 if (temp < 0)
-                {
-                    ++operation.Cycles;
+                {   ++operation.Cycles;
                     parent.PC -= 0x100;
                 }
                 else if (temp > 0x100)
-                {
-                    ++operation.Cycles;
+                {   ++operation.Cycles;
                     parent.PC += 0x100;
                 }
                 return (byte)temp;
@@ -417,15 +396,12 @@ internal class CPU6502
         }
 
         private void Post_op_update(byte result)
-        {
-            parent.Zero = result == 0;
+        {   parent.Zero = result == 0;
             parent.Negative = (operand & 0x80) != 0;
         }
 
         private void Overflow_update(int result)
-        {
-            parent.Overflow = -0x80 > result || result > 0x7F;
-        }
+        {   parent.Overflow = -0x80 > result || result > 0x7F; }
 
     }
 }

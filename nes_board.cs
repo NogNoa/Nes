@@ -37,12 +37,10 @@ class NesBoard : ICpuBus, IPpuBus, ICartridgeBus
                                      new DeadEnd();
         address &= masks[recipient_index];
         if (destination == cartridge_port)
-        {
-            back = cartridge_port.Cpu_Access(address, value, readWrite);
+        {   back = cartridge_port.Cpu_Access(address, value, readWrite);
         }
         else
-        {
-            full_address &= masks[4];
+        {   full_address &= masks[4];
             back = destination.Cpu_Access(address, value, readWrite);
             back = cartridge_port.Cpu_Access(full_address, back, readWrite, true);
         }
@@ -57,8 +55,7 @@ class NesBoard : ICpuBus, IPpuBus, ICartridgeBus
     public byte Ppu_access(byte vram_data_bus, uint6 hi_address, bool latch_enable, bool write, bool read)
     {
         if (write || read)
-        {
-            uint14 address = (ushort)((hi_address << 8) | Ppu_Latch(vram_data_bus, latch_enable));
+        {   uint14 address = (ushort)((hi_address << 8) | Ppu_Latch(vram_data_bus, latch_enable));
             vram_data_bus &= cartridge_port.Ppu_Access(address, vram_data_bus, write, read);
         }
         Ppu_Latch(vram_data_bus, latch_enable);
@@ -79,9 +76,7 @@ class NesBoard : ICpuBus, IPpuBus, ICartridgeBus
     {
         cpu.Reset();
         while (true)
-        {
-            cpu.Execute();
-        }
+        {   cpu.Execute(); }
     }
 
 }

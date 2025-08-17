@@ -43,30 +43,23 @@ public class Instruct
            */
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
-        {
-            if (oper_group == 4)
-            {
-                back.Source = 'Y';
+        {   if (oper_group == 4)
+            {   back.Source = 'Y';
                 back.Dest = 'M';
             }
             else if (5 == oper_group || oper_group == 6)
-            {
-                back.Dest = 'Y';
+            {   back.Dest = 'Y';
             }
             else if (oper_group == 7)
-            {
-                back.Dest = 'X';
+            {   back.Dest = 'X';
             }
             if ((oper_group & 6) == 6) //6,7
-            {
-                back.Operation = "compare";
+            {   back.Operation = "compare";
                 if (inst == 0xD8) { back.Operation = "store"; }
             }
             if (adrs_group == 6)
-            {
-                switch (oper_group >> 1)
-                {
-                    case 0: back.Dest = 'C'; break;
+            {   switch (oper_group >> 1)
+                {   case 0: back.Dest = 'C'; break;
                     case 1: back.Dest = 'I'; break;
                     case 3: back.Dest = 'D'; break;
                     case 2:
@@ -77,12 +70,10 @@ public class Instruct
                 { back.Source = (oper_group & 1).ToString()[0]; } //even -> clear; odd -> set;
             }
             else if (adrs_group == 4)
-            {
-                back.Dest = 'E';
+            {   back.Dest = 'E';
                 back.Length = 2;
                 switch (oper_group >> 1)
-                {
-                    case 0: back.Source = 'N'; break;
+                {   case 0: back.Source = 'N'; break;
                     case 1: back.Source = 'V'; break;
                     case 2: back.Source = 'C'; break;
                     case 3: back.Source = 'Z'; break;
@@ -91,37 +82,29 @@ public class Instruct
 
             }
             if (oper_group < 4)
-            {
-                if (adrs_group == 3)
-                {
-                    if ((oper_group & 2) == 2) //(0,2,3) (0,3,3)
-                    {
-                        back.Dest = 'E';
+            {   if (adrs_group == 3)
+                {   if ((oper_group & 2) == 2) //(0,2,3) (0,3,3)
+                    {   back.Dest = 'E';
                         back.Operation = "jmp";
                         if (oper_group == 3)
                         { back.addressing = Addressing.DRef; }
                     }
                 }
                 else if (adrs_group == 2)
-                {
-                    char argument = ((oper_group & 2) == 0) ? 'P' : 'A';
+                {   char argument = ((oper_group & 2) == 0) ? 'P' : 'A';
                     if ((oper_group & 1) == 0)
-                    {
-                        back.Operation = "push";
+                    {   back.Operation = "push";
                         back.Source = argument;
                     }
                     else
-                    {
-                        back.Operation = "pull";
+                    {   back.Operation = "pull";
                         back.Dest = argument;
                     }
                 }
                 else if (adrs_group == 0)
-                {
-                    back.Dest = 'E';
+                {   back.Dest = 'E';
                     switch (oper_group)
-                    {
-                        case 0:
+                    {   case 0:
                             back.Operation = "brk";
                             break;
                         case 1:
@@ -139,20 +122,17 @@ public class Instruct
                     }
                 }
                 if (oper_group == 1 && (adrs_group & 5) == 1)
-                {
-                    back.Dest = 'P';
+                {   back.Dest = 'P';
                     back.Operation = "bit";
                 }
             }
             else if (adrs_group == 0 && oper_group >= 4)
-            {
-                back.Source = 'O';
+            {   back.Source = 'O';
                 back.Length = 2;
             }
         }
         else if (AF)
-        {
-            switch (adrs_group >> 1)
+        {   switch (adrs_group >> 1)
             {   case 0: back.addressing = Addressing.XDRef; 
                         back.Length = 2; 
                         break;//0->X-indirect;
@@ -178,17 +158,14 @@ public class Instruct
             if (back.Operation == "store") { back.Dest = (char) back.Source;  back.Source = 'A'; }
         }
         else if (XF)
-        {
-            if ((adrs_group & 1) == 1)
+        {   if ((adrs_group & 1) == 1)
             { back.Dest = 'M'; }
             else if (adrs_group == 2)
-            {
-                back.Source = back.Dest = 'A';
+            {   back.Source = back.Dest = 'A';
                 if (oper_group == 6)
                 { back.Source = back.Dest = 'X'; }
                 else if (oper_group == 7)
-                {
-                    back.Source = null;
+                {   back.Source = null;
                     back.Dest = 'O';
                 }
             }
@@ -202,24 +179,19 @@ public class Instruct
                              (oper_group == 7) ? "inc" :
                              throw new InvalidDataException();
             if (oper_group == 4)
-            {
-                back.Source = 'X';
+            {   back.Source = 'X';
                 if (adrs_group == 6)
-                {
-                    back.Dest = 'S';
+                {   back.Dest = 'S';
                 }
             }
             else if (oper_group == 5)
-            {
-                back.Dest = 'X';
+            {   back.Dest = 'X';
                 if (adrs_group == 0)
-                {
-                    back.Source = 'O';
+                {   back.Source = 'O';
                     back.Length = 2;
                 }
                 else if (adrs_group == 6)
-                {
-                    back.Source = 'S';
+                {   back.Source = 'S';
                 }
             }
         }

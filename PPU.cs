@@ -55,8 +55,7 @@ class Ppu : ICpuAccessible
     private byte Access(uint3 address, byte data, ReadWrite readWrite)
     {
         switch (address)
-        {
-            case 0:
+        {   case 0:
                 if (readWrite == ReadWrite.WRITE)
                     {Ppu_control = data;}
                 break;
