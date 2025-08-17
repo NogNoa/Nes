@@ -197,7 +197,7 @@ internal class CPU6502
                 case 'B':
                 case 'Z':
                 case 'N':
-                    return parent.P;
+                    return Fetch_prg();
                 case 'E':
                     return (byte)parent.PC;
                 case '1':
@@ -399,7 +399,7 @@ internal class CPU6502
             if (source == ifSet)
             {
                 ++operation.Cycles;
-                int temp = parent.PC + relop - 1;
+                int temp =  (byte) parent.PC + relop;
                 if (temp < 0)
                 {
                     ++operation.Cycles;

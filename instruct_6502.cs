@@ -175,6 +175,7 @@ public class Instruct
                              (oper_group == 6) ? "cmp" :
                              (oper_group == 7) ? "sbc" :
                              throw new InvalidDataException();
+            if (back.Operation == "store") { back.Dest = (char) back.Source;  back.Source = 'A'; }
         }
         else if (XF)
         {
