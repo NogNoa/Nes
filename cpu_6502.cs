@@ -345,7 +345,7 @@ internal class CPU6502
                 case "jump":
                 case "jmp":
                     parent.PC = --address;
-                    return (byte)address;
+                    return (byte)--address;
                 case "branch if":
                     return Branch(true);
                 case "branch nif":

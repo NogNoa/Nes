@@ -87,7 +87,9 @@ public class Instruct
                     {   back.Dest = 'E';
                         back.Operation = "jmp";
                         if (oper_group == 3)
-                        { back.addressing = Addressing.DRef; }
+                        {   back.addressing = Addressing.DRef;
+                            back.Length = 4;
+                        }
                     }
                 }
                 else if (adrs_group == 2)

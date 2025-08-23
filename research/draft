@@ -1,15 +1,15 @@
 
 LDA ($FF),Y
 GetAddress(DRefY, 3)
-    back = GetAddress(DRef, 3) + parent.Y;
+    back = GetAddress(DRef, 3) + Y;
         back = GetAddress(Dir, 2);
             back =  0xFF << (8 * 0);
             return (byte) back;
         back = 0xff;
-        back = parent.BuggyRead16((ushort)back);
+        back = BuggyRead16((ushort)back);
         back = *(0) << 8 | *(0xff)
         return (ushort) back;
-    back = back + parent.Y;
+    back = back + Y;
     return (ushort) back;
 (ushort) ((*(0) << 8 | *(0xff)) + Y)
 
@@ -17,16 +17,25 @@ LDX #$00
 LDA ($FF,X)
 GetAddress(XDRef, 3)
     back = GetAddress(IndX, 2);
-        ind_reg = parent.X;
-        back = GetAddress(Dir, 2) + parent.X;
+        ind_reg = X;
+        back = GetAddress(Dir, 2) + X;
             back = 0xff << (8 * 0);
             return (byte) back;
         back = 0xff + 0;
         return (byte) back;
     back = 0xff
-    back = parent.BuggyRead16((ushort)0xff);
+    back = BuggyRead16((ushort)0xff);
     back = *(0) << 8 | *(0xff)
     return (ushort)back;
 (*(0) << 8 | *(0xff))
-    
 
+
+JMP ($12FF)
+GetAddress(DRef, 4)
+    back = GetAddress(Dir, 3);
+        back =  0xFF << (8 * 0);
+        back = back | (0x12 << (8 * 1));
+        back = 0x12FF
+        return (ushort) back;
+    back = BuggyRead16((ushort)back);
+    back = *(1200) << 8 | *(0x12ff)
