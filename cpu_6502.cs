@@ -91,6 +91,7 @@ internal class CPU6502
     public void Reset()
     {
         this.Interrupt_disable = true;
+        SP -= 3;
         PC = Read16((ushort)Interrupt_vector.RST);
     }
 
@@ -122,6 +123,8 @@ internal class CPU6502
 
     private ushort Read16(ushort address)
         =>(ushort) ((Read((ushort)(address + 1)) << 8) | Read(address));
+    private ushort BuggyRead16(ushort address)
+        =>(ushort) ((Read((ushort)((address & 0xff00) | (byte)(address + 1))) << 8) | Read(address));
 
     private void Write(ushort address, byte value)
     {
@@ -142,7 +145,6 @@ internal class CPU6502
 
     private class execution_unit(CPU6502 parent)
     {
-        private byte opcode;
         Instruct operation = new();
         private readonly CPU6502 parent = parent;
 
@@ -155,7 +157,7 @@ internal class CPU6502
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
         public void Execute()
-        {   opcode = Fetch_prg();
+        {   byte opcode = Fetch_prg();
             operation = Instruct.Decode_instrcution(opcode);
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length); }
@@ -264,11 +266,11 @@ internal class CPU6502
                     break;
                 case Instruct.Addressing.DRef:
                     back = GetAddress(Instruct.Addressing.Dir, arity);
-                    back = parent.Read16((ushort)back);
+                    back = parent.BuggyRead16((ushort)back);
                     break;
                 case Instruct.Addressing.XDRef:
                     back = GetAddress(Instruct.Addressing.IndX, arity);
-                    back = parent.Read16((ushort)back);
+                    back = parent.BuggyRead16((ushort)back);
                     break;
                 case Instruct.Addressing.DRefY:
                     back = GetAddress(Instruct.Addressing.DRef, arity) + parent.Y;
@@ -276,7 +278,7 @@ internal class CPU6502
                 default:
                     throw new Exception();
             }
-            return (ushort)back;
+            return  (arity < 3) ? (byte) back : (ushort)back;
         }
 
         private byte Operate(Instruct operation)
