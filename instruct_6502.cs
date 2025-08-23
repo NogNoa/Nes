@@ -134,11 +134,11 @@ public class Instruct
         else if (AF)
         {   switch (adrs_group >> 1)
             {   case 0: back.addressing = Addressing.XDRef; 
-                        back.Length = 2; 
+                        back.Length = 3; 
                         break;//0->X-indirect;
                                 //2->implied
                 case 2: back.addressing = Addressing.DRefY; 
-                        back.Length = 2; 
+                        back.Length = 3; 
                         break;//4->indirect-Y;
                 case 3: back.addressing = Addressing.IndY;
                         back.Length = 3;

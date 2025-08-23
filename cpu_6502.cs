@@ -265,11 +265,11 @@ internal class CPU6502
                     back = GetAddress(Instruct.Addressing.Dir, arity) + parent.Y;
                     break;
                 case Instruct.Addressing.DRef:
-                    back = GetAddress(Instruct.Addressing.Dir, arity);
+                    back = GetAddress(Instruct.Addressing.Dir, arity - 1);
                     back = parent.BuggyRead16((ushort)back);
                     break;
                 case Instruct.Addressing.XDRef:
-                    back = GetAddress(Instruct.Addressing.IndX, arity);
+                    back = GetAddress(Instruct.Addressing.IndX, arity -1);
                     back = parent.BuggyRead16((ushort)back);
                     break;
                 case Instruct.Addressing.DRefY:

@@ -1,12 +1,32 @@
 
 LDA ($FF),Y
-GetAddress(DRefY, 2)
-    back = GetAddress(DRef, 2) + parent.Y;
-        back = GetAddress(Instruct.Addressing.Dir, arity);
+GetAddress(DRefY, 3)
+    back = GetAddress(DRef, 3) + parent.Y;
+        back = GetAddress(Dir, 2);
             back =  0xFF << (8 * 0);
             return (byte) back;
-        back = parent.Read16((ushort)back);
-    back = 0xff + parent.Y;
-    return (byte) back;
-(byte) (0xff + Y)
+        back = 0xff;
+        back = parent.BuggyRead16((ushort)back);
+        back = *(0) << 8 | *(0xff)
+        return (ushort) back;
+    back = back + parent.Y;
+    return (ushort) back;
+(ushort) ((*(0) << 8 | *(0xff)) + Y)
+
+LDX #$00
+LDA ($FF,X)
+GetAddress(XDRef, 3)
+    back = GetAddress(IndX, 2);
+        ind_reg = parent.X;
+        back = GetAddress(Dir, 2) + parent.X;
+            back = 0xff << (8 * 0);
+            return (byte) back;
+        back = 0xff + 0;
+        return (byte) back;
+    back = 0xff
+    back = parent.BuggyRead16((ushort)0xff);
+    back = *(0) << 8 | *(0xff)
+    return (ushort)back;
+(*(0) << 8 | *(0xff))
+    
 
