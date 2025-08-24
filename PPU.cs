@@ -9,6 +9,7 @@ class Ppu : ICpuAccessible
     private byte Cpu_Oam_address = 0;
     private byte Ppu_scroll = 0;
     private byte Cpu_Vram_address = 0;
+    private byte latch;
 
     private readonly RAM Vram, Oam;
     private readonly IPpuBus Bus;
@@ -58,35 +59,48 @@ class Ppu : ICpuAccessible
         {   case 0:
                 if (readWrite == ReadWrite.WRITE)
                     {Ppu_control = data;}
+                else //readWrite == ReadWrite.READ
+                    { return latch; }
                 break;
             case 1:
                 if (readWrite == ReadWrite.WRITE)
                     {Ppu_mask = data;}
+                else //readWrite == ReadWrite.READ
+                    { return latch; }
                 break;
             case 2:
                 if (readWrite == ReadWrite.READ)
-                    {return Ppu_status;}
+                    {data = Ppu_status;}
                 break;
             case 3:
                 if (readWrite == ReadWrite.WRITE)
-                    {Cpu_Oam_address =data;}
+                    {Cpu_Oam_address = data;}
+                else //readWrite == ReadWrite.READ
+                    { return latch; }
                 break;
             case 4:
-                {return Oam.Access(Cpu_Oam_address, data, readWrite, true);}
+                data = Oam.Access(Cpu_Oam_address, data, readWrite, true);
+                break;
             case 5:
                 if (readWrite == ReadWrite.WRITE)
                     {Ppu_scroll = data;}
+                else //readWrite == ReadWrite.READ
+                    { return latch; }
                 break;
             case 6:
                 if (readWrite == ReadWrite.WRITE)
                     {Cpu_Vram_address =data;}
+                else //readWrite == ReadWrite.READ
+                    { return latch; }
                 break;
             case 7:
-                {return Vram.Access(Cpu_Vram_address,data, readWrite, true);}
+                data = Vram.Access(Cpu_Vram_address,data, readWrite, true);
+                break;
             default:
                 throw new ArgumentException("PPU has only 3 lines of address", 
                                             nameof(address));
         }
+        latch = data;
         return data;
     }
     private void VBlank()
