@@ -1,0 +1,7 @@
+we can seperate the execution_unit.Execute method to independant step and manage state 
+  between them in the object.
+we'll need to seperate everytime theres a read or write, such that it will match the 
+  number of cycles the instruction take.
+Or we can simply manage cycle arithmatics in the clock unit such that any cycle debt 
+  is paid back before the cpu (or any other component) is called again.
+And stop calling the cpu when it finished the job for the current frame.
