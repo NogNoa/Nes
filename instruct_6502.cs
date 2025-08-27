@@ -167,17 +167,19 @@ public class Instruct
             if (back.Operation == "store") { back.Dest = back.Source.Value;  back.Source = 'A'; }
         }
         else if (XF)
-        {   if ((adrs_group & 1) == 1)
-            { back.Dest = 'M'; }
-            else if (adrs_group == 2)
-            {   back.Source = back.Dest = 'A';
-                if (oper_group == 6)
-                { back.Source = back.Dest = 'X'; }
-                else if (oper_group == 7)
-                {   back.Source = null;
-                    back.Dest = 'O';
-                }
-            }
+        {   (back.Dest, back.Source) = (adrs_group, oper_group) switch
+            {   (var ag, _) when (ag & 1) == 1 => ('M', back.Source),
+                (2, 6) => ('X', 'X'),
+                (2, 7) => ('O', null),
+                (2, _) => ('A', 'A'),
+                (6, 4) => ('S', 'X'),
+                (_, 4) => (back.Dest, 'X'),
+                (0, 5) => ('X', 'O'),
+                (6, 5) => ('X', 'S'),
+                (_, 5) => ('X', back.Source),
+                _ => (back.Dest, back.Source)
+            };
+            if (back.Source == 'O') {back.Length = 2;}
             back.Operation = oper_group switch
             {   0 => "asl",
                 1 => "rol",
@@ -189,22 +191,6 @@ public class Instruct
                 7 => "inc",
                 _ => throw new InvalidDataException()
             };
-            if (oper_group == 4)
-            {   back.Source = 'X';
-                if (adrs_group == 6)
-                {   back.Dest = 'S';
-                }
-            }
-            else if (oper_group == 5)
-            {   back.Dest = 'X';
-                if (adrs_group == 0)
-                {   back.Source = 'O';
-                    back.Length = 2;
-                }
-                else if (adrs_group == 6)
-                {   back.Source = 'S';
-                }
-            }
         }
         if (NonNZOps.Contains(back.Operation) ||
             back.Source == '0' || back.Source == '1' ||
