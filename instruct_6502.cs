@@ -48,18 +48,19 @@ public class Instruct
            */
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
-        {   if (oper_group == 4)
-            {   back.Source = 'Y';
-                back.Dest = 'M';
-            }
-            else if (5 == oper_group || oper_group == 6)
-            {   back.Dest = 'Y';
-            }
-            else if (oper_group == 7)
-            {   back.Dest = 'X';
+        {   switch (oper_group)
+            {   case 4:
+                    back.Source = 'Y';
+                    back.Dest = 'M';
+                    break;
+                case 5:
+                case 6:
+                    back.Dest = 'Y'; break;
+                case 7:
+                    back.Dest = 'X'; break;
             }
             if ((oper_group & 6) == 6) //6,7
-            {   back.Operation = "compare";
+            { back.Operation = "compare";
                 if (inst == 0xD8) { back.Operation = "store"; }
             }
             if (adrs_group == 6)
@@ -77,12 +78,14 @@ public class Instruct
             else if (adrs_group == 4)
             {   back.Dest = 'E';
                 back.Length = 2;
-                switch (oper_group >> 1)
-                {   case 0: back.Source = 'N'; break;
-                    case 1: back.Source = 'V'; break;
-                    case 2: back.Source = 'C'; break;
-                    case 3: back.Source = 'Z'; break;
-                }
+                back.Source = (oper_group >> 1) switch
+                {
+                    0 => 'N',
+                    1 => 'V',
+                    2 => 'C',
+                    3 => 'Z',
+                    _ => throw new InvalidDataException()
+                };
                 back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
             }
             if (oper_group < 4)
@@ -152,15 +155,17 @@ public class Instruct
             }
             back.Dest = 'A';
             back.Source = (adrs_group != 2) ? 'M' : 'O';
-            back.Operation = (oper_group == 0) ? "or" :
-                             (oper_group == 1) ? "and" :
-                             (oper_group == 2) ? "xor" :
-                             (oper_group == 3) ? "adc" :
-                             (oper_group == 4) ? "store" :
-                             (oper_group == 5) ? "load" :
-                             (oper_group == 6) ? "cmp" :
-                             (oper_group == 7) ? "sbc" :
-                             throw new InvalidDataException();
+            back.Operation = oper_group switch
+            {   0 => "or",
+                1 => "and",
+                2 => "xor",
+                3 => "adc",
+                4 => "store",
+                5 => "load",
+                6 => "cmp",
+                7 => "sbc",
+                _ => throw new InvalidDataException()
+            };
             if (back.Operation == "store") { back.Dest = back.Source.Value;  back.Source = 'A'; }
         }
         else if (XF)
@@ -175,15 +180,17 @@ public class Instruct
                     back.Dest = 'O';
                 }
             }
-            back.Operation = (oper_group == 0) ? "asl" :
-                             (oper_group == 1) ? "rol" :
-                             (oper_group == 2) ? "lsr" :
-                             (oper_group == 3) ? "ror" :
-                             (oper_group == 4) ? "store" :
-                             (oper_group == 5) ? "load" :
-                             (oper_group == 6) ? "dec" :
-                             (oper_group == 7) ? "inc" :
-                             throw new InvalidDataException();
+            back.Operation = (oper_group) switch
+            {   0 => "asl",
+                1 => "rol",
+                2 => "lsr",
+                3 => "ror",
+                4 => "store",
+                5 => "load",
+                6 => "dec",
+                7 => "inc",
+                _ => throw new InvalidDataException()
+            };
             if (oper_group == 4)
             {   back.Source = 'X';
                 if (adrs_group == 6)
