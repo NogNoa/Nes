@@ -64,19 +64,20 @@ public class Instruct
                 if (inst == 0xD8) { back.Operation = "store"; }
             }
             if (adrs_group == 6)
-            {   switch (oper_group >> 1)
-                {   case 0: back.Dest = 'C'; break;
-                    case 1: back.Dest = 'I'; break;
-                    case 3: back.Dest = 'D'; break;
-                    case 2:
-                        if (inst == 0x98) { back.Source = 'Y'; back.Dest = 'A'; } else
-                        if (inst == 0xB8) { back.Source = '0'; back.Dest = 'V'; } break;
-                }
-                if ((oper_group >> 1) != 2)
-                { back.Source = (oper_group & 1).ToString()[0]; } //even -> clear; odd -> set;
+            {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
+                (back.Dest, back.Source) = (oper_group >> 1, oper_group & 1) switch
+                {
+                    (0, _) => ('C', def_src),
+                    (1, _) => ('I', def_src),
+                    (3, _) => ('D', def_src),
+                    (2, 0) => ('A', 'Y'),
+                    (2, 1) => ('V', '0'), 
+                    _ => throw new InvalidDataException()
+                };
             }
             else if (adrs_group == 4)
-            {   back.Dest = 'E';
+            {
+                back.Dest = 'E';
                 back.Length = 2;
                 back.Source = (oper_group >> 1) switch
                 {
@@ -141,18 +142,15 @@ public class Instruct
             }
         }
         else if (AF)
-        {   switch (adrs_group >> 1)
-            {   case 0: back.addressing = Addressing.XDRef; 
-                        back.Length = 3; 
-                        break;//0->X-indirect;
-                                //2->implied
-                case 2: back.addressing = Addressing.DRefY; 
-                        back.Length = 3; 
-                        break;//4->indirect-Y;
-                case 3: back.addressing = Addressing.IndY;
-                        back.Length = 3;
-                        break;//6->indexed-Y;
-            }
+        {
+            (back.addressing, back.Length) = (adrs_group >> 1) switch
+            {
+                0 => (Addressing.XDRef, 3), //0->X-indirect;
+                1 => (Addressing.Impl, 2),   //2->implied
+                2 => (Addressing.DRefY, 3), //4->indirect-Y;
+                3 => (Addressing.IndY, 3), //6->indexed-Y;
+                _ => throw new InvalidDataException()
+            };
             back.Dest = 'A';
             back.Source = (adrs_group != 2) ? 'M' : 'O';
             back.Operation = oper_group switch
@@ -180,7 +178,7 @@ public class Instruct
                     back.Dest = 'O';
                 }
             }
-            back.Operation = (oper_group) switch
+            back.Operation = oper_group switch
             {   0 => "asl",
                 1 => "rol",
                 2 => "lsr",
