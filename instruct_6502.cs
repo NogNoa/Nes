@@ -60,7 +60,7 @@ public class Instruct
                     back.Dest = 'X'; break;
             }
             if ((oper_group & 6) == 6) //6,7
-            { back.Operation = "compare";
+            {   back.Operation = "compare";
                 if (inst == 0xD8) { back.Operation = "store"; }
             }
             if (adrs_group == 6)
@@ -143,13 +143,13 @@ public class Instruct
         }
         else if (AF)
         {
-            (back.addressing, back.Length) = (adrs_group >> 1) switch
+            (back.addressing, back.Length) = adrs_group switch
             {
                 0 => (Addressing.XDRef, 3), //0->X-indirect;
-                1 => (Addressing.Impl, 2),   //2->implied
-                2 => (Addressing.DRefY, 3), //4->indirect-Y;
-                3 => (Addressing.IndY, 3), //6->indexed-Y;
-                _ => throw new InvalidDataException()
+                                            //2->implied
+                4 => (Addressing.DRefY, 3), //4->indirect-Y;
+                6 => (Addressing.IndY, 3), //6->indexed-Y;
+                _ => (back.addressing, back.Length)
             };
             back.Dest = 'A';
             back.Source = (adrs_group != 2) ? 'M' : 'O';
