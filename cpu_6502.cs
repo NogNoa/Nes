@@ -167,7 +167,7 @@ internal class CPU6502
                 Post_op_update(operand);
             if (operation.Operation != "cmp")
             { this.Write(operation.Dest, operand); }
-            Debug.Print(operation.format());
+            Debug.Print(operation.Format());
         }
 
         private byte Read(char? src)

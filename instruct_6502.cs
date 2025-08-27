@@ -2,6 +2,11 @@ using System.Diagnostics;
 
 public class Instruct
 {
+    private static readonly HashSet<string> NonNZOps =
+    [
+        "branch if", "branch nif", "bit", "jmp", "push", "ret int", "ret sub"
+    ];
+
     public int Length { get; set; } = 1;
     public int Cycles { get; set; } = 2;
 
@@ -23,8 +28,8 @@ public class Instruct
         Instruct back = new();
         bool AF = (inst & 1) != 0; // Accumulator function
         bool XF = (inst & 2) != 0; /* X-register function
-                                      Y-register function is implied 
-                                      by nither of the above */
+                                      both being false implies 
+                                      Y-register function*/
         byte adrs_group = (byte)((inst >> 2) & 7);
         byte oper_group = (byte)(inst >> 5);
         if ((adrs_group & 1) == 1)
@@ -79,7 +84,6 @@ public class Instruct
                     case 3: back.Source = 'Z'; break;
                 }
                 back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
-
             }
             if (oper_group < 4)
             {   if (adrs_group == 3)
@@ -157,7 +161,7 @@ public class Instruct
                              (oper_group == 6) ? "cmp" :
                              (oper_group == 7) ? "sbc" :
                              throw new InvalidDataException();
-            if (back.Operation == "store") { back.Dest = (char) back.Source;  back.Source = 'A'; }
+            if (back.Operation == "store") { back.Dest = back.Source.Value;  back.Source = 'A'; }
         }
         else if (XF)
         {   if ((adrs_group & 1) == 1)
@@ -197,7 +201,7 @@ public class Instruct
                 }
             }
         }
-        if (new List<string> { "branch if", "branch nif", "bit", "jmp", "push", "ret int", "ret sub" }.Contains(back.Operation) ||
+        if (NonNZOps.Contains(back.Operation) ||
             back.Source == '0' || back.Source == '1' ||
             back.Dest == 'S')
         { back.PostOp = false; }
@@ -205,7 +209,7 @@ public class Instruct
         return back;
     }
 
-    public string format()
+    public string Format()
     {
         return $"{Operation}: {addressing}; {Dest} <- {Source}";
     }
