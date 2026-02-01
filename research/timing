@@ -1,0 +1,13 @@
+mc = master clock ticks
+on ntsc:
+    ppu dot = 4 mc
+    cpu cycle = 12 mc
+    frame = 240 lines
+    vertical sync = 16 lines
+    vertical blank = 20 lines
+on pal:
+    ppu_dot = 5 mc
+    cpu cycle = 16 mc
+    frame = 239 lines
+    vertical blank = 70 lines
+scanline = 341 dots
