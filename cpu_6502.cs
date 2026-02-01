@@ -145,20 +145,21 @@ internal class CPU6502
 
     private class execution_unit(CPU6502 parent)
     {
-        Instruct operation = new();
+        private int Cycles;
         private readonly CPU6502 parent = parent;
 
         private ushort address;
         private byte operand;
 
-        static readonly Instruct clc = new() { Dest = 'C', Source = 'X', Operation = "clear", };
-        static readonly Instruct cmp = new() { Dest = 'A', Source = 'M', Operation = "cmp", };
+        // static readonly Instruct clc = new() { Dest = 'C', Source = '0', Operation = "move", };
+        // static readonly Instruct cmp = new() { Dest = 'A', Source = 'M', Operation = "cmp", };
 
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
         public void Execute()
         {   byte opcode = Fetch_prg();
             Instruct operation = Instruct.Decode_instrcution(opcode);
+            Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length); }
 #pragma warning disable CS8629 // Nullable value type may be null.
@@ -347,10 +348,12 @@ internal class CPU6502
                 case "jmp":
                     parent.PC = --address;
                     return (byte)--address;
+#pragma warning disable CS8629 // Nullable value type may be null.
                 case "branch if":
-                    return Branch(true);
+                    return Branch(true, operation.Source.Value);
                 case "branch nif":
-                    return Branch(false);
+                    return Branch(false, operation.Source.Value);
+#pragma warning restore CS8629
                 case "break":
                 case "brk":
                     parent.Interrupt(Interrupt_vector.NMI, isSoft: true);
@@ -382,14 +385,14 @@ internal class CPU6502
             {   relop = (sbyte)operand;
             }
             if (source == ifSet)
-            {   ++operation.Cycles;
+            {   ++Cycles;
                 int temp =  (byte) parent.PC + relop;
                 if (temp < 0)
-                {   ++operation.Cycles;
+                {   ++Cycles;
                     parent.PC -= 0x100;
                 }
                 else if (temp > 0x100)
-                {   ++operation.Cycles;
+                {   ++Cycles;
                     parent.PC += 0x100;
                 }
                 return (byte)temp;
