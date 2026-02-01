@@ -196,6 +196,8 @@ public class Instruct
             back.Source == '0' || back.Source == '1' ||
             back.Dest == 'S')
         { back.PostOp = false; }
+        if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))
+        {back.addressing = Addressing.IndY;}
         //todo: cycles
         return back;
     }

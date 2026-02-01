@@ -158,10 +158,12 @@ internal class CPU6502
         private byte Fetch_prg() => parent.Read(parent.PC++);
         public void Execute()
         {   byte opcode = Fetch_prg();
-            operation = Instruct.Decode_instrcution(opcode);
+            Instruct operation = Instruct.Decode_instrcution(opcode);
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length); }
-            operand = this.Read(operation.Source);
+#pragma warning disable CS8629 // Nullable value type may be null.
+            operand = this.Read(operation.Source) ?? Read(operation.Dest).Value;
+#pragma warning restore CS8629
             operand = this.Operate(operation);
             if (operation.PostOp)
                 Post_op_update(operand);
@@ -170,7 +172,7 @@ internal class CPU6502
             Debug.Print(operation.Format());
         }
 
-        private byte Read(char? src)
+        private byte? Read(char? src)
         {   src = (src != null) ? char.ToUpper((char)src) : null;
             switch (src)
             {   case 'M':
@@ -200,7 +202,7 @@ internal class CPU6502
                 case '0':
                     return 0;
                 case null:
-                    return Read(this.operation.Dest);
+                    return null;
                 default:
                     throw new Exception();
             }
@@ -258,8 +260,7 @@ internal class CPU6502
                         break;
                     }
                 case Instruct.Addressing.IndX:
-                    byte ind_reg = (operation.Dest == 'X' || operation.Source == 'X') ? parent.Y : parent.X;
-                    back = GetAddress(Instruct.Addressing.Dir, arity) + ind_reg;
+                    back = GetAddress(Instruct.Addressing.Dir, arity) + parent.X;
                     break;
                 case Instruct.Addressing.IndY:
                     back = GetAddress(Instruct.Addressing.Dir, arity) + parent.Y;
@@ -370,11 +371,11 @@ internal class CPU6502
             }
         }
 
-        private byte Branch(bool ifSet)
-        {   bool source = (operation.Source == 'N') ? parent.Negative :
-                        (operation.Source == 'V') ? parent.Overflow :
-                        (operation.Source == 'C') ? parent.Carry :
-                        (operation.Source == 'Z') ? parent.Zero :
+        private byte Branch(bool ifSet, char Source)
+        {   bool source = (Source == 'N') ? parent.Negative :
+                        (Source == 'V') ? parent.Overflow :
+                        (Source == 'C') ? parent.Carry :
+                        (Source == 'Z') ? parent.Zero :
                         throw new Exception();
             sbyte relop;
             unchecked
