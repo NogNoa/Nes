@@ -147,9 +147,7 @@ internal class CPU6502
     {
         private int Cycles;
         private readonly CPU6502 parent = parent;
-
         private ushort address;
-        private byte operand;
 
         // static readonly Instruct clc = new() { Dest = 'C', Source = '0', Operation = "move", };
         // static readonly Instruct cmp = new() { Dest = 'A', Source = 'M', Operation = "cmp", };
@@ -163,9 +161,9 @@ internal class CPU6502
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length); }
 #pragma warning disable CS8629 // Nullable value type may be null.
-            operand = this.Read(operation.Source) ?? Read(operation.Dest).Value;
+            byte operand = this.Read(operation.Source) ?? Read(operation.Dest).Value;
 #pragma warning restore CS8629
-            operand = this.Operate(operation);
+            operand = this.Operate(operation, operand);
             if (operation.PostOp)
                 Post_op_update(operand);
             if (operation.Operation != "cmp")
@@ -283,7 +281,7 @@ internal class CPU6502
             return  (arity < 3) ? (byte) back : (ushort)back;
         }
 
-        private byte Operate(Instruct operation)
+        private byte Operate(Instruct operation, byte operand)
         {   int temp;
             switch (operation.Operation)
             {   case "load":
@@ -350,9 +348,9 @@ internal class CPU6502
                     return (byte)--address;
 #pragma warning disable CS8629 // Nullable value type may be null.
                 case "branch if":
-                    return Branch(true, operation.Source.Value);
+                    return Branch(true, operation.Source.Value, operand);
                 case "branch nif":
-                    return Branch(false, operation.Source.Value);
+                    return Branch(false, operation.Source.Value, operand);
 #pragma warning restore CS8629
                 case "break":
                 case "brk":
@@ -374,7 +372,7 @@ internal class CPU6502
             }
         }
 
-        private byte Branch(bool ifSet, char Source)
+        private byte Branch(bool ifSet, char Source, byte operand)
         {   bool source = (Source == 'N') ? parent.Negative :
                         (Source == 'V') ? parent.Overflow :
                         (Source == 'C') ? parent.Carry :
@@ -403,7 +401,7 @@ internal class CPU6502
 
         private void Post_op_update(byte result)
         {   parent.Zero = result == 0;
-            parent.Negative = (operand & 0x80) != 0;
+            parent.Negative = (result & 0x80) != 0;
         }
 
         private void Overflow_update(int result)
