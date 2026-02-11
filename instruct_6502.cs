@@ -15,6 +15,7 @@ public class Instruct
     // Dir is direct. 
     // Ind is indexed. 
     // DRef is dereferenced i.e. indirect
+    // Jump abs -> immediete[2], DRef -> abs
 
     //Source and dest could only be a name of a register, with M for memory
     public char? Source { get; set; }    //null: source=dest
@@ -94,6 +95,7 @@ public class Instruct
                 {   if ((oper_group & 2) == 2) //(0,2,3) (0,3,3)
                     {   back.Dest = 'E';
                         back.Operation = "jmp";
+                        back.Source = null;
                         if (oper_group == 3)
                         {   back.addressing = Addressing.DRef;
                             back.Length = 4;

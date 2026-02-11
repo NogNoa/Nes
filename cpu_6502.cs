@@ -154,7 +154,7 @@ internal class CPU6502
 
 
         private byte Fetch_prg() => parent.Read(parent.PC++);
-        public void Execute()
+        public int Execute()
         {   byte opcode = Fetch_prg();
             Instruct operation = Instruct.Decode_instrcution(opcode);
             Cycles = operation.Cycles;
@@ -169,6 +169,7 @@ internal class CPU6502
             if (operation.Operation != "cmp")
             { this.Write(operation.Dest, operand); }
             Debug.Print(operation.Format());
+            return Cycles;
         }
 
         private byte? Read(char? src)
@@ -352,7 +353,7 @@ internal class CPU6502
                 case "jump":
                 case "jmp":
                     parent.PC = --address;
-                    return (byte)--address;
+                    return (byte) address;
 #pragma warning disable CS8629 // Nullable value type may be null.
                 case "branch if":
                     return Branch(true, operation.Source.Value, operand);
