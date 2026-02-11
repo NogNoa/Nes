@@ -252,6 +252,7 @@ internal class CPU6502
 
         private ushort GetAddress(Instruct.Addressing addressing, int arity)
         {   int back = 0;
+            int bas;
             switch (addressing)
             {   case Instruct.Addressing.Dir:
                     {   for (int i = 0; i < arity - 1; ++i)
@@ -259,10 +260,14 @@ internal class CPU6502
                         break;
                     }
                 case Instruct.Addressing.IndX:
-                    back = GetAddress(Instruct.Addressing.Dir, arity) + parent.X;
+                    bas = GetAddress(Instruct.Addressing.Dir, arity);
+                    back = bas + parent.X;
+                    if ((bas & 0xff00) != (back & 0xff00)) {Cycles += 1;}
                     break;
                 case Instruct.Addressing.IndY:
-                    back = GetAddress(Instruct.Addressing.Dir, arity) + parent.Y;
+                    bas = GetAddress(Instruct.Addressing.Dir, arity);
+                    back = bas  + parent.Y;
+                    if ((bas & 0xff00) != (back & 0xff00)) {Cycles += 1;}
                     break;
                 case Instruct.Addressing.DRef:
                     back = GetAddress(Instruct.Addressing.Dir, arity - 1);
@@ -273,7 +278,9 @@ internal class CPU6502
                     back = parent.BuggyRead16((ushort)back);
                     break;
                 case Instruct.Addressing.DRefY:
-                    back = GetAddress(Instruct.Addressing.DRef, arity) + parent.Y;
+                    bas = GetAddress(Instruct.Addressing.DRef, arity);
+                    back = bas + parent.Y;
+                    if ((bas & 0xff00) != (back & 0xff00)) {Cycles += 1;}
                     break;
                 default:
                     throw new Exception();
