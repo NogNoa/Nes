@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.Intrinsics.X86;
+using Microsoft.VisualBasic;
 
 class Logger
 {
@@ -13,7 +14,23 @@ class Logger
         static string Line {get=>"";}
     }
     private readonly int[] tabstops = [6, 16, 48];
+    private readonly FileStream gold;
+    private int line_index = 0;
 
+    public Logger()
+    {
+        gold = File.Open("./docs/golden.log", FileMode.Open);
+
+    }
+    ~Logger()
+    {
+        gold.Close();
+    }
+
+    public string readLine()
+    {
+        return File.ReadLines(gold);
+    }
     public Step LineProcess(string line)
     {
         string strPc = line[..tabstops[0]].TrimEnd();
@@ -28,4 +45,31 @@ class Logger
         ;
         return new Step(pc, bytes, Asm, reg);
     }
+}
+
+class TestBoard: ICpuAccessible
+{
+    byte[] opcodes;
+    short pc;
+    Logger logger = new();
+    readonly RAM iram  = new();
+    readonly CPU6502 cpu;
+    public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
+    {
+        if (readWrite == ReadWrite.READ && pc <= address && address < pc + opcodes.Length)
+            {return opcodes[address - pc];}
+        return iram.Cpu_Access(address, value, readWrite);
+    }
+
+    public TestBoard()
+    {
+        cpu = new(this);
+        cpu.Reset();
+    }
+
+    public static void Execute()
+    {
+        
+    }
+
 }
