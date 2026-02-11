@@ -6,12 +6,12 @@ using Microsoft.VisualBasic;
 
 class Logger
 {
-    public readonly struct Step(short pc, byte[] bytes, string assembly, Dictionary<string, byte> regs)
+    public readonly struct Step(ushort pc, byte[] bytes, string assembly, Dictionary<string, byte> regs)
     {
-        readonly public Int16 pc;
-        readonly public byte[] bytes;
-        readonly public string assembly;
-        readonly public Dictionary<string, byte> regs;
+        readonly public UInt16 pc = pc;
+        readonly public byte[] bytes = bytes;
+        readonly public string assembly = assembly;
+        readonly public Dictionary<string, byte> regs = regs;
         static string Line {get=>"";}
     }
     private readonly int[] tabstops = [6, 16, 48];
@@ -35,7 +35,7 @@ class Logger
         string Asm = line[tabstops[1]..tabstops[2]].TrimEnd();
         string stReg = line[tabstops[2]..].TrimEnd();
 
-        var pc = short.Parse(strPc, NumberStyles.HexNumber);
+        var pc = ushort.Parse(strPc, NumberStyles.HexNumber);
         byte[] bytes = [.. strBytes.Split(' ').
                            Select((s) => byte.Parse(s, NumberStyles.HexNumber))];
         Dictionary<string, byte> reg = stReg.Split(' ').Select((s) => s.Split(':')).Select(couple => (couple[0], byte.Parse(couple[1], NumberStyles.HexNumber))).ToDictionary();
@@ -47,7 +47,7 @@ class Logger
 class TestBoard: ICpuAccessible
 {
     byte[] opcodes;
-    short pc;
+    ushort pc;
     readonly Logger logger = new();
     readonly RAM iram  = new();
     readonly CPU6502 cpu;
