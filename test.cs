@@ -24,10 +24,11 @@ class Logger
 
     }
 
-    public string readLine()
+    public Step NextStep()
     {
-        return gold[line_index++];
+        return LineProcess(gold[line_index++]);
     }
+    
     public Step LineProcess(string line)
     {
         string strPc = line[..tabstops[0]].TrimEnd();
@@ -38,7 +39,8 @@ class Logger
         var pc = ushort.Parse(strPc, NumberStyles.HexNumber);
         byte[] bytes = [.. strBytes.Split(' ').
                            Select((s) => byte.Parse(s, NumberStyles.HexNumber))];
-        Dictionary<string, byte> reg = stReg.Split(' ').Select((s) => s.Split(':')).Select(couple => (couple[0], byte.Parse(couple[1], NumberStyles.HexNumber))).ToDictionary();
+        var reg_pairs = stReg.Split(' ').Select((s) => s.Split(':'));
+        var reg = reg_pairs.Select(couple => (couple[0], byte.Parse(couple[1], (couple[0] != "CYC") ? NumberStyles.HexNumber : NumberStyles.None))).ToDictionary();
         ;
         return new Step(pc, bytes, Asm, reg);
     }
@@ -54,7 +56,7 @@ class TestBoard: ICpuAccessible
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         if (readWrite == ReadWrite.READ) 
-        {   if (pc <= address && address < pc + opcodes?.Length)
+        {   if (pc <= address && address < pc + opcodes.Length)
                 {return opcodes[address - pc];}
             else if (address == 0xfffc) {return 0x00;}
             else if (address == 0xfffd) {return 0xC0;}
@@ -65,11 +67,12 @@ class TestBoard: ICpuAccessible
     public TestBoard()
     {
         cpu = new(this);
+        opcodes = [];
         cpu.Reset();
     }
 
     public void Execute()
-    {   var step = logger.LineProcess(logger.readLine());
+    {   var step = logger.NextStep();
         pc = step.pc;
         opcodes = step.bytes;
         cpu.Execute();
