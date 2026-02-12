@@ -44,6 +44,14 @@ class Logger
         ;
         return new Step(pc, bytes, Asm, reg);
     }
+
+    public string StepExpose(Step step)
+    => step.pc.ToString("X4").PadRight(tabstops[0]) +
+        string.Join(" ", step.bytes.Select(b => b.ToString("X2"))).
+          PadRight(tabstops[1] - tabstops[0]) +
+        step.assembly.PadRight(tabstops[2] - tabstops[1]) +
+        string.Join(" ", step.regs.Select(pair => 
+          $"{pair.Key}:{pair.Value.ToString((pair.Key != "CYC")?"X2":"d")}"));
 }
 
 class TestBoard: ICpuAccessible
@@ -76,6 +84,7 @@ class TestBoard: ICpuAccessible
         pc = step.pc;
         opcodes = step.bytes;
         cpu.Execute();
+        Console.WriteLine(logger.StepExpose(step));
     }
 
 }
