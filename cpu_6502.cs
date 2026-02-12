@@ -9,7 +9,7 @@ internal class CPU6502
     private byte X;
     private byte Y;
     private byte SP;
-    private byte P;
+    private byte P = 0x20; //6th bit passive high
     private ushort PC;
     private bool φ0 = false;
     private byte _data = 0xFF;
@@ -61,6 +61,19 @@ internal class CPU6502
     {
         get => (P & 0b1000000) != 0;
         set { P = Bit_set(value, P, 0b1000000); }
+    }
+
+    public bool CompareRegister(string reg, byte val)
+    {   reg = reg.ToUpper();  
+        return ((reg == "A") ? A :
+            (reg == "X") ? X :
+            (reg == "Y") ? Y :
+            (reg == "P") ? P :
+            (reg == "SP") ? SP :
+            (reg == "PCL") ? (byte) PC :
+            (reg == "PCH") ? PC >> 8 :
+            null 
+        ) == val;
     }
 
     private enum Interrupt_vector { NMI = 0xFFFA, RST = 0xFFFC, IRQ = 0xFFFE };
@@ -138,9 +151,9 @@ internal class CPU6502
     public bool φ2(ushort address, ReadWrite readWrite)
         =>  φ2(address, this._data, readWrite);
 
-    public void Execute()
+    public int Execute()
     {
-        exu.Execute();
+        return exu.Execute();
     }
 
     private class execution_unit(CPU6502 parent)

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.X86;
 using Microsoft.VisualBasic;
 
@@ -17,6 +18,8 @@ class Logger
     private readonly int[] tabstops = [6, 16, 48];
     private readonly string[] gold;
     private int line_index = 0;
+
+    public string CurrentLine {get=> gold[line_index];}
 
     public Logger()
     {
@@ -58,6 +61,7 @@ class TestBoard: ICpuAccessible
 {
     byte[] opcodes;
     ushort pc;
+    int cycles;
     readonly Logger logger = new();
     readonly RAM iram  = new();
     readonly CPU6502 cpu;
@@ -75,6 +79,7 @@ class TestBoard: ICpuAccessible
     public TestBoard()
     {
         cpu = new(this);
+        cycles = 0;
         opcodes = [];
         cpu.Reset();
     }
@@ -83,8 +88,15 @@ class TestBoard: ICpuAccessible
     {   var step = logger.NextStep();
         pc = step.pc;
         opcodes = step.bytes;
-        cpu.Execute();
-        Console.WriteLine(logger.StepExpose(step));
+        cycles += cpu.Execute();
+        Check(cpu, logger.LineProcess(logger.CurrentLine));
+    }
+    public bool Check(CPU6502 cpu, Logger.Step step)
+    {
+        bool back = new List<string> { "A", "X", "Y", "P", "SP" }.Aggregate(true, (bl, r) => bl & cpu.CompareRegister(r, step.regs[r]));
+        back &= cycles == step.regs["CYC"];
+        back &= cpu.CompareRegister("PCL", (byte) (step.pc - 1)) && cpu.CompareRegister("PCH", (byte) ((step.pc - 1) >> 8));
+        return back;
     }
 
 }
