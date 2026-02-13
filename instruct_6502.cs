@@ -4,7 +4,7 @@ public class Instruct
 {
     private static readonly HashSet<string> NonNZOps =
     [
-        "branch if", "branch nif", "bit", "jmp", "push", "ret int", "ret sub"
+        "branch if", "branch nif", "bit", "jmp", "call", "push", "ret int", "ret sub"
     ];
 
     public int Length { get; set; } = 1;
@@ -123,7 +123,7 @@ public class Instruct
                             back.Operation = "call";
                             back.addressing = Addressing.Dir;
                             back.Length = 3;
-                            back.Source = 'M';
+                            back.Source = null;
                             break;
                         case 2:
                             back.Operation = "ret int";

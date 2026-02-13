@@ -390,7 +390,7 @@ internal class CPU6502
                     return (byte)--address;
                 case "call":
                     parent.Push(parent.PC);
-                    parent.PC = --address;
+                    parent.PC = address;
                     return (byte)address;
                 case "ret int":
                     parent.P = parent.Pull();
