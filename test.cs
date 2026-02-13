@@ -54,7 +54,7 @@ class Logger
           PadRight(tabstops[1] - tabstops[0]) +
         step.assembly.PadRight(tabstops[2] - tabstops[1]) +
         string.Join(" ", step.regs.Select(pair => 
-          $"{pair.Key}:{pair.Value.ToString((pair.Key != "CYC")?"X2":"d")}"));
+          $"{pair.Key}:{pair.Value.ToString((pair.Key != "CYC") ? "X2" : "d")}"));
 }
 
 class TestBoard: ICpuAccessible
@@ -93,10 +93,32 @@ class TestBoard: ICpuAccessible
     }
     public bool Check(CPU6502 cpu, Logger.Step step)
     {
-        bool back = new List<string> { "A", "X", "Y", "P", "SP" }.Aggregate(true, (bl, r) => bl & cpu.CompareRegister(r, step.regs[r]));
+        bool back = new List<string> { "A", "X", "Y", "P", "SP" }.
+          Aggregate(true, (bl, r) => bl & cpu.CompareRegister(r, step.regs[r]));
         back &= cycles == step.regs["CYC"];
-        back &= cpu.CompareRegister("PCL", (byte) (step.pc - 1)) && cpu.CompareRegister("PCH", (byte) ((step.pc - 1) >> 8));
+        back &= cpu.CompareRegister("PCL", (byte) (step.pc - 1)) &&
+                cpu.CompareRegister("PCH", (byte) ((step.pc - 1) >> 8));
         return back;
+    }
+
+    public void Run()
+    {
+        string old_line = "";
+        string new_line;
+        while (true)
+        {
+            Execute();
+            try
+            {new_line = logger.CurrentLine;}
+            catch (IndexOutOfRangeException)
+                {break;}
+            if (!Check(cpu, logger.LineProcess(new_line)))
+            {
+                // string yours = logger.StepExpose()
+                Console.WriteLine($"Golden:\n{old_line}\n{new_line}\nYours:\n\nyours");
+                break;
+            }
+        }
     }
 
 }
