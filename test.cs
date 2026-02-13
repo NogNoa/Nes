@@ -110,7 +110,14 @@ class TestBoard: ICpuAccessible
         string new_line;
         while (true)
         {
-            Execute();
+            try
+                {Execute();}
+            catch (Exception e)
+            {   new_line = logger.CurrentLine;
+                Console.WriteLine($"While running:\n{old_line}\n{new_line}");
+                Console.WriteLine(e.Message);
+                break;
+            }
             try
             {new_line = logger.CurrentLine;}
             catch (IndexOutOfRangeException)
