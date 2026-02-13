@@ -7,12 +7,12 @@ using Microsoft.VisualBasic;
 
 class Logger
 {
-    public readonly struct Step(ushort pc, byte[] bytes, string assembly, Dictionary<string, byte> regs)
+    public struct Step(ushort pc, byte[] bytes, string assembly, Dictionary<string, byte> regs)
     {
         readonly public UInt16 pc = pc;
         readonly public byte[] bytes = bytes;
         readonly public string assembly = assembly;
-        readonly public Dictionary<string, byte> regs = regs;
+        public Dictionary<string, byte> regs = regs;
         static string Line {get=>"";}
     }
     private readonly int[] tabstops = [6, 16, 48];
@@ -103,7 +103,7 @@ class TestBoard: ICpuAccessible
 
     public void Run()
     {
-        string old_line = "";
+        string old_line = logger.CurrentLine;
         string new_line;
         while (true)
         {
@@ -114,10 +114,15 @@ class TestBoard: ICpuAccessible
                 {break;}
             if (!Check(cpu, logger.LineProcess(new_line)))
             {
-                // string yours = logger.StepExpose()
-                Console.WriteLine($"Golden:\n{old_line}\n{new_line}\nYours:\n\nyours");
+                var cpu_reg = cpu.registersExpose();
+                cpu_reg.Remove("PCL"); cpu_reg.Remove("PCH");
+                // cpu_reg.Add("CYC", cycles);
+                var yours = logger.LineProcess(new_line);
+                yours.regs = cpu_reg;
+                Console.WriteLine($"Golden:\n{old_line}\n{new_line}\nYours:\n\n{logger.StepExpose(yours)}");
                 break;
             }
+            old_line = new_line;
         }
     }
 

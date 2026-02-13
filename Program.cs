@@ -12,6 +12,6 @@ class Program
         nes.Load_Cartridge(dk);
         // nes.Run();
         TestBoard test = new();
-        test.Execute();
+        test.Run();
     }
 }

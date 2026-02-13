@@ -76,6 +76,17 @@ internal class CPU6502
         ) == val;
     }
 
+    public Dictionary<string, byte> registersExpose()
+        => new Dictionary<string, byte> { 
+            { "A", A }, 
+            { "X", X }, 
+            { "Y", Y }, 
+            { "P", P }, 
+            { "SP", SP }, 
+            { "PCL", (byte) PC }, 
+            { "PCH", (byte) (PC >> 8) },
+        };
+
     private enum Interrupt_vector { NMI = 0xFFFA, RST = 0xFFFC, IRQ = 0xFFFE };
 
     private void Interrupt(Interrupt_vector vector, bool isSoft)
