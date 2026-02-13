@@ -7,12 +7,13 @@ using Microsoft.VisualBasic;
 
 class Logger
 {
-    public struct Step(ushort pc, byte[] bytes, string assembly, Dictionary<string, byte> regs)
+    public struct Step(ushort pc, byte[] bytes, string assembly, Dictionary<string, byte> regs, int cycles)
     {
         readonly public UInt16 pc = pc;
         readonly public byte[] bytes = bytes;
         readonly public string assembly = assembly;
         public Dictionary<string, byte> regs = regs;
+        public int cycles = cycles;
         static string Line {get=>"";}
     }
     private readonly int[] tabstops = [6, 16, 48];
@@ -43,9 +44,10 @@ class Logger
         byte[] bytes = [.. strBytes.Split(' ').
                            Select((s) => byte.Parse(s, NumberStyles.HexNumber))];
         var reg_pairs = stReg.Split(' ').Select((s) => s.Split(':'));
-        var reg = reg_pairs.Select(couple => (couple[0], byte.Parse(couple[1], (couple[0] != "CYC") ? NumberStyles.HexNumber : NumberStyles.None))).ToDictionary();
-        ;
-        return new Step(pc, bytes, Asm, reg);
+        int cycles = int.Parse(reg_pairs.Last()[1], NumberStyles.None);
+        var reg = reg_pairs.Select(couple => (couple[0], byte.Parse(couple[1], NumberStyles.HexNumber))).ToDictionary();
+        reg.Remove("CYC");
+        return new Step(pc, bytes, Asm, reg, cycles);
     }
 
     public string StepExpose(Step step)
@@ -54,7 +56,8 @@ class Logger
           PadRight(tabstops[1] - tabstops[0]) +
         step.assembly.PadRight(tabstops[2] - tabstops[1]) +
         string.Join(" ", step.regs.Select(pair => 
-          $"{pair.Key}:{pair.Value.ToString((pair.Key != "CYC") ? "X2" : "d")}"));
+          $"{pair.Key}:{pair.Value:X2}")) + 
+          $" CYC:{step.cycles:D}";
 }
 
 class TestBoard: ICpuAccessible
@@ -95,7 +98,7 @@ class TestBoard: ICpuAccessible
     {
         bool back = new List<string> { "A", "X", "Y", "P", "SP" }.
           Aggregate(true, (bl, r) => bl & cpu.CompareRegister(r, step.regs[r]));
-        back &= cycles == step.regs["CYC"];
+        back &= cycles == step.cycles;
         back &= cpu.CompareRegister("PCL", (byte) (step.pc - 1)) &&
                 cpu.CompareRegister("PCH", (byte) ((step.pc - 1) >> 8));
         return back;
@@ -116,10 +119,10 @@ class TestBoard: ICpuAccessible
             {
                 var cpu_reg = cpu.registersExpose();
                 cpu_reg.Remove("PCL"); cpu_reg.Remove("PCH");
-                // cpu_reg.Add("CYC", cycles);
                 var yours = logger.LineProcess(new_line);
                 yours.regs = cpu_reg;
-                Console.WriteLine($"Golden:\n{old_line}\n{new_line}\nYours:\n\n{logger.StepExpose(yours)}");
+                yours.cycles = cycles;
+                Console.WriteLine($"Golden:\n{old_line}\n{new_line}\nYours:\n{logger.StepExpose(yours)}");
                 break;
             }
             old_line = new_line;
