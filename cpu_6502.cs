@@ -376,7 +376,7 @@ internal class CPU6502
                     return operand;
                 case "jump":
                 case "jmp":
-                    parent.PC = --address;
+                    parent.PC = address;
                     return (byte) address;
 #pragma warning disable CS8629 // Nullable value type may be null.
                 case "branch if":
