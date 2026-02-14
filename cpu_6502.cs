@@ -65,14 +65,16 @@ internal class CPU6502
 
     public bool CompareRegister(string reg, byte val)
     {   reg = reg.ToUpper();  
-        return ((reg == "A") ? A :
-            (reg == "X") ? X :
-            (reg == "Y") ? Y :
-            (reg == "P") ? P :
-            (reg == "SP") ? SP :
-            (reg == "PCL") ? (byte) PC :
-            (reg == "PCH") ? PC >> 8 :
-            null 
+        return (reg switch {
+            "A" => A,
+            "X" => X,
+            "Y" => Y,
+            "P" => P,
+            "SP" => SP,
+            "PCL" => (byte) PC,
+            "PCH" => PC >> 8,
+            _ => null 
+        }
         ) == val;
     }
 
@@ -394,10 +396,10 @@ internal class CPU6502
                     return (byte)address;
                 case "ret int":
                     parent.P = parent.Pull();
-                    parent.PC = (ushort)(parent.Pull() - 1);
+                    parent.PC = (ushort)(parent.Pull16() - 1);
                     return (byte)parent.PC;
                 case "ret sub":
-                    parent.PC = (ushort)(parent.Pull() - 1);
+                    parent.PC = (ushort)(parent.Pull16() - 1);
                     return (byte)parent.PC;
                 default:
                     throw new Exception();
