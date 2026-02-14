@@ -172,7 +172,7 @@ public class Instruct
         {   (back.Dest, back.Source) = (adrs_group, oper_group) switch
             {   (var ag, _) when (ag & 1) == 1 => ('M', back.Source),
                 (2, 6) => ('X', 'X'),
-                (2, 7) => ('O', null),
+                (2, 7) => ('O', '0'), //NOP = write 0+1 to nowhere don't update NZ
                 (2, _) => ('A', 'A'),
                 (6, 4) => ('S', 'X'),
                 (_, 4) => (back.Dest, 'X'),

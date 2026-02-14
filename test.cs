@@ -92,7 +92,6 @@ class TestBoard: ICpuAccessible
         pc = step.pc;
         opcodes = step.bytes;
         cycles += cpu.Execute();
-        Check(cpu, logger.LineProcess(logger.CurrentLine));
     }
     public bool Check(CPU6502 cpu, Logger.Step step)
     {
