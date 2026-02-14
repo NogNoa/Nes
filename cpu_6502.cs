@@ -221,6 +221,8 @@ internal class CPU6502
                 case 'Z':
                 case 'N':
                     return Fetch_prg();
+                case 'P':
+                    return parent.P;
                 case 'E':
                     return (byte)parent.PC;
                 case '1':
@@ -271,6 +273,9 @@ internal class CPU6502
                 case 'E':
                     parent.PC &= 0xff00;
                     parent.PC |= data;
+                    break;
+                case 'P':
+                    parent.P = data;
                     break;
                 default:
                     throw new Exception();
@@ -372,10 +377,11 @@ internal class CPU6502
                     parent.Carry = temp >= 0;
                     return (byte)temp;
                 case "bit":
-                    parent.Negative = (operand & 0x80) != 0;
-                    parent.Overflow = (operand & 0x40) != 0;
-                    parent.Zero = (operand & parent.A) == 0;
-                    return operand;
+                    temp = parent.P;
+                    temp &= ~0xC2;
+                    temp |= operand & 0xC0;
+                    temp |= ((operand & parent.A) == 0) ? 2 : 0;
+                    return (byte) temp;
                 case "jump":
                 case "jmp":
                     parent.PC = address;
