@@ -53,14 +53,14 @@ internal class CPU6502
 
     private bool Overflow
     {
-        get => (P & 0b100000) != 0;
-        set {if (!value) {P = Bit_set(false, P, 0b100000);} }
+        get => (P & 0b100_0000) != 0;
+        set {if (!value) {P = Bit_set(false, P, 0b100_0000);} }
     }
 
     private bool Negative
     {
-        get => (P & 0b1000000) != 0;
-        set { P = Bit_set(value, P, 0b1000000); }
+        get => (P & 0b1000_0000) != 0;
+        set { P = Bit_set(value, P, 0b1000_0000); }
     }
 
     public bool CompareRegister(string reg, byte val)
