@@ -384,7 +384,8 @@ internal class CPU6502
                     return (byte) temp;
                 case "jump":
                 case "jmp":
-                    parent.PC = address;
+                    parent.PC &= 0x00ff;
+                    parent.PC |= (ushort) (address & 0xff00);
                     return (byte) address;
 #pragma warning disable CS8629 // Nullable value type may be null.
                 case "branch if":
@@ -402,11 +403,10 @@ internal class CPU6502
                     return (byte)address;
                 case "ret int":
                     parent.P = parent.Pull();
-                    parent.PC = (ushort)(parent.Pull16() - 1);
-                    return (byte)parent.PC;
+                    goto case "ret sub";
                 case "ret sub":
-                    parent.PC = (ushort)(parent.Pull16() - 1);
-                    return (byte)parent.PC;
+                    address = (ushort)(parent.Pull16() - 1);
+                    goto case "jmp";
                 default:
                     throw new Exception();
             }
