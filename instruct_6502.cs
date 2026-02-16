@@ -49,20 +49,11 @@ public class Instruct
            */
         // if the X index is alrady an operand, we'll treat IndX as IndY
         if (!XF && !AF)
-        {   switch (oper_group)
-            {   case 4:
-                    back.Source = 'Y';
-                    back.Dest = 'M';
-                    break;
-                case 5:
-                case 6:
-                    back.Dest = 'Y'; break;
-                case 7:
-                    back.Dest = 'X'; break;
-            }
+        {   
             if ((oper_group & 6) == 6) //6,7
-            {   back.Operation = "compare";
-                if (inst == 0xD8) { back.Operation = "store"; }
+            {   back.Operation = (adrs_group == 6) ? 
+                                 "store" : 
+                                 "compare";
             }
             if (adrs_group == 6)
             {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
@@ -89,6 +80,19 @@ public class Instruct
                     _ => throw new InvalidDataException()
                 };
                 back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
+            }
+            else
+            {   switch (oper_group)
+                {   case 4:
+                        back.Source = 'Y';
+                        back.Dest = 'M';
+                        break;
+                    case 5:
+                    case 6:
+                        back.Dest = 'Y'; break;
+                    case 7:
+                        back.Dest = 'X'; break;
+                } 
             }
             if (oper_group < 4)
             {   if (adrs_group == 3)
