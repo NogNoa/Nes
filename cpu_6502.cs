@@ -222,7 +222,7 @@ internal class CPU6502
                 case 'N':
                     return Fetch_prg();
                 case 'P':
-                    return parent.P;
+                    return (byte)(parent.P | 0x30);
                 case 'E':
                     return (byte)parent.PC;
                 case '1':
@@ -232,7 +232,7 @@ internal class CPU6502
                 case null:
                     return null;
                 default:
-                    throw new Exception();
+                    throw new Exception("CPU: Unknown source " + $"({src})");
             }
         }
         private void Write(char dst, byte data)
@@ -278,7 +278,7 @@ internal class CPU6502
                     parent.P = data;
                     break;
                 default:
-                    throw new Exception();
+                    throw new Exception("CPU: Unknown destination " + $"({dst})");
             }
         }
 

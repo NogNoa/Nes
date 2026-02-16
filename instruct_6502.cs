@@ -111,6 +111,7 @@ public class Instruct
                     if ((oper_group & 1) == 0)
                     {   back.Operation = "push";
                         back.Source = argument;
+                        back.Dest = 'O';
                     }
                     else
                     {   back.Operation = "pull";
