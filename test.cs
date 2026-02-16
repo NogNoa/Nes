@@ -45,8 +45,8 @@ class Logger
                            Select((s) => byte.Parse(s, NumberStyles.HexNumber))];
         var reg_pairs = stReg.Split(' ').Select((s) => s.Split(':'));
         int cycles = int.Parse(reg_pairs.Last()[1], NumberStyles.None);
+        reg_pairs = reg_pairs.SkipLast(1);
         var reg = reg_pairs.Select(couple => (couple[0], byte.Parse(couple[1], NumberStyles.HexNumber))).ToDictionary();
-        reg.Remove("CYC");
         return new Step(pc, bytes, Asm, reg, cycles);
     }
 

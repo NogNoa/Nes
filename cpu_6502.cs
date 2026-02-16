@@ -47,7 +47,7 @@ internal class CPU6502
 
     private bool Mode_decimal
     {
-        get => (P & 0b1000) != 0;
+        // get => (P & 0b1000) != 0;
         set { P = Bit_set(value, P, 0b1000); }
     }
 
@@ -136,7 +136,7 @@ internal class CPU6502
     }
     
     private byte Pull() =>
-        this.Read((ushort)(0x100 | SP++));
+        this.Read((ushort)(0x100 | ++SP));
         
     private ushort Pull16()
     {
@@ -405,7 +405,7 @@ internal class CPU6502
                     parent.P = parent.Pull();
                     goto case "ret sub";
                 case "ret sub":
-                    address = (ushort)(parent.Pull16() - 1);
+                    address = parent.Pull16();
                     goto case "jmp";
                 default:
                     throw new Exception();
