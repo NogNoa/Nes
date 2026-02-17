@@ -361,8 +361,8 @@ internal class CPU6502
                     return (byte)(operand ^ parent.A);
                 case "add":
                 case "adc":
-                    temp = operand + parent.A + (parent.Carry ? 1 : 0);
-                    parent.Carry = temp > 0x100;
+                    temp = (sbyte) operand + parent.A + (parent.Carry ? 1 : 0);
+                    parent.Carry = temp >= 0x100;
                     Overflow_update(temp);
                     return (byte)temp;
                 case "sbc":
