@@ -186,9 +186,7 @@ internal class CPU6502
             Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length); }
-#pragma warning disable CS8629 // Nullable value type may be null.
-            byte operand = this.Read(operation.Source) ?? Read(operation.Dest).Value;
-#pragma warning restore CS8629
+            byte operand = this.Read(operation.Source);
             operand = this.Operate(operation, operand);
             if (operation.PostOp)
                 Post_op_update(operand);
@@ -198,7 +196,7 @@ internal class CPU6502
             return Cycles;
         }
 
-        private byte? Read(char src)
+        private byte Read(char src)
         {   src = char.ToUpper(src);
             switch (src)
             {   case 'M':
@@ -229,8 +227,6 @@ internal class CPU6502
                     return 1;
                 case '0':
                     return 0;
-                case '\0':
-                    return null;
                 default:
                     throw new Exception("CPU: Unknown source " + $"({src})");
             }
@@ -374,9 +370,8 @@ internal class CPU6502
                     return (byte)temp;
                 case "compare":
                 case "cmp":
-#pragma warning disable CS8629 // Nullable value type may be null.
-                    temp = Read(operation.Dest).Value - operand;
-#pragma warning restore CS8629
+                    temp = Read(operation.Dest);
+                    temp -= operand;
                     parent.Carry = temp >= 0;
                     return (byte)temp;
                 case "bit":
