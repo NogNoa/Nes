@@ -185,7 +185,9 @@ internal class CPU6502
             Instruct operation = Instruct.Decode_instrcution(opcode);
             Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
-            {   address = GetAddress(operation.addressing, operation.Length); }
+            {   address = GetAddress(operation.addressing, operation.Length); 
+                Cycles += Instruct.AddressingTime(operation.addressing);
+            }
             byte operand = this.Read(operation.Source);
             operand = this.Operate(operation, operand);
             if (operation.PostOp)
