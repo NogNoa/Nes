@@ -205,8 +205,6 @@ public class Instruct
         { back.PostOp = false; }
         if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))
         {back.addressing = Addressing.IndY;}
-        if (back.Source == '\0') 
-            {back.Source = back.Dest;}
         //todo: cycles
         return back;
     }

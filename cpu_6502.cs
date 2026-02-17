@@ -227,6 +227,8 @@ internal class CPU6502
                     return 1;
                 case '0':
                     return 0;
+                case '\0':
+                    return 0xff; //garbage
                 default:
                     throw new Exception("CPU: Unknown source " + $"({src})");
             }
