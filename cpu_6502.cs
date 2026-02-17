@@ -198,8 +198,8 @@ internal class CPU6502
             return Cycles;
         }
 
-        private byte? Read(char? src)
-        {   src = (src != null) ? char.ToUpper((char)src) : null;
+        private byte? Read(char src)
+        {   src = char.ToUpper(src);
             switch (src)
             {   case 'M':
                     return parent.Read(address);
@@ -229,7 +229,7 @@ internal class CPU6502
                     return 1;
                 case '0':
                     return 0;
-                case null:
+                case '\0':
                     return null;
                 default:
                     throw new Exception("CPU: Unknown source " + $"({src})");
@@ -351,7 +351,7 @@ internal class CPU6502
                 case "ror":
                     temp = parent.Carry ? 0x80 : 0;
                     parent.Carry = (operand & 1) != 0;
-                    return (byte)((operand >> 1) | (temp));
+                    return (byte)((operand >> 1) | temp);
                 case "or":
                     return (byte)(operand | parent.A);
                 case "and":
@@ -389,12 +389,10 @@ internal class CPU6502
                     parent.PC &= 0x00ff;
                     parent.PC |= (ushort) (address & 0xff00);
                     return (byte) address;
-#pragma warning disable CS8629 // Nullable value type may be null.
                 case "branch if":
-                    return Branch(true, operation.Source.Value, operand);
+                    return Branch(true, operation.Source, operand);
                 case "branch nif":
-                    return Branch(false, operation.Source.Value, operand);
-#pragma warning restore CS8629
+                    return Branch(false, operation.Source, operand);
                 case "break":
                 case "brk":
                     parent.Interrupt(Interrupt_vector.NMI, isSoft: true);

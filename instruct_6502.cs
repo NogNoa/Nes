@@ -18,7 +18,7 @@ public class Instruct
     // Jump abs -> immediete[2], DRef -> abs
 
     //Source and dest could only be a name of a register, with M for memory
-    public char? Source { get; set; }    //null: source=dest
+    public char Source { get; set; }    //null: source=dest
     public char Dest { get; set; }       //
     public string Operation { get; set; } = "mov";
     public Addressing addressing { get; set; } = Addressing.Impl;
@@ -99,7 +99,7 @@ public class Instruct
                 {   if ((oper_group & 2) == 2) //(0,2,3) (0,3,3)
                     {   back.Dest = 'E';
                         back.Operation = "jmp";
-                        back.Source = null;
+                        back.Source = '\0';
                         if (oper_group == 3)
                         {   back.addressing = Addressing.DRef;
                             back.Length = 4;
@@ -128,7 +128,7 @@ public class Instruct
                             back.Operation = "call";
                             back.addressing = Addressing.Dir;
                             back.Length = 3;
-                            back.Source = null;
+                            back.Source = '\0';
                             break;
                         case 2:
                             back.Operation = "ret int";
@@ -171,7 +171,7 @@ public class Instruct
                 7 => "sbc",
                 _ => throw new InvalidDataException()
             };
-            if (back.Operation == "store") { back.Dest = back.Source.Value;  back.Source = 'A'; }
+            if (back.Operation == "store") { back.Dest = back.Source;  back.Source = 'A'; }
         }
         else if (XF)
         {   (back.Dest, back.Source) = (adrs_group, oper_group) switch
