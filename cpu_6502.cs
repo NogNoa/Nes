@@ -185,9 +185,7 @@ internal class CPU6502
             Instruct operation = Instruct.Decode_instrcution(opcode);
             Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
-            {   address = GetAddress(operation.addressing, operation.Length); 
-                Cycles += Instruct.AddressingTime(operation.addressing);
-            }
+            {   address = GetAddress(operation.addressing, operation.Length);}
             byte operand = this.Read(operation.Source);
             operand = this.Operate(operation, operand);
             if (operation.PostOp)
@@ -289,30 +287,36 @@ internal class CPU6502
             {   case Instruct.Addressing.Dir:
                     {   for (int i = 0; i < arity - 1; ++i)
                         {   back |= Fetch_prg() << (8 * i); }
+                        Cycles += 2 + arity;
                         break;
                     }
                 case Instruct.Addressing.IndX:
                     bas = GetAddress(Instruct.Addressing.Dir, arity);
                     back = bas + parent.X;
-                    if ((bas & 0xff00) != (back & 0xff00)) {Cycles += 1;}
+                    if ((bas & 0xff00) != (back & 0xff00)) {++Cycles;}
+                    ++Cycles;
                     break;
                 case Instruct.Addressing.IndY:
                     bas = GetAddress(Instruct.Addressing.Dir, arity);
                     back = bas  + parent.Y;
-                    if ((bas & 0xff00) != (back & 0xff00)) {Cycles += 1;}
+                    if ((bas & 0xff00) != (back & 0xff00)) {++Cycles;}
+                    ++Cycles;
                     break;
                 case Instruct.Addressing.DRef:
                     back = GetAddress(Instruct.Addressing.Dir, arity - 1);
+                    Cycles += 2;
                     back = parent.BuggyRead16((ushort)back);
                     break;
                 case Instruct.Addressing.XDRef:
                     back = GetAddress(Instruct.Addressing.IndX, arity -1);
                     back = parent.BuggyRead16((ushort)back);
+                    Cycles += 5;
                     break;
                 case Instruct.Addressing.DRefY:
                     bas = GetAddress(Instruct.Addressing.DRef, arity);
                     back = bas + parent.Y;
                     if ((bas & 0xff00) != (back & 0xff00)) {Cycles += 1;}
+                    Cycles += 5;
                     break;
                 default:
                     throw new Exception();

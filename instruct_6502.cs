@@ -210,20 +210,6 @@ public class Instruct
         return back;
     }
 
-    public static int AddressingTime(Addressing mode)
-    {
-        return mode switch 
-        {   Addressing.Impl => 0,
-            Addressing.Dir => 3, //+1 absolute
-            Addressing.IndX => 4, //+1 absolute
-            Addressing.IndY => 4, //+1 absolute
-            Addressing.DRef => 6, //+1 absolute
-            Addressing.XDRef => 9, 
-            Addressing.DRefY => 9,
-            _ => throw new DataException(),
-        };
-    }
-
     public string Format()
     {
         return $"{Operation}: {addressing}; {Dest} <- {Source}";
