@@ -54,7 +54,7 @@ internal class CPU6502
     private bool Overflow
     {
         get => (P & 0b100_0000) != 0;
-        set {if (!value) {P = Bit_set(false, P, 0b100_0000);} }
+        set {P = Bit_set(value, P, 0b100_0000); }
     }
 
     private bool Negative
@@ -275,7 +275,7 @@ internal class CPU6502
                     parent.PC |= data;
                     break;
                 case 'P':
-                    parent.P = data;
+                    parent.P = (byte)(data &~0x10 | 0x20);
                     break;
                 default:
                     throw new Exception("CPU: Unknown destination " + $"({dst})");
@@ -373,7 +373,9 @@ internal class CPU6502
                     return (byte)temp;
                 case "compare":
                 case "cmp":
-                    temp = operation.Dest - operand;
+#pragma warning disable CS8629 // Nullable value type may be null.
+                    temp = Read(operation.Dest).Value - operand;
+#pragma warning restore CS8629
                     parent.Carry = temp >= 0;
                     return (byte)temp;
                 case "bit":
