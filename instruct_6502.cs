@@ -25,7 +25,7 @@ public class Instruct
     public Addressing addressing { get; set; } = Addressing.Impl;
     public bool PostOp { get; set; } = true;
 
-    public static Instruct Decode_instrcution(byte inst)
+    public static Instruct Decode_instruction(byte inst)
     {
         Instruct back = new();
         bool AF = (inst & 1) != 0; // Accumulator function

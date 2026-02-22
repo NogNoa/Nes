@@ -150,7 +150,8 @@ internal class CPU6502
     private ushort Read16(ushort address)
         =>(ushort) ((Read((ushort)(address + 1)) << 8) | Read(address));
     private ushort BuggyRead16(ushort address)
-        =>(ushort) ((Read((ushort)((address & 0xff00) | (byte)(address + 1))) << 8) | Read(address));
+        =>(ushort) ((Read((ushort)((address & 0xff00) | (byte)(address + 1))) << 8)
+                    | Read(address));
 
     private void Write(ushort address, byte value)
     {
@@ -182,7 +183,7 @@ internal class CPU6502
         private byte Fetch_prg() => parent.Read(parent.PC++);
         public int Execute()
         {   byte opcode = Fetch_prg();
-            Instruct operation = Instruct.Decode_instrcution(opcode);
+            Instruct operation = Instruct.Decode_instruction(opcode);
             Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length);}
@@ -304,8 +305,8 @@ internal class CPU6502
                     break;
                 case Instruct.Addressing.DRef:
                     back = GetAddress(Instruct.Addressing.Dir, arity - 1);
-                    Cycles += 2;
                     back = parent.BuggyRead16((ushort)back);
+                    Cycles += 2;
                     break;
                 case Instruct.Addressing.XDRef:
                     back = GetAddress(Instruct.Addressing.IndX, arity -1);
@@ -433,7 +434,7 @@ internal class CPU6502
                 {   ++Cycles;
                     parent.PC -= 0x100;
                 }
-                else if (temp > 0x100)
+                else if (temp >= 0x100)
                 {   ++Cycles;
                     parent.PC += 0x100;
                 }
