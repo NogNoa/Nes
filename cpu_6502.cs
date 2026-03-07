@@ -377,7 +377,6 @@ internal class CPU6502
                     parent.Carry = temp >= 0;
                     Overflow_update(temp);
                     return (byte)temp;
-                case "compare":
                 case "cmp":
                     temp = Read(operation.Dest);
                     temp -= operand;

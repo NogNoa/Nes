@@ -54,7 +54,7 @@ public class Instruct
             if ((oper_group & 6) == 6) //6,7
             {   back.Operation = (adrs_group == 6) ? 
                                  "store" : 
-                                 "compare";
+                                 "cmp";
             }
             if (adrs_group == 6)
             {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;

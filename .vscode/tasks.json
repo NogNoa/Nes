@@ -8,6 +8,7 @@
                 "build",
                 "${workspaceFolder}/Nes.csproj",
                 "/property:GenerateFullPaths=true",
+                "/property:BuildInParallel=true",
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"
