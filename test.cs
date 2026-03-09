@@ -9,7 +9,7 @@ class Logger
 {
     public struct Step(ushort pc, byte[] bytes, string assembly, Dictionary<string, byte> regs, int cycles)
     {
-        readonly public UInt16 pc = pc;
+        public UInt16 pc = pc;
         readonly public byte[] bytes = bytes;
         readonly public string assembly = assembly;
         public Dictionary<string, byte> regs = regs;
@@ -19,6 +19,7 @@ class Logger
     private readonly int[] tabstops = [6, 16, 48];
     private readonly string[] gold;
     private int line_index = 0;
+    public int LineIndex {get=>line_index;}
 
     public string CurrentLine {get=> gold[line_index];}
 
@@ -68,6 +69,8 @@ class TestBoard: ICpuAccessible
     readonly Logger logger = new();
     readonly RAM iram  = new();
     readonly CPU6502 cpu;
+    readonly int GOLDEN_LINES = 5003;
+
     public byte Cpu_Access(ushort address, byte value, ReadWrite readWrite)
     {
         if (readWrite == ReadWrite.READ) 
@@ -82,7 +85,7 @@ class TestBoard: ICpuAccessible
     public TestBoard()
     {
         cpu = new(this);
-        cycles = 0;
+        cycles = 7;
         opcodes = [];
         cpu.Reset();
     }
@@ -113,6 +116,7 @@ class TestBoard: ICpuAccessible
                 {Execute();}
             catch (Exception e)
             {   new_line = logger.CurrentLine;
+                Console.WriteLine($"{logger.LineIndex*100/GOLDEN_LINES}%");
                 Console.WriteLine($"While running:\n{old_line}\n{new_line}");
                 Console.WriteLine(e.Message);
                 break;
@@ -124,15 +128,17 @@ class TestBoard: ICpuAccessible
             if (!Check(cpu, logger.LineProcess(new_line)))
             {
                 var cpu_reg = cpu.registersExpose();
-                cpu_reg.Remove("PCL"); cpu_reg.Remove("PCH");
                 var yours = logger.LineProcess(new_line);
+                yours.pc = (ushort)(cpu_reg["PCH"] << 8 | cpu_reg["PCL"]); 
+                cpu_reg.Remove("PCL"); cpu_reg.Remove("PCH");
                 yours.regs = cpu_reg;
                 yours.cycles = cycles;
+                Console.WriteLine($"{logger.LineIndex*100/GOLDEN_LINES}%");
                 Console.WriteLine($"Golden:\n{old_line}\n{new_line}\nYours:\n{logger.StepExpose(yours)}");
+                Console.WriteLine("P:    NV-BDIZC");
                 break;
             }
             old_line = new_line;
         }
     }
-
 }
