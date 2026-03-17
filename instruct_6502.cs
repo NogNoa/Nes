@@ -19,8 +19,8 @@ public class Instruct
     // Jump abs -> immediete[2], DRef -> abs
 
     //Source and dest could only be a name of a register, with M for memory
-    public char Source { get; set; }    //\0: source=dest
-    public char Dest { get; set; }       //
+    public char Source { get; set; } = 'R';    //\0: source=dest
+    public char Dest { get; set; } = '\0';       //
     public string Operation { get; set; } = "mov";
     public Addressing addressing { get; set; } = Addressing.Impl;
     public bool PostOp { get; set; } = true;
@@ -114,7 +114,7 @@ public class Instruct
                     if ((oper_group & 1) == 0)
                     {   back.Operation = "push";
                         back.Source = argument;
-                        back.Dest = 'O';
+                        back.Dest = '\0';
                     }
                     else
                     {   back.Operation = "pull";
@@ -185,7 +185,7 @@ public class Instruct
         {   (back.Dest, back.Source) = (adrs_group, oper_group) switch
             {   (var ag, _) when (ag & 1) == 1 => ('M', back.Source),
                 (2, 6) => ('X', 'X'),
-                (2, 7) => ('O', '0'), //NOP = write 0+1 to nowhere don't update NZ
+                (2, 7) => ('\0', '0'), //NOP = write 0+1 to nowhere don't update NZ
                 (2, _) => ('A', 'A'),
                 (6, 4) => ('S', 'X'),
                 (_, 4) => (back.Dest, 'X'),
@@ -213,10 +213,6 @@ public class Instruct
         { back.PostOp = false; }
         if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))
         {back.addressing = Addressing.IndY;}
-        if (back.Operation == "inc" || back.Operation == "dec")
-        {
-            back.Source = back.Dest;
-        }
         //todo: cycles
         return back;
     }

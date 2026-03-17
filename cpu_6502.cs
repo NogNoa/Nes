@@ -176,10 +176,6 @@ internal class CPU6502
         private readonly CPU6502 parent = parent;
         private ushort address;
 
-        // static readonly Instruct clc = new() { Dest = 'C', Source = '0', Operation = "move", };
-        // static readonly Instruct cmp = new() { Dest = 'A', Source = 'M', Operation = "cmp", };
-
-
         private byte Fetch_prg() => parent.Read(parent.PC++);
         public int Execute()
         {   byte opcode = Fetch_prg();
@@ -187,7 +183,7 @@ internal class CPU6502
             Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length);}
-            byte operand = this.Read(operation.Source);
+            byte operand = this.Read((operation.Source == 'R') ? operation.Dest : operation.Source);
             operand = this.Operate(operation, operand);
             if (operation.PostOp)
                 Post_op_update(operand);
@@ -240,7 +236,7 @@ internal class CPU6502
             {   case 'M':
                     parent.Write(address, data);
                     break;
-                case 'O':
+                case '\0':
                     break;
                 case 'A':
                     parent.A = data;
@@ -449,7 +445,7 @@ internal class CPU6502
         }
 
         private void Overflow_update(int result)
-        {   parent.Overflow = -0x80 > result || result > 0x7F; }
+        {   parent.Overflow = result > 0x7F  || -0x80 > result; }
 
     }
 }
