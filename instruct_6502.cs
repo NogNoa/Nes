@@ -19,7 +19,7 @@ public class Instruct
     // Jump abs -> immediete[2], DRef -> abs
 
     //Source and dest could only be a name of a register, with M for memory
-    public char Source { get; set; }    //null: source=dest
+    public char Source { get; set; }    //\0: source=dest
     public char Dest { get; set; }       //
     public string Operation { get; set; } = "mov";
     public Addressing addressing { get; set; } = Addressing.Impl;
@@ -52,9 +52,11 @@ public class Instruct
         if (!XF && !AF)
         {   
             if ((oper_group & 6) == 6) //6,7
-            {   back.Operation = (adrs_group == 6) ? 
-                                 "store" : 
-                                 "cmp";
+            {   back.Operation = adrs_group switch {
+                    2 => "inc",
+                    6 => "store", 
+                    _ => "cmp"
+                };
             }
             if (adrs_group == 6)
             {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
@@ -148,6 +150,11 @@ public class Instruct
             {   back.Source = 'O';
                 back.Length = 2;
             }
+            else if (adrs_group == 2 && oper_group == 4)
+            {
+                back.Operation = "dec";
+                back.Dest = 'Y';
+            }
         }
         else if (AF)
         {
@@ -206,6 +213,10 @@ public class Instruct
         { back.PostOp = false; }
         if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))
         {back.addressing = Addressing.IndY;}
+        if (back.Operation == "inc" || back.Operation == "dec")
+        {
+            back.Source = back.Dest;
+        }
         //todo: cycles
         return back;
     }
