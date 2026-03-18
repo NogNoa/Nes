@@ -18,9 +18,19 @@ public class Instruct
     // DRef is dereferenced i.e. indirect
     // Jump abs -> immediete[2], DRef -> abs
 
-    //Source and dest could only be a name of a register, with M for memory
-    public char Source { get; set; } = 'R';    //\0: source=dest
-    public char Dest { get; set; } = '\0';       //
+    //Source and dest could be:
+    //  a name of a register
+    //  S: for SP
+    //  E: for PC (from Execute)
+    //  M: for memory
+    //  R: Source reuse Dest (from Reflexive)
+    //  O: Source Imediate (from Operand)
+    //  \0: null. Not using either a source or a dest
+    //  0,1: constants (0 is ascii 30 != \0)
+    //  Flags: themselves and on read also an Imediate
+    //
+    public char Source { get; set; } = 'R';    //R: source=dest
+    public char Dest { get; set; } = '\0';    //
     public string Operation { get; set; } = "mov";
     public Addressing addressing { get; set; } = Addressing.Impl;
     public bool PostOp { get; set; } = true;

@@ -215,7 +215,7 @@ internal class CPU6502
                 case 'B':
                 case 'Z':
                 case 'N':
-                    return Fetch_prg();
+                    return Fetch_prg();  //get signed branch distance
                 case 'P':
                     return (byte)(parent.P | 0x30);
                 case 'E':
@@ -420,7 +420,7 @@ internal class CPU6502
                         throw new Exception();
             sbyte relop;
             unchecked
-            {   relop = (sbyte)operand;
+            {   relop = (sbyte)operand; //relative operand
             }
             if (source == ifSet)
             {   ++Cycles;
