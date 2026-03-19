@@ -28,7 +28,7 @@ public class Instruct
     //  \0: null. Not using either a source or a dest
     //  0,1: constants (0 is ascii 30 != \0)
     //  Flags: themselves and on read also an Imediate
-    //
+    //  Writing to O,0,1 also fails silently. Which is used by $89 NOP .
     public char Source { get; set; } = 'R';    //R: source=dest
     public char Dest { get; set; } = '\0';    //
     public string Operation { get; set; } = "mov";
@@ -37,6 +37,14 @@ public class Instruct
 
     public static Instruct Decode_instruction(byte inst)
     {
+        /*  the 6502 opcodes are made of 3 fields aaab_bbcc
+            We break c into 2 flags: AF and XF;
+            and assign b as adrs_group and a as oper_group.
+            The function' broad-strokes structure is one 
+            if-else tree which goes AF->XF->adrs_group -> oper_group.
+            But again, this is just in broad-strokes, 
+            as the 6502 endcoding is only broad-strokes Orthogonal.
+        */
         Instruct back = new();
         bool AF = (inst & 1) != 0; // Accumulator function
         bool XF = (inst & 2) != 0; /* X-register function
@@ -92,9 +100,9 @@ public class Instruct
                 back.Source = patner;
             }
         }
-        else
+        else  // !AF
         {   if (!XF)
-            {   if ((oper_group & 4) == 4 && (adrs_group & 4) == 0)
+            {   if ((oper_group & 4) == 0 && (adrs_group & 4) == 0)
                 {   if (adrs_group == 0)
                     {   back.Dest = 'E';
                         switch (oper_group)
@@ -129,9 +137,9 @@ public class Instruct
                     }
                     else if (adrs_group == 3 & (oper_group & 2) == 2)
                     {  //(0,2,3) (0,3,3)
+                        back.Source = '\0';
                         back.Dest = 'E';
                         back.Operation = "jmp";
-                        back.Source = '\0';
                         if (oper_group == 3)
                         {   back.addressing = Addressing.DRef;
                             back.Length = 4;
@@ -142,26 +150,27 @@ public class Instruct
                         back.Dest = 'P';
                         back.Operation = "bit";
                     }
-                }
-                else
-                {   if ((oper_group & 6) == 6) //6,7
-                    {   back.Operation = adrs_group switch {
-                            2 => "inc",
-                            6 => "store", 
-                            _ => "cmp"
-                        };
+                } 
+                else  //((oper_group & 4) == 4 || (adrs_group & 4) == 4)
+                {   if (adrs_group == 0)
+                    {   back.Source = 'O';
+                        back.Length = 2;
                     }
-                    if (adrs_group == 6)
-                    {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
-                        (back.Dest, back.Source) = (oper_group >> 1, oper_group & 1) switch
-                        {
-                            (0, _) => ('C', def_src),
-                            (1, _) => ('I', def_src),
-                            (3, _) => ('D', def_src),
-                            (2, 0) => ('A', 'Y'),
-                            (2, 1) => ('V', '0'), 
-                            _ => throw new InvalidDataException()
-                        };
+                    else if (adrs_group == 2)
+                    {   
+                        if ((oper_group & 6) == 4)
+                        {   back.Dest = 'Y';
+                            if ((oper_group & 1) == 0)
+                                {back.Operation = "dec";}
+                            else  // ((oper_group & 1) == 1)
+                            {   back.Source = 'A';
+                                back.Operation = "mov";    
+                            }
+                        }
+                        else  // ((oper_group & 6) == 6)
+                        {   back.Operation = "inc";
+                            back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y'; 
+                        }
                     }
                     else if (adrs_group == 4)
                     {
@@ -177,8 +186,27 @@ public class Instruct
                         };
                         back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
                     }
-                    else
-                    {   switch (oper_group)
+                    else if (adrs_group == 6)
+                    {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;
+                        (back.Dest, back.Source) = (oper_group >> 1, oper_group & 1) switch
+                        {
+                            (0, _) => ('C', def_src),
+                            (1, _) => ('I', def_src),
+                            (3, _) => ('D', def_src),
+                            (2, 0) => ('A', 'Y'),
+                            (2, 1) => ('V', '0'), 
+                            _ => throw new InvalidDataException()
+                        };
+                    }                    
+                    else  // (adrs_group == 0 || (adrs_group & 1) == 1)
+                    {   if ((oper_group & 6) == 6)  //6,7
+                        {   back.Operation = adrs_group switch {
+                                2 => "inc",
+                                6 => "store", 
+                                _ => "cmp"
+                            };
+                        }
+                        switch (oper_group)
                         {   case 4:
                                 back.Source = 'Y';
                                 back.Dest = 'M';
@@ -191,18 +219,8 @@ public class Instruct
                         } 
                     }
                 }
-                
-                if (adrs_group == 0 && oper_group >= 4)
-                {   back.Source = 'O';
-                    back.Length = 2;
-                }
-                else if (adrs_group == 2 && oper_group == 4)
-                {
-                    back.Operation = "dec";
-                    back.Dest = 'Y';
-                }
             }
-            else
+            else  // // !AF && XF
             {   (back.Dest, back.Source) = (adrs_group, oper_group) switch
                 {   (var ag, _) when (ag & 1) == 1 => ('M', back.Source),
                     (2, 6) => ('X', 'X'),
@@ -217,7 +235,8 @@ public class Instruct
                 };
                 if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))
                     {back.addressing = Addressing.IndY;}
-                if (back.Source == 'O') {back.Length = 2;}
+                if (back.Source == 'O') 
+                    {back.Length = 2;}
                 back.Operation = oper_group switch
                 {   0 => "asl",
                     1 => "rol",
@@ -257,11 +276,10 @@ all
             if OG &4 = 0 && AG & 4 = 0
                 ...
             else
-                AG: 2
                 AG: 4
                 AG: 6
                 else
-                    if OG &4 = 4
+                    AG: 2
                     if OG &6 = 6
         else
             OG: 0
