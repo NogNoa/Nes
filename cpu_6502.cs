@@ -236,6 +236,9 @@ internal class CPU6502
             {   case 'M':
                     parent.Write(address, data);
                     break;
+                case 'O':
+                case '0':
+                case '1':
                 case '\0':
                     break;
                 case 'A':
