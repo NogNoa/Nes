@@ -152,27 +152,7 @@ public class Instruct
                     }
                 } 
                 else  //((oper_group & 4) == 4 || (adrs_group & 4) == 4)
-                {   if (adrs_group == 0)
-                    {   back.Source = 'O';
-                        back.Length = 2;
-                    }
-                    else if (adrs_group == 2)
-                    {   
-                        if ((oper_group & 6) == 4)
-                        {   back.Dest = 'Y';
-                            if ((oper_group & 1) == 0)
-                                {back.Operation = "dec";}
-                            else  // ((oper_group & 1) == 1)
-                            {   back.Source = 'A';
-                                back.Operation = "mov";    
-                            }
-                        }
-                        else  // ((oper_group & 6) == 6)
-                        {   back.Operation = "inc";
-                            back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y'; 
-                        }
-                    }
-                    else if (adrs_group == 4)
+                {   if (adrs_group == 4)
                     {
                         back.Dest = 'E';
                         back.Length = 2;
@@ -198,15 +178,8 @@ public class Instruct
                             _ => throw new InvalidDataException()
                         };
                     }                    
-                    else  // (adrs_group == 0 || (adrs_group & 1) == 1)
-                    {   if ((oper_group & 6) == 6)  //6,7
-                        {   back.Operation = adrs_group switch {
-                                2 => "inc",
-                                6 => "store", 
-                                _ => "cmp"
-                            };
-                        }
-                        switch (oper_group)
+                    else  // (adrs_group not in (4, 6))
+                    {   switch (oper_group)
                         {   case 4:
                                 back.Source = 'Y';
                                 back.Dest = 'M';
@@ -217,6 +190,35 @@ public class Instruct
                             case 7:
                                 back.Dest = 'X'; break;
                         } 
+                        if ((oper_group & 6) == 4) // 4,5
+                        {   back.Dest = 'Y';     
+                            if ((oper_group & 1) == 1)
+                            {   back.Source = 'A';
+                                back.Operation = "mov";    
+                            }
+                        }
+                        else if ((oper_group & 6) == 6)  //6,7
+                        {   if (adrs_group is not 2 or 6)
+                            back.Operation = adrs_group switch {
+                                2 => "inc",
+                                6 => "store", 
+                                _ => "cmp"
+                            };
+                        }
+                    }
+                    if (adrs_group == 0)
+                    {   back.Source = 'O';
+                        back.Length = 2;
+                    }
+                    else if (adrs_group == 2)
+                    {   if (oper_group == 4)
+                            {back.Operation = "dec";}
+                        else if (oper_group == 5)
+                            {back.Source = 'A';}
+                        else  // ((oper_group & 6) == 6)
+                        {   back.Operation = "inc";
+                            back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y'; 
+                        }
                     }
                 }
             }
@@ -267,6 +269,7 @@ public class Instruct
 /*
 all
     if AG odd
+    if AG = 0
     if AF
         AG
         OG
@@ -279,8 +282,8 @@ all
                 AG: 4
                 AG: 6
                 else
-                    AG: 2
                     if OG &6 = 6
+                    else
         else
             OG: 0
             OG: 1
