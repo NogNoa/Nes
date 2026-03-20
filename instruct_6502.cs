@@ -5,7 +5,7 @@ public class Instruct
 {
     private static readonly HashSet<string> NonNZOps =
     [
-        "branch if", "branch nif", "bit", "jmp", "call", "push", "ret int", "ret sub"
+        "branch", "bit", "jmp", "call", "push", "ret int", "ret sub"
     ];
 
     public int Length { get; set; } = 1;
@@ -157,7 +157,7 @@ public class Instruct
                 else  //((oper_group & 4) == 4 || (adrs_group & 4) == 4)
                 {   if (adrs_group == 4)
                     {
-                        back.Dest = 'E';
+                        back.Operation = "branch";
                         back.Length = 2;
                         back.Source = (oper_group >> 1) switch
                         {
@@ -166,8 +166,8 @@ public class Instruct
                             2 => 'C',
                             3 => 'Z',
                             _ => throw new InvalidDataException()
-                        };
-                        back.Operation = ((oper_group & 1) == 1) ? "branch if" : "branch nif";
+                        }; 
+                        back.Dest = (oper_group & 1).ToString()[0];
                     }
                     else if (adrs_group == 6)
                     {   char def_src = (oper_group & 1).ToString()[0]; //even -> clear; odd -> set;

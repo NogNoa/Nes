@@ -237,8 +237,6 @@ internal class CPU6502
                     parent.Write(address, data);
                     break;
                 case 'O':
-                case '0':
-                case '1':
                 case '\0':
                     break;
                 case 'A':
@@ -268,6 +266,8 @@ internal class CPU6502
                 case 'I':
                     parent.Interrupt_disable = data == 1;
                     break;
+                case '0':
+                case '1':
                 case 'E':
                     parent.PC &= 0xff00;
                     parent.PC |= data;
@@ -392,10 +392,8 @@ internal class CPU6502
                     parent.PC &= 0x00ff;
                     parent.PC |= (ushort) (address & 0xff00);
                     return (byte) address;
-                case "branch if":
-                    return Branch(true, operation.Source, operand);
-                case "branch nif":
-                    return Branch(false, operation.Source, operand);
+                case "branch":
+                    return Branch(operation.Source, operation.Dest, operand);
                 case "break":
                 case "brk":
                     parent.Interrupt(Interrupt_vector.NMI, isSoft: true);
@@ -415,17 +413,19 @@ internal class CPU6502
             }
         }
 
-        private byte Branch(bool ifSet, char Source, byte operand)
+        private byte Branch(char Source, char Dest, byte operand)
         {   bool source = (Source == 'N') ? parent.Negative :
                         (Source == 'V') ? parent.Overflow :
                         (Source == 'C') ? parent.Carry :
                         (Source == 'Z') ? parent.Zero :
                         throw new Exception();
+            Debug.Assert(Dest is '1' or '0');
+            bool dest = Dest is '1';
             sbyte relop;
             unchecked
             {   relop = (sbyte)operand; //relative operand
             }
-            if (source == ifSet)
+            if (source == dest)
             {   ++Cycles;
                 int temp =  (byte) parent.PC + relop;
                 if (temp < 0)
