@@ -194,23 +194,14 @@ public class Instruct
                             case 7:
                                 back.Dest = 'X'; break;
                         } 
-                        if ((oper_group & 6) == 4) // 4,5
-                        {   back.Dest = 'Y';
-                            if (adrs_group == 2 && oper_group == 4)
+                        if (adrs_group == 2 && oper_group == 4)
                                 {back.Operation = "dec";}
-                            if ((oper_group & 1) == 1)  //5
-                            {   back.Source = 'A';
-                                back.Operation = "mov";    
-                            }
-                        }
                         else if ((oper_group & 6) == 6)  //6,7
                         {   back.Operation = adrs_group switch {
                                 2 => "inc",
                                 6 => "store", 
                                 _ => "cmp"
                             };
-                            if (adrs_group == 2)
-                            {   back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y';}
                         }
                     }
                 }
@@ -253,7 +244,9 @@ public class Instruct
 
     public string Format()
     {
-        return $"{Operation}: {addressing}; {Dest} <- {Source}";
+        string source = (Source == '\0') ? "Null" : Source.ToString();
+        string dest = (Dest == '\0') ? "Null" : Dest.ToString();
+        return $"{Operation}: {addressing}; {dest} <- {source}";
     }
 }
 
