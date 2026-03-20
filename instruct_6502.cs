@@ -70,10 +70,10 @@ public class Instruct
         if (AF)
         {
             if ((adrs_group & 1) == 0)
-            {   (back.addressing, back.Length) = (adrs_group >> 2) switch
+            {   (back.addressing, back.Length) = (adrs_group >> 1) switch
                 {
                     0 => (Addressing.XDRef, 3), //0->X-indirect;
-                                                //2->implied
+                    1 => (back.addressing, back.Length), //2->implied
                     2 => (Addressing.DRefY, 3), //4->indirect-Y;
                     3 => (Addressing.IndY, 3), //6->indexed-Y;
                     _ => throw new InvalidDataException()
@@ -101,7 +101,11 @@ public class Instruct
             }
         }
         else  // !AF
-        {   if (!XF)
+        {   if (adrs_group == 0 && (oper_group & 4) == 4)
+                    {   back.Source = 'O';
+                        back.Length = 2;
+                    }
+            if (!XF)
             {   if ((oper_group & 4) == 0 && (adrs_group & 4) == 0)
                 {   if (adrs_group == 0)
                     {   back.Dest = 'E';
@@ -191,33 +195,22 @@ public class Instruct
                                 back.Dest = 'X'; break;
                         } 
                         if ((oper_group & 6) == 4) // 4,5
-                        {   back.Dest = 'Y';     
-                            if ((oper_group & 1) == 1)
+                        {   back.Dest = 'Y';
+                            if (adrs_group == 2 && oper_group == 4)
+                                {back.Operation = "dec";}
+                            if ((oper_group & 1) == 1)  //5
                             {   back.Source = 'A';
                                 back.Operation = "mov";    
                             }
                         }
                         else if ((oper_group & 6) == 6)  //6,7
-                        {   if (adrs_group is not 2 or 6)
-                            back.Operation = adrs_group switch {
+                        {   back.Operation = adrs_group switch {
                                 2 => "inc",
                                 6 => "store", 
                                 _ => "cmp"
                             };
-                        }
-                    }
-                    if (adrs_group == 0)
-                    {   back.Source = 'O';
-                        back.Length = 2;
-                    }
-                    else if (adrs_group == 2)
-                    {   if (oper_group == 4)
-                            {back.Operation = "dec";}
-                        else if (oper_group == 5)
-                            {back.Source = 'A';}
-                        else  // ((oper_group & 6) == 6)
-                        {   back.Operation = "inc";
-                            back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y'; 
+                            if (adrs_group == 2)
+                            {   back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y';}
                         }
                     }
                 }
@@ -237,8 +230,6 @@ public class Instruct
                 };
                 if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))
                     {back.addressing = Addressing.IndY;}
-                if (back.Source == 'O') 
-                    {back.Length = 2;}
                 back.Operation = oper_group switch
                 {   0 => "asl",
                     1 => "rol",
@@ -269,11 +260,11 @@ public class Instruct
 /*
 all
     if AG odd
-    if AG = 0
     if AF
         AG
         OG
     else
+        if AG = 0
         AG
         if not XF
             if OG &4 = 0 && AG & 4 = 0
