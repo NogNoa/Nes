@@ -23,14 +23,13 @@ public class Instruct
     //  S: for SP
     //  E: for PC (from Execute)
     //  M: for memory
-    //  R: Source reuse Dest (from Reflexive)
     //  O: Source Imediate (from Operand)
     //  \0: null. Not using either a source or a dest
     //  0,1: constants (0 is ascii 30 != \0)
     //  Flags: themselves and on read also an Imediate
     //  Writing to O,0,1 also fails silently. Which is used by $89 NOP .
-    public char Source { get; set; } = 'R';    //R: source=dest
-    public char Dest { get; set; } = '\0';    //
+    public char Source { get; set; } = '\0';
+    public char Dest { get; set; } = '\0';
     public string Operation { get; set; } = "mov";
     public Addressing addressing { get; set; } = Addressing.Impl;
     public bool PostOp { get; set; } = true;
@@ -183,25 +182,30 @@ public class Instruct
                         };
                     }                    
                     else  // (adrs_group not in (4, 6))
-                    {   switch (oper_group)
-                        {   case 4:
-                                back.Source = 'Y';
-                                back.Dest = 'M';
-                                break;
-                            case 5:
-                            case 6:
-                                back.Dest = 'Y'; break;
-                            case 7:
-                                back.Dest = 'X'; break;
-                        } 
-                        if (adrs_group == 2 && oper_group == 4)
-                                {back.Operation = "dec";}
-                        else if ((oper_group & 6) == 6)  //6,7
-                        {   back.Operation = adrs_group switch {
-                                2 => "inc",
-                                6 => "store", 
-                                _ => "cmp"
+                    {   if (oper_group == 4)
+                        {   back.Source = 'Y';
+                            if (adrs_group == 2)
+                            {   back.Operation = "dec";
+                                back.Dest = 'Y';
+                            }
+                            else
+                            {back.Dest = 'M';}
+                        }
+                        else {
+                            back.Dest =  oper_group switch
+                            {   5 or 6 => 'Y',
+                                7 => 'X',
+                                _ => throw new InvalidDataException()
                             };
+                        }
+                        if ((oper_group & 6) == 6)  //6,7
+                        {   
+                            if (adrs_group == 2)
+                            {   back.Operation = "inc";
+                                back.Source = back.Dest;
+                            }
+                            else if (adrs_group != 6)
+                            {   back.Operation = "cmp";}
                         }
                     }
                 }

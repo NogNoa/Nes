@@ -183,7 +183,7 @@ internal class CPU6502
             Cycles = operation.Cycles;
             if (operation.addressing != Instruct.Addressing.Impl)
             {   address = GetAddress(operation.addressing, operation.Length);}
-            byte operand = this.Read((operation.Source == 'R') ? operation.Dest : operation.Source);
+            byte operand = this.Read(operation.Source);
             operand = this.Operate(operation, operand);
             if (operation.PostOp)
                 Post_op_update(operand);
