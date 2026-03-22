@@ -191,15 +191,16 @@ public class Instruct
                             else
                             {back.Dest = 'M';}
                         }
-                        else {
-                            back.Dest =  oper_group switch
-                            {   5 or 6 => 'Y',
-                                7 => 'X',
-                                _ => throw new InvalidDataException()
-                            };
+                        else if (oper_group == 5)
+                        {
+                            back.Dest = 'Y';
+                            if (adrs_group == 2)
+                            {
+                                back.Source = 'A';
+                            }
                         }
-                        if ((oper_group & 6) == 6)  //6,7
-                        {   
+                        else  //6,7
+                        {   back.Dest = ((oper_group & 1) == 1) ? 'X' : 'Y'; 
                             if (adrs_group == 2)
                             {   back.Operation = "inc";
                                 back.Source = back.Dest;
@@ -212,15 +213,17 @@ public class Instruct
             }
             else  // // !AF && XF
             {   (back.Dest, back.Source) = (adrs_group, oper_group) switch
-                {   (var ag, _) when (ag & 1) == 1 => ('M', back.Source),
+                {   
+                    (2, 4) => ('A', 'X'),
+                    (2, 5) => ('X', 'A'),
                     (2, 6) => ('X', 'X'),
                     (2, 7) => ('\0', '0'), //NOP = write 0+1 to nowhere don't update NZ
                     (2, _) => ('A', 'A'),
                     (6, 4) => ('S', 'X'),
-                    (_, 4) => (back.Dest, 'X'),
+                    (_, 4) => ('M', 'X'),
                     (0, 5) => ('X', 'O'),
                     (6, 5) => ('X', 'S'),
-                    (_, 5) => ('X', back.Source),
+                    (_, 5) => ('X', 'M'),
                     _ => (back.Dest, back.Source)
                 };
                 if (back.addressing == Addressing.IndX && (back.Dest == 'X' || back.Source == 'X'))

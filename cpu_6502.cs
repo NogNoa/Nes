@@ -372,8 +372,8 @@ internal class CPU6502
                     return (byte)temp;
                 case "sbc":
                 case "sub":
-                    temp = parent.A - operand + (parent.Carry ? 0 : -1);
-                    parent.Carry = temp >= 0;
+                    temp = (sbyte) parent.A - (sbyte) operand + (parent.Carry ? 0 : -1);
+                    parent.Carry = (temp & 0x80) == 0;
                     Overflow_update(temp);
                     return (byte)temp;
                 case "cmp":
@@ -399,7 +399,7 @@ internal class CPU6502
                     parent.Interrupt(Interrupt_vector.NMI, isSoft: true);
                     return (byte)--address;
                 case "call":
-                    parent.Push(parent.PC);
+                    parent.Push(--parent.PC);
                     parent.PC = address;
                     return (byte)address;
                 case "ret int":
@@ -407,6 +407,7 @@ internal class CPU6502
                     goto case "ret sub";
                 case "ret sub":
                     address = parent.Pull16();
+                    ++address;
                     goto case "jmp";
                 default:
                     throw new Exception();

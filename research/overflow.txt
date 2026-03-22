@@ -1,0 +1,12 @@
+udiff = A - operand + (parent.Carry ? 0 : -1)
+sdiff = (sbyte)A - operand + (parent.Carry ? 0 : -1)
+c = udiff >= 0
+v = (sdiff > 0x7F  || -0x80 > sdiff)
+
+{A < 80} or  {A >= 80}
+{(sbyte)A = A} or {(sbyte)A = -(~A+1)} 
+{sdiff = udiff} or {sdiff = udiff - A -(~A+1) } 
+{sdiff = udiff} or {sdiff = udiff - 80 - (A - 80) -(~(A)+1) } 
+
+udiff: -100..ff (0..ff - 0..ff - 0..1)
+sdiff: -180..7f (-80..7f - 0..ff - 0..1)
