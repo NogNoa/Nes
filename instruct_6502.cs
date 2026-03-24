@@ -5,7 +5,7 @@ public class Instruct
 {
     private static readonly HashSet<string> NonNZOps =
     [
-        "branch", "bit", "jmp", "call", "push", "ret int", "ret sub"
+        "branch", "bit", "jmp", "call", "push", "ret int", "ret sub", "store"
     ];
 
     public int Length { get; set; } = 1;
@@ -28,6 +28,8 @@ public class Instruct
     //  0,1: constants (0 is ascii 30 != \0)
     //  Flags: themselves and on read also an Imediate
     //  Writing to O,0,1 also fails silently. Which is used by $89 NOP .
+    //
+    // mov, move, load changes NZ, store doesn't.
     public char Source { get; set; } = '\0';
     public char Dest { get; set; } = '\0';
     public string Operation { get; set; } = "mov";
@@ -180,6 +182,7 @@ public class Instruct
                             (2, 1) => ('V', '0'), 
                             _ => throw new InvalidDataException()
                         };
+                        back.Operation = (oper_group == 4) ? "mov" : "store";
                     }                    
                     else  // (adrs_group not in (4, 6))
                     {   if (oper_group == 4)
@@ -189,7 +192,9 @@ public class Instruct
                                 back.Dest = 'Y';
                             }
                             else
-                            {back.Dest = 'M';}
+                            {back.Dest = 'M';
+                             back.Operation =  "store";
+                            }
                         }
                         else if (oper_group == 5)
                         {
@@ -233,7 +238,7 @@ public class Instruct
                     1 => "rol",
                     2 => "lsr",
                     3 => "ror",
-                    4 => "store",
+                    4 => (adrs_group == 2) ? "mov" : "store",
                     5 => "load",
                     6 => "dec",
                     7 => "inc",

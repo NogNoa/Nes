@@ -329,7 +329,6 @@ internal class CPU6502
             switch (operation.Operation)
             {   case "load":
                 case "store":
-                case "transfer":
                 case "move":
                 case "mov":
                     return operand;
@@ -403,8 +402,9 @@ internal class CPU6502
                     parent.PC = address;
                     return (byte)address;
                 case "ret int":
-                    parent.P = parent.Pull();
-                    goto case "ret sub";
+                    parent.P = (byte)(parent.Pull() | 0x20);
+                    address = parent.Pull16();
+                    goto case "jmp";
                 case "ret sub":
                     address = parent.Pull16();
                     ++address;
